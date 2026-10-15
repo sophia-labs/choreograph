@@ -193,7 +193,7 @@ describe("SandboxSpawner", { concurrency: false, ...linuxOnly }, () => {
 			template: "workspace",
 			worker_config: {
 				mode: "command",
-				command: ["node", "-e", "require('node:fs').accessSync('/workspace/AGENTS.md')"],
+				command: ["node", "-e", "require('node:fs').accessSync('/workspace/package.json')"],
 			},
 		});
 
@@ -207,7 +207,7 @@ describe("SandboxSpawner", { concurrency: false, ...linuxOnly }, () => {
 			template: "bare",
 			worker_config: {
 				mode: "command",
-				command: ["node", "-e", "require('node:fs').accessSync('/workspace/AGENTS.md')"],
+				command: ["node", "-e", "require('node:fs').accessSync('/workspace/package.json')"],
 			},
 		});
 
