@@ -1,0 +1,9 @@
+{
+	"schema": "sophia.credit-lift.v1",
+	"batch": "credits-start-lift",
+	"actor": "script:credits-start-lift",
+	"kind": "goodwill",
+	"liftToMicroUsd": 1000000,
+	"reason": "Credits start: your balance was raised to $1.00",
+	"sourceRef": "credits-start"
+}

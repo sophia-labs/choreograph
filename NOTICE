@@ -1,0 +1,26 @@
+Sophia Compute (Choreograph)
+Copyright (c) 2026 Sophia Labs
+
+This product is licensed under the MIT License. See the LICENSE file for
+the full license text.
+
+--------------------------------------------------------------------------------
+
+Third-Party Components
+
+This repository vendors no third-party source. Its dependencies are installed
+from npm at the versions pinned in pnpm-lock.yaml, each under its own license.
+
+The service folder gardend runs (deploy/build-gardend-service.mjs) bundles
+them: the orchestrator and the agent body are each one file built with
+esbuild, and libSQL's native binding is carried as published. That folder's
+THIRD-PARTY-NOTICES.md names every bundled package with its license text;
+deploy/third-party-licenses/ holds the texts of the few packages whose npm
+tarballs ship none. The agent body is upstream pi:
+
+- pi (@earendil-works/pi-coding-agent, @earendil-works/pi-agent-core,
+  @earendil-works/pi-ai 1.2.0, from npm)
+  MIT License
+  Copyright (c) 2025 Mario Zechner
+  https://github.com/earendil-works/pi
+  (packages/agent-body/licenses/pi-LICENSE)

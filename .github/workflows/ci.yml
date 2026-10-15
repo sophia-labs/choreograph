@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Check (Biome + TypeScript)
+        run: pnpm check
+
+      # bubblewrap must be present or the Linux-only sandbox suites
+      # (cgroup.test.ts, spawner.test.ts) skip via src/test/_linux-only.ts.
+      # The sysctl relaxes the AppArmor unprivileged-userns restriction
+      # (default-on from Ubuntu 23.10+) that bwrap's --unshare-all needs.
+      - name: Enable bubblewrap
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          bwrap --unshare-user --ro-bind / / true
+
+      # Run inside a delegated systemd service: the runner exposes cgroup v2 but
+      # does not delegate writes to the job process itself.
+      - name: Test (delegated cgroup scope)
+        run: scripts/test-linux-delegated.sh
+
+      - name: Build the gardend service folder
+        run: node deploy/build-gardend-service.mjs "$RUNNER_TEMP/services-choreograph" --natives host

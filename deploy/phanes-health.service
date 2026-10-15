@@ -1,0 +1,7 @@
+[Unit]
+Description=Check Phanes container health
+After=phanes.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/choreograph/current/deploy/phanes-health.sh

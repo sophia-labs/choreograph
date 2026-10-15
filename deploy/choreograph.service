@@ -1,0 +1,51 @@
+[Unit]
+Description=Choreograph Sandbox Orchestrator
+After=network.target
+
+[Service]
+Type=simple
+User=choreograph
+Group=choreograph
+WorkingDirectory=/opt/choreograph/current
+
+# Secrets pulled from SSM Parameter Store into tmpfs before start.
+# The static .env is a fallback for values that don't need SSM.
+RuntimeDirectory=choreograph
+ExecStartPre=/opt/choreograph/current/deploy/load-env.sh
+EnvironmentFile=-/run/choreograph/env
+EnvironmentFile=-/etc/choreograph/choreograph.env
+
+# Core config (non-secret, set here rather than SSM)
+Environment=NODE_ENV=production
+Environment=PORT=3456
+Environment=DATA_DIR=/var/lib/choreograph
+Environment=WORKSPACE_ROOT=/opt/choreograph/current
+Environment=CHOREOGRAPH_RELEASE_ROOT=/opt/choreograph/current
+Environment=CHOREOGRAPH_BUNDLE_CACHE_DIR=/var/lib/choreograph/bundles
+Environment=CHOREOGRAPH_RUNTIME_BUNDLE_MANIFEST=/var/lib/choreograph/runtime-bundles.json
+Environment=OTEL_SERVICE_NAME=sandbox-mgmt
+
+ExecStart=/opt/choreograph/current/node_modules/.bin/tsx /opt/choreograph/current/src/orchestrator.ts
+
+Restart=on-failure
+RestartSec=5
+
+# Cgroup delegation — the orchestrator creates per-sandbox cgroups under its
+# own subtree.  Delegate=yes tells systemd to hand subtree_control to us.
+Delegate=yes
+
+# File descriptors for concurrent sandboxes + their stdio pipes
+LimitNOFILE=65536
+LimitNPROC=65536
+
+# Graceful shutdown: SIGTERM -> drain -> force after 15s
+TimeoutStopSec=15
+KillMode=mixed
+KillSignal=SIGTERM
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=choreograph
+
+[Install]
+WantedBy=multi-user.target

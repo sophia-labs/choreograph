@@ -1,0 +1,45 @@
+[Unit]
+Description=Phanes Discord domain edge and transcript publisher
+Requires=docker.service choreograph.service
+After=docker.service choreograph.service network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=5min
+StartLimitBurst=10
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/phanes/host.env
+RuntimeDirectory=phanes
+RuntimeDirectoryMode=0700
+ExecStartPre=/opt/choreograph/current/deploy/load-phanes-env.sh
+ExecStartPre=-/usr/bin/docker rm --force phanes
+ExecStart=/usr/bin/docker run \
+    --name phanes \
+    --rm \
+    --pull never \
+    --read-only \
+    --cap-drop ALL \
+    --security-opt no-new-privileges:true \
+    --user 10001:10001 \
+    --network phanes-egress \
+    --publish 127.0.0.1:8765:8765 \
+    --memory 1g \
+    --cpus 1.0 \
+    --pids-limit 256 \
+    --stop-timeout 40 \
+    --tmpfs /tmp:rw,noexec,nosuid,nodev,size=256m \
+    --mount type=bind,src=/var/lib/phanes,dst=/var/lib/phanes \
+    --mount type=bind,src=/run/choreograph-phanes,dst=/run/choreograph-phanes,readonly \
+    --env-file /run/phanes/env \
+    --log-driver journald \
+    --log-opt tag=phanes \
+    ${PHANES_IMAGE}
+ExecStop=/usr/bin/docker stop --time 40 phanes
+ExecStopPost=-/usr/bin/docker rm --force phanes
+Restart=always
+RestartSec=5
+TimeoutStartSec=2min
+TimeoutStopSec=50
+
+[Install]
+WantedBy=multi-user.target

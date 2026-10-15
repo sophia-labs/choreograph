@@ -1,0 +1,28 @@
+diff --git a/src/core/shell.ml b/src/core/shell.ml
+index 70b0b1b..ea266b1 100644
+--- a/src/core/shell.ml
++++ b/src/core/shell.ml
+@@ -24,10 +24,22 @@ open Ppx_yojson_conv_lib.Yojson_conv.Primitives
+ 
+ (** Contents on SHELL channels *)
+ 
++(* The Jupyter messaging spec names three execute_reply statuses:
++
++     content = {
++       # One of: 'ok' OR 'error' OR 'aborted'
++       'status' : str,
++       ...
++     }
++
++   — jupyter_client/docs/messaging.rst, "Execute". Upstream emits "abort", which
++   no conforming client accepts; ipykernel has always sent "aborted". A strict
++   client rejects the reply outright and loses the shell channel, so an
++   interrupt takes the whole kernel down with it. *)
+ type status =
+   | SHELL_OK    [@name "ok"]
+   | SHELL_ERROR [@name "error"]
+-  | SHELL_ABORT [@name "abort"]
++  | SHELL_ABORT [@name "aborted"]
+ [@@deriving yojson]
+ 
+ (** {2 Execution requests and replies} *)

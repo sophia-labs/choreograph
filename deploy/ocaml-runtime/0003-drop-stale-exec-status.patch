@@ -1,0 +1,21 @@
+diff --git a/src/repl/process.ml b/src/repl/process.ml
+index 2841a09..5ae4f6c 100644
+--- a/src/repl/process.ml
++++ b/src/repl/process.ml
+@@ -215,6 +215,16 @@ let stream repl = repl.stream
+ 
+ let eval ~ctx ~count repl code =
+   heartbeat repl ;
++  (* A phrase aborted by an interrupt replies to a cell nobody is waiting on
++     (see the [Sys.Break] branch of [main_loop] above), so its status is left
++     sitting in [exec_status]. Taking that as the *next* cell's status puts the
++     kernel permanently one reply ahead: every later cell is reported complete
++     before it has run, and its execute_result arrives after its own idle
++     status, where a conforming client has already stopped listening. Drop any
++     such leftover before starting a new phrase. In the healthy case the mvar is
++     empty here and this is a no-op, because [Client.start_kernel] serialises
++     execute requests. *)
++  ignore (Lwt_mvar.take_available repl.exec_status : Shell.status option) ;
+   repl.context := Some ctx ;
+   let%lwt () = send_command repl (REPL_CODE (ctx, count, code)) in
+   Lwt_mvar.take repl.exec_status

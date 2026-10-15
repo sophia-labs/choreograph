@@ -1,0 +1,27 @@
+# Lima config for the Choreograph dev VM — native Apple Silicon virtualization.
+# Rendered by scripts/vm/up.sh (placeholders __REPO_ROOT__/__CPUS__/__MEMORY__/__DISK__
+# are substituted before `limactl start`). Plain Ubuntu 22.04 + systemd: the real
+# bwrap + cgroup v2 path runs unchanged, same as EC2.
+
+vmType: "vz"            # Apple Virtualization.framework (the native hypervisor)
+os: "Linux"
+
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+  - location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
+    arch: "x86_64"
+
+cpus: __CPUS__
+memory: "__MEMORY__"
+disk: "__DISK__"
+
+# Mount the host repo read-only (rsync source). Lima exposes it at the same host
+# path inside the guest, so provision.sh uses SRC_DIR=<repo path>.
+mountType: "virtiofs"
+mounts:
+  - location: "__REPO_ROOT__"
+    writable: false
+
+# Lima forwards guest 0.0.0.0 ports to host localhost by default, so the
+# orchestrator on :3456 is reachable at http://localhost:3456 with no extra config.

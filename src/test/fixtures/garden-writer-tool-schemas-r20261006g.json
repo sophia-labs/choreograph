@@ -1,0 +1,1866 @@
+{
+	"source": "garden main r20261006g src-tauri/src/mcp_tool_catalog.json (served verbatim by tools/list, mcp_tool_registry.rs): the inputSchema of each Writer tool; requiredScopes from garden-cell-tools-r20261002.json",
+	"tools": [
+		{
+			"name": "search_documents",
+			"requiredScopes": [
+				"search.lexical.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"query": {
+						"type": "string"
+					},
+					"queries": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"mode": {
+						"type": "string",
+						"enum": [
+							"auto",
+							"exact",
+							"substring"
+						]
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100
+					}
+				}
+			}
+		},
+		{
+			"name": "search_blocks",
+			"requiredScopes": [
+				"search.lexical.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"query": {
+						"type": "string"
+					},
+					"queries": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"mode": {
+						"type": "string",
+						"enum": [
+							"hybrid",
+							"lexical",
+							"semantic"
+						]
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100
+					},
+					"docFilter": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "semantic_search",
+			"requiredScopes": [
+				"search.semantic.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"query"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"query": {
+						"type": "string"
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 50
+					}
+				}
+			}
+		},
+		{
+			"name": "list_documents",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"cursor": {
+						"type": [
+							"string",
+							"integer"
+						]
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 500
+					},
+					"maxBytes": {
+						"type": "integer",
+						"minimum": 8192,
+						"maximum": 262144
+					}
+				}
+			}
+		},
+		{
+			"name": "get_workspace",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"depth": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 5
+					},
+					"foldersOnly": {
+						"type": "boolean"
+					},
+					"folderId": {
+						"type": "string"
+					},
+					"cursor": {
+						"type": [
+							"string",
+							"integer"
+						]
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 200
+					},
+					"maxBytes": {
+						"type": "integer",
+						"minimum": 16384,
+						"maximum": 262144
+					}
+				}
+			}
+		},
+		{
+			"name": "quick_orient",
+			"requiredScopes": [
+				"orientation.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"recall_limit": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 20
+					},
+					"recallLimit": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 20
+					}
+				}
+			}
+		},
+		{
+			"name": "sparql_query",
+			"requiredScopes": [
+				"rdf.query"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"query"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"query": {
+						"type": "string"
+					},
+					"timeoutMs": {
+						"type": "integer",
+						"minimum": 1,
+						"description": "Requested deadline in milliseconds; clamped by the server."
+					},
+					"maxRows": {
+						"type": "integer",
+						"minimum": 1,
+						"description": "Requested materialized row/triple ceiling; clamped by the server."
+					}
+				}
+			}
+		},
+		{
+			"name": "read_document",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"format": {
+						"type": "string",
+						"enum": [
+							"xml",
+							"markdown",
+							"ids_only",
+							"json"
+						]
+					},
+					"offset": {
+						"type": "integer",
+						"minimum": 0
+					},
+					"maxChars": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 262144
+					},
+					"cursor": {
+						"type": [
+							"string",
+							"integer"
+						],
+						"description": "Block offset used only by ids_only format."
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 1000,
+						"description": "Block ID page size used only by ids_only format."
+					}
+				}
+			}
+		},
+		{
+			"name": "read_blocks",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"offset": {
+						"type": "integer"
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 200
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"includeIds": {
+						"type": "boolean"
+					},
+					"format": {
+						"type": "string",
+						"enum": [
+							"markdown",
+							"text",
+							"xml"
+						]
+					}
+				}
+			}
+		},
+		{
+			"name": "get_block",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId",
+					"blockId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"format": {
+						"type": "string",
+						"enum": [
+							"xml",
+							"markdown",
+							"text"
+						]
+					}
+				}
+			}
+		},
+		{
+			"name": "query_blocks",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"blockType": {
+						"type": "string"
+					},
+					"headingLevel": {
+						"type": "integer"
+					},
+					"checked": {
+						"type": "boolean"
+					},
+					"textContains": {
+						"type": "string"
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 200
+					},
+					"queries": {
+						"type": "array",
+						"items": {
+							"type": "object"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "document_digest",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"topValued": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 20
+					}
+				}
+			}
+		},
+		{
+			"name": "get_document_history",
+			"requiredScopes": [
+				"documents.history.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"documentId"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 200
+					}
+				}
+			}
+		},
+		{
+			"name": "read_document_at_snapshot",
+			"requiredScopes": [
+				"documents.history.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"documentId",
+					"snapshotId"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"snapshot_id": {
+						"type": "string"
+					},
+					"snapshotId": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "create_document",
+			"requiredScopes": [
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"title"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"parentId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"order": {
+						"type": "number"
+					}
+				}
+			}
+		},
+		{
+			"name": "write_document",
+			"requiredScopes": [
+				"documents.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"tiptapJson": {
+						"type": "object"
+					},
+					"tiptap_json": {
+						"type": "object"
+					},
+					"format": {
+						"type": "string",
+						"enum": [
+							"auto",
+							"plain",
+							"markdown",
+							"html",
+							"xml"
+						]
+					},
+					"comments": {
+						"type": "object"
+					},
+					"await_durable": {
+						"type": "boolean"
+					},
+					"awaitDurable": {
+						"type": "boolean"
+					},
+					"expectedRevision": {
+						"type": [
+							"integer",
+							"null"
+						],
+						"minimum": 0
+					},
+					"expected_revision": {
+						"type": [
+							"integer",
+							"null"
+						],
+						"minimum": 0
+					}
+				},
+				"allOf": [
+					{
+						"anyOf": [
+							{
+								"required": [
+									"graph_id"
+								]
+							},
+							{
+								"required": [
+									"graphId"
+								]
+							}
+						]
+					},
+					{
+						"anyOf": [
+							{
+								"required": [
+									"document_id"
+								]
+							},
+							{
+								"required": [
+									"documentId"
+								]
+							}
+						]
+					},
+					{
+						"oneOf": [
+							{
+								"required": [
+									"content"
+								]
+							},
+							{
+								"required": [
+									"tiptapJson"
+								]
+							},
+							{
+								"required": [
+									"tiptap_json"
+								]
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"name": "insert_blocks",
+			"requiredScopes": [
+				"documents.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"format": {
+						"type": "string",
+						"enum": [
+							"auto",
+							"plain",
+							"markdown",
+							"html",
+							"xml"
+						]
+					},
+					"blocks": {
+						"type": "array",
+						"items": {
+							"type": "object"
+						}
+					},
+					"tiptapJson": {
+						"type": "object"
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"index": {
+						"type": "integer"
+					},
+					"position": {
+						"type": "string",
+						"enum": [
+							"after",
+							"before"
+						]
+					}
+				}
+			}
+		},
+		{
+			"name": "update_blocks",
+			"requiredScopes": [
+				"documents.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"edits": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"required": [
+								"blockId",
+								"attrs"
+							]
+						}
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"attrs": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		{
+			"name": "edit_block_text",
+			"requiredScopes": [
+				"documents.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId",
+					"blockId",
+					"operations"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"operations": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"required": [
+								"type",
+								"offset"
+							],
+							"properties": {
+								"type": {
+									"type": "string",
+									"enum": [
+										"insert",
+										"delete"
+									]
+								},
+								"offset": {
+									"type": "integer",
+									"minimum": 0
+								},
+								"text": {
+									"type": "string"
+								},
+								"length": {
+									"type": "integer",
+									"minimum": 0
+								},
+								"attrs": {
+									"type": [
+										"object",
+										"null"
+									]
+								},
+								"inheritFormat": {
+									"type": "boolean"
+								},
+								"inherit_format": {
+									"type": "boolean"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "delete_blocks",
+			"requiredScopes": [
+				"documents.delete.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"blockIds": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"blockId": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "delete_document",
+			"requiredScopes": [
+				"documents.delete.crdt",
+				"workspace.delete.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "edit_comment",
+			"requiredScopes": [
+				"documents.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"action",
+					"comment_id",
+					"document_id"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"comment_id": {
+						"type": "string"
+					},
+					"commentId": {
+						"type": "string"
+					},
+					"action": {
+						"type": "string",
+						"enum": [
+							"set",
+							"resolve",
+							"delete"
+						]
+					},
+					"text": {
+						"type": "string"
+					},
+					"author": {
+						"type": "string"
+					},
+					"block_id": {
+						"type": "string"
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"find": {
+						"type": "string"
+					},
+					"occurrence": {
+						"type": "integer"
+					},
+					"quoted_text": {
+						"type": "string"
+					},
+					"quotedText": {
+						"type": "string"
+					},
+					"resolved": {
+						"type": "boolean"
+					}
+				}
+			}
+		},
+		{
+			"name": "create_folder",
+			"requiredScopes": [
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"name"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"folderId": {
+						"type": "string"
+					},
+					"parentId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"section": {
+						"type": "string",
+						"enum": [
+							"documents",
+							"artifacts"
+						]
+					},
+					"order": {
+						"type": "number"
+					}
+				}
+			}
+		},
+		{
+			"name": "move_documents",
+			"requiredScopes": [
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentIds"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentIds": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"parentId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"order": {
+						"type": "number"
+					}
+				}
+			}
+		},
+		{
+			"name": "move_folder",
+			"requiredScopes": [
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graph_id",
+					"folder_id"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"folder_id": {
+						"type": "string"
+					},
+					"folderId": {
+						"type": "string"
+					},
+					"new_parent_id": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"newParentId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"new_order": {
+						"type": "number"
+					},
+					"newOrder": {
+						"type": "number"
+					}
+				}
+			}
+		},
+		{
+			"name": "rename",
+			"requiredScopes": [
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graph_id",
+					"entity_type",
+					"new_name"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"entity_type": {
+						"type": "string",
+						"enum": [
+							"graph",
+							"document",
+							"folder"
+						]
+					},
+					"entityType": {
+						"type": "string",
+						"enum": [
+							"graph",
+							"document",
+							"folder"
+						]
+					},
+					"entity_id": {
+						"type": "string"
+					},
+					"entityId": {
+						"type": "string"
+					},
+					"new_name": {
+						"type": "string"
+					},
+					"newName": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "get_wires",
+			"requiredScopes": [
+				"wires.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId",
+					"documentId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"direction": {
+						"type": "string",
+						"enum": [
+							"outgoing",
+							"incoming",
+							"both"
+						]
+					},
+					"predicate": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "traverse_wires",
+			"requiredScopes": [
+				"wires.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"document_id"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"max_depth": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 6
+					},
+					"maxDepth": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 6
+					},
+					"direction": {
+						"type": "string",
+						"enum": [
+							"outgoing",
+							"incoming",
+							"both"
+						]
+					},
+					"predicate": {
+						"type": [
+							"string",
+							"null"
+						]
+					}
+				}
+			}
+		},
+		{
+			"name": "list_wire_predicates",
+			"requiredScopes": [
+				"wires.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"graphId"
+				],
+				"properties": {
+					"graphId": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "create_wires",
+			"requiredScopes": [
+				"wires.write"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graphIncarnation": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 256,
+						"description": "Optional expected source workspace lifetime, carried to every child queue admission/effect. Not a target-graph or batch transaction. Discover source_pull.mutationCapabilities.expectedGraphIncarnation version 1 first."
+					},
+					"graph_incarnation": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 256,
+						"description": "Alias of graphIncarnation; aliases and any wire-item carrier must agree."
+					},
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"source_document_id": {
+						"type": "string"
+					},
+					"sourceDocumentId": {
+						"type": "string"
+					},
+					"source_block_id": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"sourceBlockId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"source_mark_id": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"sourceMarkId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"target_graph_id": {
+						"type": "string"
+					},
+					"targetGraphId": {
+						"type": "string"
+					},
+					"target_document_id": {
+						"type": "string"
+					},
+					"targetDocumentId": {
+						"type": "string"
+					},
+					"target_block_id": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"targetBlockId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"target_mark_id": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"targetMarkId": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"predicate": {
+						"type": "string"
+					},
+					"bidirectional": {
+						"type": "boolean"
+					},
+					"wire_id": {
+						"type": "string"
+					},
+					"wireId": {
+						"type": "string"
+					},
+					"wires": {
+						"type": "array",
+						"items": {
+							"type": "object"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "delete",
+			"requiredScopes": [
+				"documents.delete.crdt",
+				"workspace.delete.crdt",
+				"wires.delete",
+				"graphs.delete"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"type"
+				],
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"documents",
+							"blocks",
+							"folder",
+							"wires",
+							"graph"
+						]
+					},
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"document_ids": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"documentIds": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"block_id": {
+						"type": "string"
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"block_ids": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"blockIds": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"folder_id": {
+						"type": "string"
+					},
+					"folderId": {
+						"type": "string"
+					},
+					"wire_id": {
+						"type": "string"
+					},
+					"wireId": {
+						"type": "string"
+					},
+					"wire_ids": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"wireIds": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"cascade": {
+						"type": "boolean"
+					},
+					"hard": {
+						"type": "boolean"
+					}
+				}
+			}
+		},
+		{
+			"name": "get_values",
+			"requiredScopes": [
+				"salience.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "get_block_values",
+			"requiredScopes": [
+				"salience.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"block_id": {
+						"type": "string"
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100
+					},
+					"min_score": {
+						"type": "number"
+					},
+					"minScore": {
+						"type": "number"
+					},
+					"valence": {
+						"type": "string",
+						"enum": [
+							"positive",
+							"negative"
+						]
+					}
+				}
+			}
+		},
+		{
+			"name": "get_important_blocks",
+			"requiredScopes": [
+				"salience.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"limit": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 20
+					},
+					"valence": {
+						"type": "string",
+						"enum": [
+							"positive",
+							"negative"
+						]
+					}
+				}
+			}
+		},
+		{
+			"name": "value",
+			"requiredScopes": [
+				"salience.write"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"document_id": {
+						"type": "string"
+					},
+					"documentId": {
+						"type": "string"
+					},
+					"block_id": {
+						"type": "string"
+					},
+					"blockId": {
+						"type": "string"
+					},
+					"importance": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 5
+					},
+					"valence": {
+						"type": "integer",
+						"minimum": -5,
+						"maximum": 5
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"operationId": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 160,
+						"pattern": "^[A-Za-z0-9._:-]+$",
+						"description": "Stable source operation identity. Reuse the same value for an at-least-once retry."
+					},
+					"operation_id": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 160,
+						"pattern": "^[A-Za-z0-9._:-]+$"
+					},
+					"valuationEventId": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 160,
+						"pattern": "^[A-Za-z0-9._:-]+$"
+					},
+					"valuation_event_id": {
+						"type": "string",
+						"minLength": 1,
+						"maxLength": 160,
+						"pattern": "^[A-Za-z0-9._:-]+$"
+					},
+					"atMs": {
+						"type": "integer",
+						"minimum": 0
+					},
+					"at_ms": {
+						"type": "integer",
+						"minimum": 0
+					},
+					"valuations": {
+						"type": "array",
+						"items": {
+							"type": "object"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "read_artifact",
+			"requiredScopes": [
+				"artifacts.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"artifact_id"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"artifact_id": {
+						"type": "string"
+					},
+					"artifactId": {
+						"type": "string"
+					},
+					"strict_utf8": {
+						"type": "boolean",
+						"description": "Strict text/html or text/plain UTF-8, at most 2 MiB; returns actual current contentHashSha256 and graphIncarnation."
+					}
+				}
+			}
+		},
+		{
+			"name": "list_artifact_revisions",
+			"requiredScopes": [
+				"artifacts.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"artifact_id"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"artifact_id": {
+						"type": "string"
+					},
+					"artifactId": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "create_artifact_text",
+			"requiredScopes": [
+				"artifacts.write",
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"graph_id",
+					"graph_incarnation",
+					"artifact_id",
+					"operation_id",
+					"filename",
+					"mime_type",
+					"text"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graph_incarnation": {
+						"type": "string"
+					},
+					"artifact_id": {
+						"type": "string"
+					},
+					"operation_id": {
+						"type": "string"
+					},
+					"filename": {
+						"type": "string"
+					},
+					"mime_type": {
+						"type": "string",
+						"enum": [
+							"text/html",
+							"text/plain"
+						]
+					},
+					"text": {
+						"type": "string"
+					},
+					"parent_id": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "write_artifact_text",
+			"requiredScopes": [
+				"artifacts.write",
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"graph_id",
+					"graph_incarnation",
+					"artifact_id",
+					"operation_id",
+					"expected_content_sha256",
+					"text"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graph_incarnation": {
+						"type": "string"
+					},
+					"artifact_id": {
+						"type": "string"
+					},
+					"operation_id": {
+						"type": "string"
+					},
+					"expected_content_sha256": {
+						"type": "string",
+						"pattern": "^[a-f0-9]{64}$"
+					},
+					"text": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "restore_artifact_revision",
+			"requiredScopes": [
+				"artifacts.write"
+			],
+			"inputSchema": {
+				"type": "object",
+				"required": [
+					"artifact_id",
+					"revision_id"
+				],
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"artifact_id": {
+						"type": "string"
+					},
+					"artifactId": {
+						"type": "string"
+					},
+					"revision_id": {
+						"type": "string"
+					},
+					"revisionId": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		{
+			"name": "custom_css",
+			"requiredScopes": [
+				"workspace.read",
+				"workspace.write.crdt"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"action": {
+						"type": "string",
+						"enum": [
+							"guide",
+							"read",
+							"replace",
+							"reset"
+						],
+						"default": "guide"
+					},
+					"graphIncarnation": {
+						"type": "string"
+					},
+					"expectedContentSha256": {
+						"type": "string"
+					},
+					"expectedRevision": {
+						"type": "integer"
+					},
+					"operationId": {
+						"type": "string"
+					},
+					"cssText": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"graph_id"
+				],
+				"additionalProperties": false
+			}
+		},
+		{
+			"name": "surface",
+			"requiredScopes": [
+				"documents.read"
+			],
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"graph_id": {
+						"type": "string"
+					},
+					"graphId": {
+						"type": "string"
+					},
+					"actions": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"document_id": {
+									"type": "string"
+								},
+								"documentId": {
+									"type": "string"
+								},
+								"block_id": {
+									"type": "string"
+								},
+								"blockId": {
+									"type": "string"
+								},
+								"action": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]
+}

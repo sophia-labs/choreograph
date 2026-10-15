@@ -1,0 +1,77 @@
+@prefix evo:  <urn:sophia:evolution:> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+evo:OwnerScopedEvolutionShape
+    a sh:NodeShape ;
+    sh:targetClass evo:EvolutionProposal,
+                   evo:EmbodimentCandidate,
+                   evo:PromotionDecision,
+                   evo:EmbodimentActivation,
+                   evo:RollbackDecision ;
+    sh:property [
+        sh:path evo:ownedBy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^user:[^[:space:]]+$"
+    ] ;
+    sh:property [
+        sh:path evo:forAgent ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+evo:EvolutionProposalShape
+    a sh:NodeShape ;
+    sh:targetClass evo:EvolutionProposal ;
+    sh:closed true ;
+    sh:ignoredProperties ( <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ;
+    sh:property [ sh:path evo:hasScope ; sh:minCount 1 ; sh:maxCount 1 ; sh:hasValue "agent" ] ;
+    sh:property [
+        sh:path evo:targetsLayer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "harness" "extension" "embodiment" "constitutional-core" )
+    ] ;
+    sh:property [ sh:path evo:basedOnEmbodiment ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:requiresPolicy ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+evo:EmbodimentCandidateShape
+    a sh:NodeShape ;
+    sh:targetClass evo:EmbodimentCandidate ;
+    sh:property [ sh:path evo:basedOnEmbodiment ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:proposesEmbodiment ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:requiresPolicy ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:bindingDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^sha256:[0-9a-f]{64}$" ] ;
+    sh:property [ sh:path evo:evaluationSetDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^sha256:[0-9a-f]{64}$" ] .
+
+evo:PromotionDecisionShape
+    a sh:NodeShape ;
+    sh:targetClass evo:PromotionDecision ;
+    sh:property [ sh:path evo:decisionFor ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:approvedBy ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:evaluationSetDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^sha256:[0-9a-f]{64}$" ] ;
+    sh:sparql [
+        sh:message "An Agent cannot be its own sole promotion approver." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this evo:forAgent ?agent ; evo:approvedBy ?agent .
+            }
+        """
+    ] .
+
+evo:EmbodimentActivationShape
+    a sh:NodeShape ;
+    sh:targetClass evo:EmbodimentActivation ;
+    sh:property [ sh:path evo:activates ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:replaces ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:rollbackTarget ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path evo:transactionRevision ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 1 ] ;
+    sh:sparql [
+        sh:message "The initial rollback target must be the exact replaced Embodiment." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this evo:replaces ?incumbent ; evo:rollbackTarget ?rollback .
+              FILTER (?incumbent != ?rollback)
+            }
+        """
+    ] .

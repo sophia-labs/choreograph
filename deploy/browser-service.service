@@ -1,0 +1,23 @@
+[Unit]
+Description=Garden Browser Service (chromium-headless-shell pool, HTTP API)
+Documentation=https://github.com/sophia-labs/sophia/tree/main/choreograph/src/browser-service
+After=docker.service network-online.target
+Before=choreograph.service
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/choreograph/current/deploy/browser-service
+ExecStart=/usr/bin/docker compose up -d --remove-orphans
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=120
+TimeoutStopSec=30
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=choreograph-browser
+
+[Install]
+WantedBy=multi-user.target

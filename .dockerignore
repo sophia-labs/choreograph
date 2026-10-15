@@ -1,0 +1,15 @@
+.git
+.claude
+.env
+.env.*
+node_modules
+**/node_modules
+dist
+**/dist
+**/target
+**/target/**
+coverage
+**/*.tsbuildinfo
+shadow-rs/target
+shadow-rs/var
+shadow-rs/.data

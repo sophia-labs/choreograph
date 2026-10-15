@@ -1,0 +1,25 @@
+{
+	"name": "@sophia-labs/choreograph-agent-body",
+	"version": "0.1.0",
+	"description": "Choreograph's agent body: an upstream pi session (pinned exactly) behind the host bridge. Inference and tools are host-mediated; the body holds no secret.",
+	"license": "MIT",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=22.19.0"
+	},
+	"scripts": {
+		"test": "tsx --test test/*.test.ts"
+	},
+	"dependencies": {
+		"@earendil-works/pi-agent-core": "1.2.0",
+		"@earendil-works/pi-ai": "1.2.0",
+		"@earendil-works/pi-coding-agent": "1.2.0",
+		"@sophia-labs/canonical-json": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^24.3.0",
+		"tsx": "^4.20.3",
+		"typescript": "^5.9.2"
+	}
+}

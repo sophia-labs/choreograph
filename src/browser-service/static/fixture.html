@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Browser Service Test Fixture</title>
+</head>
+<body>
+  <h1>Test Fixture</h1>
+  <p id="status">initial</p>
+  <button id="btn" aria-label="Click Me">Click Me</button>
+  <input id="inp" type="text" aria-label="Text Input" placeholder="type here" />
+  <select id="sel" aria-label="Color Picker">
+    <option value="red">Red</option>
+    <option value="blue">Blue</option>
+    <option value="green">Green</option>
+  </select>
+  <script>
+    document.getElementById('btn').addEventListener('click', function () {
+      document.getElementById('status').textContent = 'clicked';
+    });
+    document.getElementById('inp').addEventListener('input', function (e) {
+      document.getElementById('status').textContent = 'typed:' + e.target.value;
+    });
+    document.getElementById('sel').addEventListener('change', function (e) {
+      document.getElementById('status').textContent = 'selected:' + e.target.value;
+    });
+  </script>
+</body>
+</html>

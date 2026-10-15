@@ -1,0 +1,14 @@
+{
+	"//": "Strict, no-emit type check of src/ (host sources, tests and fixtures). The root tsconfig.json has files [] and builds only src/browser-service, so `pnpm check` and `pnpm build` type-check none of it. Run through scripts/check-types.mjs (`pnpm check:types`), which holds each file to the errors it already had.",
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"composite": false,
+		"declaration": false,
+		"declarationMap": false,
+		"sourceMap": false,
+		"inlineSources": false,
+		"noEmitOnError": false
+	},
+	"include": ["src/**/*.ts"]
+}

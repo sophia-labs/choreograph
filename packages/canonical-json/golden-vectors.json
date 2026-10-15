@@ -1,0 +1,45 @@
+{
+	"schema": "sophia.canonical-json-golden-vectors.v1",
+	"vectors": [
+		{
+			"name": "null",
+			"value": null,
+			"canonical": "null",
+			"sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+		},
+		{
+			"name": "scalar-array",
+			"value": [true, false, 0, 42, "line\n\"slash\\", null],
+			"canonical": "[true,false,0,42,\"line\\n\\\"slash\\\\\",null]",
+			"sha256": "a154b98735134f541b67623f5f651919fdfa07557cb4b5b6c604eff1b7339c0f"
+		},
+		{
+			"name": "number-format",
+			"value": [1.5, 1.0, -0.0, 1e-7, 1e21, 0.000001],
+			"canonical": "[1.5,1,0,1e-7,1e+21,0.000001]",
+			"sha256": "0c7658bccc502111f6b11ad33dde0f0e785062f059e5e314f2800f448d0336a1"
+		},
+		{
+			"name": "nested-key-order",
+			"value": {
+				"z": [3, { "beta": true, "alpha": null }],
+				"a": "Sophia",
+				"nested": { "two": 2, "one": 1 }
+			},
+			"canonical": "{\"a\":\"Sophia\",\"nested\":{\"one\":1,\"two\":2},\"z\":[3,{\"alpha\":null,\"beta\":true}]}",
+			"sha256": "423544dd87815a0b10d8e0453a22eff4a21c5e3f9d3d4bfc6aae06e29ef4d185"
+		},
+		{
+			"name": "utf16-key-order",
+			"value": { "": "bmp-private", "𐀀": "astral", "a": "ascii" },
+			"canonical": "{\"a\":\"ascii\",\"𐀀\":\"astral\",\"\":\"bmp-private\"}",
+			"sha256": "c9886a7e1d2bfc8739149a05b90a30fdce680e62d8a87e562921dff19af53768"
+		},
+		{
+			"name": "empty-containers",
+			"value": { "array": [], "object": {} },
+			"canonical": "{\"array\":[],\"object\":{}}",
+			"sha256": "13b38aeab2e18a2c62de2945db9600720801b483e41936f5a154dbda7261be70"
+		}
+	]
+}

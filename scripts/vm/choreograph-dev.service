@@ -1,0 +1,30 @@
+[Unit]
+Description=Choreograph Sandbox Orchestrator (local dev VM)
+Documentation=https://github.com/sophia-labs/choreograph/blob/main/CONTRIBUTING.md
+After=network.target
+
+[Service]
+Type=simple
+# __RUN_USER__ is substituted by scripts/vm/provision.sh.
+User=__RUN_USER__
+WorkingDirectory=/workspace
+EnvironmentFile=-/etc/choreograph/dev.env
+ExecStart=/usr/local/bin/choreograph-run
+Restart=on-failure
+RestartSec=3
+# Delegate=yes hands this unit a private cgroup v2 subtree (memory/cpu/pids)
+# that the run user can manage — exactly what src/cgroup.ts initCgroupHierarchy()
+# needs. Mirrors deploy/choreograph.service. Without it, a plain shell process
+# has no writable delegated subtree and the orchestrator crashes at boot.
+Delegate=yes
+LimitNOFILE=65536
+LimitNPROC=65536
+TimeoutStopSec=15
+KillMode=mixed
+KillSignal=SIGTERM
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=choreograph-dev
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,432 @@
+{
+ "cases": [
+  {
+   "name": "flash-turn-one",
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 2228,
+    "output": 28,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 669,
+    "outputCostMicroUsd": 70,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 739,
+    "markupMicroUsd": 148,
+    "costMicroUsd": 887,
+    "exactProviderMicroUsd": "3692/5",
+    "exactTotalMicroUsd": "22152/25"
+   }
+  },
+  {
+   "name": "flash-turn-one-15pct",
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 1500,
+   "tokens": {
+    "input": 2228,
+    "output": 28,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 669,
+    "outputCostMicroUsd": 70,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 739,
+    "markupMicroUsd": 111,
+    "costMicroUsd": 850,
+    "exactProviderMicroUsd": "3692/5",
+    "exactTotalMicroUsd": "21229/25"
+   }
+  },
+  {
+   "name": "flash-turn-one-no-markup",
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 0,
+   "tokens": {
+    "input": 2228,
+    "output": 28,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 669,
+    "outputCostMicroUsd": 70,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 739,
+    "markupMicroUsd": 0,
+    "costMicroUsd": 739,
+    "exactProviderMicroUsd": "3692/5",
+    "exactTotalMicroUsd": "3692/5"
+   }
+  },
+  {
+   "name": "flash-turn-one-fractional-markup",
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 1750,
+   "tokens": {
+    "input": 2228,
+    "output": 28,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 669,
+    "outputCostMicroUsd": 70,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 739,
+    "markupMicroUsd": 129,
+    "costMicroUsd": 868,
+    "exactProviderMicroUsd": "3692/5",
+    "exactTotalMicroUsd": "43381/50"
+   }
+  },
+  {
+   "name": "flash-cache-both-ways",
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 3000,
+    "output": 500,
+    "cacheRead": 42529,
+    "cacheWrite": 46972
+   },
+   "expect": {
+    "inputCostMicroUsd": 900,
+    "outputCostMicroUsd": 1250,
+    "cacheReadCostMicroUsd": 1276,
+    "cacheWriteCostMicroUsd": 3915,
+    "providerCostMicroUsd": 7341,
+    "markupMicroUsd": 1468,
+    "costMicroUsd": 8809,
+    "exactProviderMicroUsd": "18350508333333329419/2500000000000000",
+    "exactTotalMicroUsd": "55051524999999988257/6250000000000000"
+   }
+  },
+  {
+   "name": "kimi-cache-read-listed",
+   "model": "moonshotai/kimi-k2.5",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 3000,
+    "output": 400,
+    "cacheRead": 40000,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 1350,
+    "outputCostMicroUsd": 900,
+    "cacheReadCostMicroUsd": 2800,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 5050,
+    "markupMicroUsd": 1010,
+    "costMicroUsd": 6060,
+    "exactProviderMicroUsd": "5050",
+    "exactTotalMicroUsd": "6060"
+   }
+  },
+  {
+   "name": "kimi-cache-write-not-listed",
+   "model": "moonshotai/kimi-k2.5",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 3000,
+    "output": 400,
+    "cacheRead": 40000,
+    "cacheWrite": 1000
+   },
+   "expect": {
+    "inputCostMicroUsd": 1350,
+    "outputCostMicroUsd": 900,
+    "cacheReadCostMicroUsd": 2800,
+    "cacheWriteCostMicroUsd": 450,
+    "providerCostMicroUsd": 5500,
+    "markupMicroUsd": 1100,
+    "costMicroUsd": 6600,
+    "exactProviderMicroUsd": "5500",
+    "exactTotalMicroUsd": "6600"
+   }
+  },
+  {
+   "name": "sonnet45-below-tier",
+   "model": "anthropic/claude-sonnet-4.5",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 150000,
+    "output": 900,
+    "cacheRead": 40000,
+    "cacheWrite": 9999
+   },
+   "expect": {
+    "inputCostMicroUsd": 450000,
+    "outputCostMicroUsd": 13500,
+    "cacheReadCostMicroUsd": 12000,
+    "cacheWriteCostMicroUsd": 37497,
+    "providerCostMicroUsd": 512997,
+    "markupMicroUsd": 102599,
+    "costMicroUsd": 615596,
+    "exactProviderMicroUsd": "2051985/4",
+    "exactTotalMicroUsd": "1231191/2"
+   }
+  },
+  {
+   "name": "sonnet45-at-tier",
+   "model": "anthropic/claude-sonnet-4.5",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 150000,
+    "output": 900,
+    "cacheRead": 40000,
+    "cacheWrite": 10000
+   },
+   "expect": {
+    "inputCostMicroUsd": 900000,
+    "outputCostMicroUsd": 20250,
+    "cacheReadCostMicroUsd": 24000,
+    "cacheWriteCostMicroUsd": 75000,
+    "providerCostMicroUsd": 1019250,
+    "markupMicroUsd": 203850,
+    "costMicroUsd": 1223100,
+    "exactProviderMicroUsd": "1019250",
+    "exactTotalMicroUsd": "1223100"
+   }
+  },
+  {
+   "name": "sonnet45-above-tier",
+   "model": "anthropic/claude-sonnet-4.5",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 200000,
+    "output": 2000,
+    "cacheRead": 30000,
+    "cacheWrite": 20000
+   },
+   "expect": {
+    "inputCostMicroUsd": 1200000,
+    "outputCostMicroUsd": 45000,
+    "cacheReadCostMicroUsd": 18000,
+    "cacheWriteCostMicroUsd": 150000,
+    "providerCostMicroUsd": 1413000,
+    "markupMicroUsd": 282600,
+    "costMicroUsd": 1695600,
+    "exactProviderMicroUsd": "1413000",
+    "exactTotalMicroUsd": "1695600"
+   }
+  },
+  {
+   "name": "luna-tier",
+   "model": "openai/gpt-5.6-luna",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 250000,
+    "output": 1200,
+    "cacheRead": 40000,
+    "cacheWrite": 10000
+   },
+   "expect": {
+    "inputCostMicroUsd": 100000,
+    "outputCostMicroUsd": 2160,
+    "cacheReadCostMicroUsd": 1600,
+    "cacheWriteCostMicroUsd": 5000,
+    "providerCostMicroUsd": 108760,
+    "markupMicroUsd": 21752,
+    "costMicroUsd": 130512,
+    "exactProviderMicroUsd": "108760",
+    "exactTotalMicroUsd": "130512"
+   }
+  },
+  {
+   "name": "nemo-under-a-micro-per-part",
+   "model": "mistralai/mistral-nemo",
+   "markupBps": 0,
+   "tokens": {
+    "input": 30,
+    "output": 10,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 1,
+    "outputCostMicroUsd": 0,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 1,
+    "markupMicroUsd": 0,
+    "costMicroUsd": 1,
+    "exactProviderMicroUsd": "87/100",
+    "exactTotalMicroUsd": "87/100"
+   }
+  },
+  {
+   "name": "nemo-under-a-micro-with-markup",
+   "model": "mistralai/mistral-nemo",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 30,
+    "output": 10,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 1,
+    "outputCostMicroUsd": 0,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 1,
+    "markupMicroUsd": 1,
+    "costMicroUsd": 2,
+    "exactProviderMicroUsd": "87/100",
+    "exactTotalMicroUsd": "261/250"
+   }
+  },
+  {
+   "name": "nemo-large",
+   "model": "mistralai/mistral-nemo",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 100000,
+    "output": 20000,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 1900,
+    "outputCostMicroUsd": 600,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 2500,
+    "markupMicroUsd": 500,
+    "costMicroUsd": 3000,
+    "exactProviderMicroUsd": "2500",
+    "exactTotalMicroUsd": "3000"
+   }
+  },
+  {
+   "name": "opus45-heavy",
+   "model": "anthropic/claude-opus-4.5",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 12000,
+    "output": 800,
+    "cacheRead": 90000,
+    "cacheWrite": 4000
+   },
+   "expect": {
+    "inputCostMicroUsd": 60000,
+    "outputCostMicroUsd": 20000,
+    "cacheReadCostMicroUsd": 45000,
+    "cacheWriteCostMicroUsd": 25000,
+    "providerCostMicroUsd": 150000,
+    "markupMicroUsd": 30000,
+    "costMicroUsd": 180000,
+    "exactProviderMicroUsd": "150000",
+    "exactTotalMicroUsd": "180000"
+   }
+  },
+  {
+   "name": "no-tokens",
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 2000,
+   "tokens": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0
+   },
+   "expect": {
+    "inputCostMicroUsd": 0,
+    "outputCostMicroUsd": 0,
+    "cacheReadCostMicroUsd": 0,
+    "cacheWriteCostMicroUsd": 0,
+    "providerCostMicroUsd": 0,
+    "markupMicroUsd": 0,
+    "costMicroUsd": 0,
+    "exactProviderMicroUsd": "0",
+    "exactTotalMicroUsd": "0"
+   }
+  }
+ ],
+ "viableCall": [
+  {
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 1500,
+   "costMicroUsd": 5911,
+   "afterFloor": 5911
+  },
+  {
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 2000,
+   "costMicroUsd": 6168,
+   "afterFloor": 6168
+  },
+  {
+   "model": "moonshotai/kimi-k2.5",
+   "markupBps": 1500,
+   "costMicroUsd": 8425,
+   "afterFloor": 8425
+  },
+  {
+   "model": "moonshotai/kimi-k2.5",
+   "markupBps": 2000,
+   "costMicroUsd": 8792,
+   "afterFloor": 8792
+  },
+  {
+   "model": "mistralai/mistral-nemo",
+   "markupBps": 1500,
+   "costMicroUsd": 337,
+   "afterFloor": 1000
+  },
+  {
+   "model": "mistralai/mistral-nemo",
+   "markupBps": 2000,
+   "costMicroUsd": 352,
+   "afterFloor": 1000
+  },
+  {
+   "model": "anthropic/claude-opus-4.5",
+   "markupBps": 1500,
+   "costMicroUsd": 93610,
+   "afterFloor": 93610
+  },
+  {
+   "model": "anthropic/claude-opus-4.5",
+   "markupBps": 2000,
+   "costMicroUsd": 97680,
+   "afterFloor": 97680
+  }
+ ],
+ "perMillion": [
+  {
+   "model": "google/gemini-2.5-flash",
+   "markupBps": 2000,
+   "promptMicroUsdPerMillion": 360000,
+   "completionMicroUsdPerMillion": 3000000
+  },
+  {
+   "model": "moonshotai/kimi-k2.5",
+   "markupBps": 2000,
+   "promptMicroUsdPerMillion": 540000,
+   "completionMicroUsdPerMillion": 2700000
+  },
+  {
+   "model": "mistralai/mistral-nemo",
+   "markupBps": 2000,
+   "promptMicroUsdPerMillion": 22800,
+   "completionMicroUsdPerMillion": 36000
+  },
+  {
+   "model": "deepseek/deepseek-chat",
+   "markupBps": 2000,
+   "promptMicroUsdPerMillion": 308880,
+   "completionMicroUsdPerMillion": 1234440
+  }
+ ]
+}

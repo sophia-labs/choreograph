@@ -1,0 +1,15 @@
+{
+	"//": "Emits the host-owned ACP surface as a separate non-composite pass keyed to the release dist tree.",
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"composite": false,
+		"declaration": false,
+		"declarationMap": false,
+		"sourceMap": false,
+		"inlineSources": false,
+		"rootDir": "src",
+		"outDir": "dist",
+		"noEmitOnError": false
+	},
+	"include": ["src/acp/**/*.ts"]
+}

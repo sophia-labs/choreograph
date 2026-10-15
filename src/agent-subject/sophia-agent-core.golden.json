@@ -1,0 +1,80 @@
+{
+  "$comment": "EA-3 VocabularyContract golden for agent ontology v1 (agt:). FILED NOWHERE YET — publication to the graph is CA-1/S9. This is the frozen-vocab source of truth the S5 serializer + assertAgentSparql self-check are pinned against: the five agent-as-subject classes, their required predicates, and the closed toolAccess enum. Shape-modeled on the wf: vocab (src/workflow/vocab.ts REQUIRED_*_PREDICATES) since no prior mem: golden exists in this worktree. Substrate-blind by construction: NO CRDT term, NO gen-2 Perception/Memory/Judgment class — Memory/Song are POINTERS only (agt:recallRef / agt:songRef).",
+  "vocabulary": "sophia-agent-core",
+  "version": "0.1.0",
+  "namespace": "http://mnemosyne.dev/agent#",
+  "prefix": "agt",
+  "imports": {
+    "prov": "http://www.w3.org/ns/prov#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "classes": [
+    {
+      "class": "agt:Agent",
+      "alsoTyped": ["prov:Agent"],
+      "comment": "A stable registered Agent identity carried by an Agent Meaningful Object and independent of mutable model or prompt revisions. THE memory-witness: its subject IRI urn:sophia:agent:{agentId} byte-matches L0's observer_iri. Persists across sandbox lifetimes.",
+      "required": ["agt:agentId", "agt:model"],
+      "optional": []
+    },
+    {
+      "class": "agt:Session",
+      "comment": "One conversational session, owned by an agent and a user (cognito sub).",
+      "required": ["agt:ofAgent", "agt:sessionId", "agt:ownerUserId", "agt:turnCount"],
+      "optional": ["agt:graphId"]
+    },
+    {
+      "class": "agt:Turn",
+      "comment": "One journal entry as METADATA + tool-usage POINTERS only. Carries NO message body. Memory/Song referenced by pointer (agt:recallRef / agt:songRef).",
+      "required": ["agt:inSession", "agt:ordinal", "agt:role"],
+      "optional": ["agt:usedTool", "agt:recallRef", "agt:songRef", "agt:turnTime"]
+    },
+    {
+      "class": "agt:Capability",
+      "comment": "A coarse access posture the agent holds.",
+      "required": ["agt:ofAgent", "agt:toolAccess"],
+      "optional": []
+    },
+    {
+      "class": "agt:Tool",
+      "comment": "A tool the agent used or DECLARED. A declared-but-unused tool (toolStatus=declared, e.g. grow_interface) is a demand-signal subject.",
+      "required": ["agt:ofAgent", "agt:toolName", "agt:toolStatus", "agt:toolAccess"],
+      "optional": []
+    }
+  ],
+  "enums": {
+    "agt:toolAccess": ["read", "write"],
+    "agt:toolStatus": ["used", "declared"]
+  },
+  "datatypes": {
+    "agt:agentId": "xsd:string",
+    "agt:model": "xsd:string",
+    "agt:sessionId": "xsd:string",
+    "agt:ownerUserId": "xsd:string",
+    "agt:graphId": "xsd:string",
+    "agt:turnCount": "xsd:integer",
+    "agt:ordinal": "xsd:integer",
+    "agt:role": "xsd:string",
+    "agt:turnTime": "xsd:dateTime",
+    "agt:toolName": "xsd:string",
+    "agt:toolStatus": "xsd:string",
+    "agt:toolAccess": "xsd:string"
+  },
+  "pointers": {
+    "$comment": "Cross-vocabulary references emitted as OPAQUE IRIs only — the agt: fold imports NO gen-2 Perception/Memory/Judgment schema.",
+    "agt:recallRef": "an opaque IRI into the Memory store (no schema import)",
+    "agt:songRef": "an opaque IRI into the Song narrative (no schema import)",
+    "agt:usedTool": "an agt:Tool subject minted in this same fold"
+  },
+  "forbidden": {
+    "$comment": "Tokens the fold MUST NEVER emit — the substrate-blind + no-body-leak guarantee.",
+    "substrate": ["yrs", "Loro", "yjs", "CRDT", "Y.Doc"],
+    "foreignPrefixes": ["mnemo:", "doc:", "wf:", "mem:"],
+    "piInternalFields": ["errorMessage", "responseId", "thoughtSignature"]
+  },
+  "deferred": {
+    "$comment": "What S5 does NOT do — these are CA-1/S9.",
+    "namedGraphWrite": ":self:agent named-graph write is S9",
+    "ea3Filing": "publishing this VocabularyContract to the coordination graph is S9",
+    "shaclValidation": "a real RDF/SHACL validator is a Vera-gated dep / the S9 real-infra gate; S5 uses an in-process substring self-check only"
+  }
+}

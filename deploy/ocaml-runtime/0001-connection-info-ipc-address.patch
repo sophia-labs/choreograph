@@ -1,0 +1,31 @@
+diff --git a/src/kernel/connection_info.ml b/src/kernel/connection_info.ml
+index dcf7f0f..9318a03 100644
+--- a/src/kernel/connection_info.ml
++++ b/src/kernel/connection_info.ml
+@@ -51,6 +51,24 @@ let from_file fname =
+   | info when info.key = Some "" -> { info with key = None }
+   | info -> info
+ 
+-(** [make_address info port] returns an address for ZeroMQ communication. *)
++(** [make_address info port] returns an address for ZeroMQ communication.
++
++    Jupyter's connection file separates endpoint from port with ':' only when
++    the transport is tcp. Every other transport carries a filesystem prefix in
++    [ip] rather than an address, and the reference client appends "-<port>" to
++    it. From jupyter_client's [ConnectionFileMixin._make_url]:
++
++    {v
++      if transport == 'tcp':
++          return "tcp://%s:%i" % (ip, port)
++      else:
++          return "%s://%s-%s" % (transport, ip, port)
++    v}
++
++    Upstream formats ["%s://%s:%d"] for every transport, so under
++    [transport: "ipc"] it binds its unix sockets at ["<ip>:<port>"] while every
++    conforming client connects to ["<ip>-<port>"]. Nothing ever meets. *)
+ let make_address info port =
+-  Format.sprintf "%s://%s:%d" info.transport info.ip port
++  if info.transport = "tcp"
++  then Format.sprintf "tcp://%s:%d" info.ip port
++  else Format.sprintf "%s://%s-%d" info.transport info.ip port

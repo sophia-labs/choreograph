@@ -1,0 +1,44 @@
+@prefix evo:  <urn:sophia:evolution:> .
+@prefix agt:  <urn:sophia:agent-ontology:> .
+@prefix mo:   <urn:sophia:meaningful-object:> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+evo: a <http://www.w3.org/2002/07/owl#Ontology> ;
+    rdfs:label "Sophia Agent evolution vocabulary" ;
+    rdfs:comment "Owner-scoped, generational evolution of Agent Embodiments." .
+
+evo:Embodiment           a rdfs:Class ; rdfs:subClassOf prov:Entity .
+evo:EvolutionProposal    a rdfs:Class ; rdfs:subClassOf prov:Entity .
+evo:EmbodimentCandidate  a rdfs:Class ; rdfs:subClassOf prov:Entity .
+evo:EvaluationSuite      a rdfs:Class ; rdfs:subClassOf prov:Entity .
+evo:EvaluationPolicy     a rdfs:Class ; rdfs:subClassOf prov:Entity .
+evo:PromotionDecision    a rdfs:Class ; rdfs:subClassOf prov:Entity .
+evo:EmbodimentActivation a rdfs:Class ; rdfs:subClassOf prov:Activity .
+evo:RollbackDecision     a rdfs:Class ; rdfs:subClassOf prov:Entity .
+
+evo:forAgent             a rdf:Property ; rdfs:range agt:Agent .
+evo:ownedBy              a rdf:Property .
+evo:proposedBy           a rdf:Property .
+evo:targetsLayer         a rdf:Property ; rdfs:range xsd:string .
+evo:hasScope             a rdf:Property ; rdfs:range xsd:string .
+evo:basedOnEmbodiment    a rdf:Property ; rdfs:range evo:Embodiment .
+evo:basedOnSource        a rdf:Property .
+evo:supportedBy          a rdf:Property .
+evo:realizedAsChangeSet  a rdf:Property .
+evo:producedCandidate    a rdf:Property ; rdfs:range evo:EmbodimentCandidate .
+evo:proposesEmbodiment   a rdf:Property ; rdfs:range evo:Embodiment .
+evo:requiresPolicy       a rdf:Property ; rdfs:range evo:EvaluationPolicy .
+evo:evaluatedBy          a rdf:Property .
+evo:decisionFor          a rdf:Property ; rdfs:range evo:EmbodimentCandidate .
+evo:approvedBy           a rdf:Property .
+evo:activates            a rdf:Property ; rdfs:range evo:Embodiment .
+evo:replaces             a rdf:Property ; rdfs:range evo:Embodiment .
+evo:rollbackTarget       a rdf:Property ; rdfs:range evo:Embodiment .
+evo:observedOutcome      a rdf:Property .
+evo:status               a rdf:Property ; rdfs:range xsd:string .
+evo:bindingDigest        a rdf:Property ; rdfs:range xsd:string .
+evo:evaluationSetDigest  a rdf:Property ; rdfs:range xsd:string .
+evo:transactionRevision  a rdf:Property ; rdfs:range xsd:integer .

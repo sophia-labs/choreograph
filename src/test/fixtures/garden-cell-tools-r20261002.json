@@ -1,0 +1,1886 @@
+{
+ "source": "tools/list of a graph cell on garden engine r20261002 (src-r20261002-marks-r1), captured 2026-10-05 by the chat-reads-documents scout (evidence kept outside this repository). Reduced to name, required scopes and input property names.",
+ "tools": [
+  {
+   "name": "agent_status",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id"
+   ],
+   "required": []
+  },
+  {
+   "name": "agent_self_image",
+   "requiredScopes": [
+    "artifacts.read",
+    "artifacts.write",
+    "rdf.query",
+    "rdf.update"
+   ],
+   "properties": [
+    "action",
+    "agentId",
+    "force",
+    "generator",
+    "graphId",
+    "graph_id",
+    "includeImage",
+    "modeIri",
+    "prompt"
+   ],
+   "required": [
+    "agentId"
+   ]
+  },
+  {
+   "name": "status",
+   "requiredScopes": [
+    "rdf.update"
+   ],
+   "properties": [
+    "activity",
+    "agentId",
+    "bodyId",
+    "graphId",
+    "graphIncarnation",
+    "graph_id",
+    "origin",
+    "runId",
+    "seatLabel",
+    "sessionId",
+    "ttlSeconds"
+   ],
+   "required": [
+    "graphIncarnation",
+    "agentId",
+    "bodyId",
+    "activity",
+    "ttlSeconds",
+    "origin"
+   ]
+  },
+  {
+   "name": "custom_css",
+   "requiredScopes": [
+    "workspace.read",
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "action",
+    "cssText",
+    "expectedContentSha256",
+    "expectedRevision",
+    "graphIncarnation",
+    "graph_id",
+    "operationId"
+   ],
+   "required": [
+    "graph_id"
+   ]
+  },
+  {
+   "name": "quick_orient",
+   "requiredScopes": [
+    "orientation.read"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "recallLimit",
+    "recall_limit"
+   ],
+   "required": []
+  },
+  {
+   "name": "context_bundle",
+   "requiredScopes": [
+    "orientation.read"
+   ],
+   "properties": [
+    "agentName",
+    "agent_name",
+    "graphId",
+    "graph_id",
+    "importantLimit",
+    "important_limit",
+    "recallLimit",
+    "recall_limit",
+    "setHome",
+    "set_home",
+    "workspaceDepth",
+    "workspaceLimit",
+    "workspaceMaxBytes",
+    "workspace_depth",
+    "workspace_limit",
+    "workspace_max_bytes"
+   ],
+   "required": []
+  },
+  {
+   "name": "remember",
+   "requiredScopes": [
+    "memory.write"
+   ],
+   "properties": [
+    "agentId",
+    "agent_id",
+    "blockIds",
+    "block_ids",
+    "clientRef",
+    "client_ref",
+    "content",
+    "contentOrientation",
+    "content_orientation",
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id",
+    "kind",
+    "scope",
+    "sourceRefs",
+    "source_refs",
+    "status",
+    "supersedesRef",
+    "supersedes_ref",
+    "tags",
+    "visibility"
+   ],
+   "required": [
+    "content"
+   ]
+  },
+  {
+   "name": "remember_batch",
+   "requiredScopes": [
+    "memory.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "records"
+   ],
+   "required": [
+    "records"
+   ]
+  },
+  {
+   "name": "recall",
+   "requiredScopes": [
+    "memory.read"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "limit",
+    "number",
+    "query"
+   ],
+   "required": []
+  },
+  {
+   "name": "propose_domain_ontology",
+   "requiredScopes": [
+    "rdf.update",
+    "memory.write"
+   ],
+   "properties": [
+    "contract",
+    "contractJson",
+    "graphId",
+    "graph_id",
+    "observer",
+    "rationale",
+    "supersedesName",
+    "version"
+   ],
+   "required": [
+    "contract"
+   ]
+  },
+  {
+   "name": "care",
+   "requiredScopes": [
+    "memory.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "numbers"
+   ],
+   "required": []
+  },
+  {
+   "name": "archive_memories",
+   "requiredScopes": [
+    "memory.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "keep"
+   ],
+   "required": []
+  },
+  {
+   "name": "backfill_memory_projection",
+   "requiredScopes": [
+    "memory.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "observerAgentId",
+    "observerNumbers",
+    "observer_agent_id",
+    "observer_numbers"
+   ],
+   "required": []
+  },
+  {
+   "name": "emporium_vocab",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "name",
+    "version",
+    "vocab",
+    "vocabulary"
+   ],
+   "required": []
+  },
+  {
+   "name": "emporium_list",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "class",
+    "graphId",
+    "graph_id",
+    "limit",
+    "offset",
+    "vocab"
+   ],
+   "required": [
+    "graph_id",
+    "vocab",
+    "class"
+   ]
+  },
+  {
+   "name": "emporium_read",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "address",
+    "class",
+    "graphId",
+    "graph_id",
+    "vocab"
+   ],
+   "required": [
+    "graph_id",
+    "vocab",
+    "class",
+    "address"
+   ]
+  },
+  {
+   "name": "emporium_heads",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "observer"
+   ],
+   "required": [
+    "graph_id"
+   ]
+  },
+  {
+   "name": "emporium_sweep",
+   "requiredScopes": [
+    "rdf.update"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "observer"
+   ],
+   "required": [
+    "graph_id"
+   ]
+  },
+  {
+   "name": "emporium_violations",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "limit",
+    "observer",
+    "severity"
+   ],
+   "required": [
+    "graph_id"
+   ]
+  },
+  {
+   "name": "music",
+   "requiredScopes": [
+    "memory.read"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id"
+   ],
+   "required": []
+  },
+  {
+   "name": "sing",
+   "requiredScopes": [
+    "memory.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "mode",
+    "verse",
+    "verseIndex",
+    "verse_index"
+   ],
+   "required": []
+  },
+  {
+   "name": "surface",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "actions",
+    "graphId",
+    "graph_id"
+   ],
+   "required": []
+  },
+  {
+   "name": "get_document_history",
+   "requiredScopes": [
+    "documents.history.read"
+   ],
+   "properties": [
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id",
+    "limit"
+   ],
+   "required": [
+    "documentId"
+   ]
+  },
+  {
+   "name": "read_document_at_snapshot",
+   "requiredScopes": [
+    "documents.history.read"
+   ],
+   "properties": [
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id",
+    "snapshotId",
+    "snapshot_id"
+   ],
+   "required": [
+    "documentId",
+    "snapshotId"
+   ]
+  },
+  {
+   "name": "update_graph",
+   "requiredScopes": [
+    "graphs.write"
+   ],
+   "properties": [
+    "description",
+    "graph_id",
+    "title"
+   ],
+   "required": [
+    "graph_id"
+   ]
+  },
+  {
+   "name": "query_graph",
+   "requiredScopes": [
+    "rdf.query",
+    "jobs.read"
+   ],
+   "properties": [
+    "graph_id",
+    "max_rows",
+    "query",
+    "result_format",
+    "timeout_ms"
+   ],
+   "required": [
+    "graph_id",
+    "query"
+   ]
+  },
+  {
+   "name": "get_job_status",
+   "requiredScopes": [
+    "jobs.read"
+   ],
+   "properties": [
+    "jobId",
+    "job_id"
+   ],
+   "required": [
+    "job_id"
+   ]
+  },
+  {
+   "name": "get_job_result",
+   "requiredScopes": [
+    "jobs.read"
+   ],
+   "properties": [
+    "jobId",
+    "job_id"
+   ],
+   "required": [
+    "job_id"
+   ]
+  },
+  {
+   "name": "cancel_job",
+   "requiredScopes": [
+    "jobs.cancel"
+   ],
+   "properties": [
+    "jobId",
+    "job_id"
+   ],
+   "required": [
+    "job_id"
+   ]
+  },
+  {
+   "name": "reindex_graph",
+   "requiredScopes": [
+    "semantic.index.write"
+   ],
+   "properties": [
+    "graph_id"
+   ],
+   "required": [
+    "graph_id"
+   ]
+  },
+  {
+   "name": "list_documents",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "cursor",
+    "graphId",
+    "limit",
+    "maxBytes"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "get_workspace",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "cursor",
+    "depth",
+    "folderId",
+    "foldersOnly",
+    "graphId",
+    "limit",
+    "maxBytes"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "read_document",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "cursor",
+    "documentId",
+    "format",
+    "graphId",
+    "limit",
+    "maxChars",
+    "offset"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "create_document_once",
+   "requiredScopes": [
+    "documents.write.crdt",
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "awaitDurable",
+    "document_id",
+    "graphIncarnation",
+    "graph_id",
+    "graph_incarnation",
+    "order",
+    "parentId",
+    "requireDurable",
+    "tiptapJson",
+    "title"
+   ],
+   "required": [
+    "graph_id",
+    "document_id",
+    "title",
+    "tiptapJson",
+    "order"
+   ]
+  },
+  {
+   "name": "write_document",
+   "requiredScopes": [
+    "documents.write.crdt"
+   ],
+   "properties": [
+    "awaitDurable",
+    "await_durable",
+    "comments",
+    "content",
+    "documentId",
+    "document_id",
+    "expectedRevision",
+    "expected_revision",
+    "format",
+    "graphId",
+    "graph_id",
+    "tiptapJson",
+    "tiptap_json",
+    "title"
+   ],
+   "required": []
+  },
+  {
+   "name": "read_blocks",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "blockId",
+    "documentId",
+    "format",
+    "graphId",
+    "includeIds",
+    "limit",
+    "offset"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "document_digest",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "documentId",
+    "graphId",
+    "topValued"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "value",
+   "requiredScopes": [
+    "salience.write"
+   ],
+   "properties": [
+    "atMs",
+    "at_ms",
+    "blockId",
+    "block_id",
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id",
+    "importance",
+    "operationId",
+    "operation_id",
+    "tags",
+    "valence",
+    "valuationEventId",
+    "valuation_event_id",
+    "valuations"
+   ],
+   "required": []
+  },
+  {
+   "name": "get_values",
+   "requiredScopes": [
+    "salience.read"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id"
+   ],
+   "required": []
+  },
+  {
+   "name": "revaluate",
+   "requiredScopes": [
+    "salience.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "importancePrompt",
+    "importance_prompt",
+    "valencePrompt",
+    "valence_prompt",
+    "weights"
+   ],
+   "required": []
+  },
+  {
+   "name": "get_block_values",
+   "requiredScopes": [
+    "salience.read"
+   ],
+   "properties": [
+    "blockId",
+    "block_id",
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id",
+    "limit",
+    "minScore",
+    "min_score",
+    "valence"
+   ],
+   "required": []
+  },
+  {
+   "name": "get_important_blocks",
+   "requiredScopes": [
+    "salience.read"
+   ],
+   "properties": [
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id",
+    "limit",
+    "valence"
+   ],
+   "required": []
+  },
+  {
+   "name": "get_block",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "blockId",
+    "documentId",
+    "format",
+    "graphId"
+   ],
+   "required": [
+    "graphId",
+    "documentId",
+    "blockId"
+   ]
+  },
+  {
+   "name": "query_blocks",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "blockType",
+    "checked",
+    "documentId",
+    "graphId",
+    "headingLevel",
+    "limit",
+    "queries",
+    "textContains"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "insert_blocks",
+   "requiredScopes": [
+    "documents.write.crdt"
+   ],
+   "properties": [
+    "blockId",
+    "blocks",
+    "content",
+    "documentId",
+    "format",
+    "graphId",
+    "index",
+    "position",
+    "tiptapJson"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "update_blocks",
+   "requiredScopes": [
+    "documents.write.crdt"
+   ],
+   "properties": [
+    "attrs",
+    "blockId",
+    "documentId",
+    "edits",
+    "graphId"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "edit_block_text",
+   "requiredScopes": [
+    "documents.write.crdt"
+   ],
+   "properties": [
+    "blockId",
+    "documentId",
+    "graphId",
+    "operations"
+   ],
+   "required": [
+    "graphId",
+    "documentId",
+    "blockId",
+    "operations"
+   ]
+  },
+  {
+   "name": "edit_comment",
+   "requiredScopes": [
+    "documents.write.crdt"
+   ],
+   "properties": [
+    "action",
+    "author",
+    "blockId",
+    "block_id",
+    "commentId",
+    "comment_id",
+    "documentId",
+    "document_id",
+    "find",
+    "graphId",
+    "graph_id",
+    "occurrence",
+    "quotedText",
+    "quoted_text",
+    "resolved",
+    "text"
+   ],
+   "required": [
+    "action",
+    "comment_id",
+    "document_id"
+   ]
+  },
+  {
+   "name": "delete_blocks",
+   "requiredScopes": [
+    "documents.delete.crdt"
+   ],
+   "properties": [
+    "blockId",
+    "blockIds",
+    "documentId",
+    "graphId"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "search_documents",
+   "requiredScopes": [
+    "search.lexical.read"
+   ],
+   "properties": [
+    "graphId",
+    "limit",
+    "mode",
+    "queries",
+    "query"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "search_blocks",
+   "requiredScopes": [
+    "search.lexical.read"
+   ],
+   "properties": [
+    "docFilter",
+    "graphId",
+    "limit",
+    "mode",
+    "queries",
+    "query"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "list_wire_predicates",
+   "requiredScopes": [
+    "wires.read"
+   ],
+   "properties": [
+    "graphId"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "get_wires",
+   "requiredScopes": [
+    "wires.read"
+   ],
+   "properties": [
+    "direction",
+    "documentId",
+    "graphId",
+    "predicate"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "create_wires",
+   "requiredScopes": [
+    "wires.write"
+   ],
+   "properties": [
+    "bidirectional",
+    "graphId",
+    "graphIncarnation",
+    "graph_id",
+    "graph_incarnation",
+    "predicate",
+    "sourceBlockId",
+    "sourceDocumentId",
+    "sourceMarkId",
+    "source_block_id",
+    "source_document_id",
+    "source_mark_id",
+    "targetBlockId",
+    "targetDocumentId",
+    "targetGraphId",
+    "targetMarkId",
+    "target_block_id",
+    "target_document_id",
+    "target_graph_id",
+    "target_mark_id",
+    "wireId",
+    "wire_id",
+    "wires"
+   ],
+   "required": []
+  },
+  {
+   "name": "traverse_wires",
+   "requiredScopes": [
+    "wires.read"
+   ],
+   "properties": [
+    "direction",
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id",
+    "maxDepth",
+    "max_depth",
+    "predicate"
+   ],
+   "required": [
+    "document_id"
+   ]
+  },
+  {
+   "name": "create_document",
+   "requiredScopes": [
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "documentId",
+    "graphId",
+    "order",
+    "parentId",
+    "title"
+   ],
+   "required": [
+    "graphId",
+    "title"
+   ]
+  },
+  {
+   "name": "delete_document",
+   "requiredScopes": [
+    "documents.delete.crdt",
+    "workspace.delete.crdt"
+   ],
+   "properties": [
+    "documentId",
+    "graphId"
+   ],
+   "required": [
+    "graphId",
+    "documentId"
+   ]
+  },
+  {
+   "name": "create_folder",
+   "requiredScopes": [
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "folderId",
+    "graphId",
+    "name",
+    "order",
+    "parentId",
+    "section"
+   ],
+   "required": [
+    "graphId",
+    "name"
+   ]
+  },
+  {
+   "name": "move_documents",
+   "requiredScopes": [
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "documentIds",
+    "graphId",
+    "order",
+    "parentId"
+   ],
+   "required": [
+    "graphId",
+    "documentIds"
+   ]
+  },
+  {
+   "name": "move_folder",
+   "requiredScopes": [
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "folderId",
+    "folder_id",
+    "graphId",
+    "graph_id",
+    "newOrder",
+    "newParentId",
+    "new_order",
+    "new_parent_id"
+   ],
+   "required": [
+    "graph_id",
+    "folder_id"
+   ]
+  },
+  {
+   "name": "rename",
+   "requiredScopes": [
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "entityId",
+    "entityType",
+    "entity_id",
+    "entity_type",
+    "graphId",
+    "graph_id",
+    "newName",
+    "new_name"
+   ],
+   "required": [
+    "graph_id",
+    "entity_type",
+    "new_name"
+   ]
+  },
+  {
+   "name": "delete",
+   "requiredScopes": [
+    "documents.delete.crdt",
+    "workspace.delete.crdt",
+    "wires.delete",
+    "graphs.delete"
+   ],
+   "properties": [
+    "blockId",
+    "blockIds",
+    "block_id",
+    "block_ids",
+    "cascade",
+    "documentId",
+    "documentIds",
+    "document_id",
+    "document_ids",
+    "folderId",
+    "folder_id",
+    "graphId",
+    "graph_id",
+    "hard",
+    "type",
+    "wireId",
+    "wireIds",
+    "wire_id",
+    "wire_ids"
+   ],
+   "required": [
+    "type"
+   ]
+  },
+  {
+   "name": "make_document_editable",
+   "requiredScopes": [
+    "documents.write.crdt"
+   ],
+   "properties": [
+    "documentId",
+    "document_id",
+    "graphId",
+    "graph_id"
+   ],
+   "required": [
+    "document_id"
+   ]
+  },
+  {
+   "name": "ingest_artifact",
+   "requiredScopes": [
+    "artifacts.ingest",
+    "artifacts.write",
+    "documents.write.crdt",
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "artifactId",
+    "artifact_id",
+    "graphId",
+    "graph_id",
+    "mode",
+    "title"
+   ],
+   "required": [
+    "artifact_id"
+   ]
+  },
+  {
+   "name": "flush_crdt",
+   "requiredScopes": [
+    "documents.write.crdt",
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "documentId",
+    "graphId"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "crdt_operation",
+   "requiredScopes": [
+    "documents.write.crdt",
+    "workspace.write.crdt",
+    "documents.delete.crdt",
+    "workspace.delete.crdt",
+    "artifacts.write",
+    "artifacts.delete",
+    "wires.write",
+    "wires.delete",
+    "artifacts.ingest",
+    "graphs.import",
+    "imports.web.write"
+   ],
+   "properties": [
+    "documentId",
+    "graphId",
+    "kind",
+    "payload"
+   ],
+   "required": [
+    "graphId",
+    "kind"
+   ]
+  },
+  {
+   "name": "sparql_query",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "graphId",
+    "maxRows",
+    "query",
+    "timeoutMs"
+   ],
+   "required": [
+    "graphId",
+    "query"
+   ]
+  },
+  {
+   "name": "sparql_query_named",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "class",
+    "graphId",
+    "graph_id",
+    "observer",
+    "params",
+    "queryName",
+    "query_name",
+    "vocab"
+   ],
+   "required": [
+    "graph_id",
+    "vocab",
+    "class",
+    "query_name"
+   ]
+  },
+  {
+   "name": "emporium_query",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "asOf",
+    "as_of",
+    "class",
+    "criteria",
+    "cursor",
+    "face",
+    "graphId",
+    "graph_id",
+    "limit",
+    "observer",
+    "perspectives",
+    "vocab"
+   ],
+   "required": [
+    "graph_id",
+    "vocab",
+    "class"
+   ]
+  },
+  {
+   "name": "emporium_write",
+   "requiredScopes": [
+    "rdf.update"
+   ],
+   "properties": [
+    "atMs",
+    "at_ms",
+    "dryRun",
+    "dry_run",
+    "graphId",
+    "graphIncarnation",
+    "graph_id",
+    "graph_incarnation",
+    "observer",
+    "operationId",
+    "operation_id",
+    "publish",
+    "records",
+    "vocab"
+   ],
+   "required": [
+    "graph_id",
+    "vocab",
+    "records"
+   ]
+  },
+  {
+   "name": "emporium_retract",
+   "requiredScopes": [
+    "rdf.update"
+   ],
+   "properties": [
+    "atMs",
+    "at_ms",
+    "graphId",
+    "graph_id",
+    "kind",
+    "observer",
+    "operationId",
+    "operation_id",
+    "rationale",
+    "retractionEventId",
+    "retraction_event_id",
+    "subject"
+   ],
+   "required": [
+    "graph_id",
+    "subject",
+    "rationale"
+   ]
+  },
+  {
+   "name": "sparql_update",
+   "requiredScopes": [
+    "rdf.update"
+   ],
+   "properties": [
+    "graphId",
+    "update"
+   ],
+   "required": [
+    "graphId",
+    "update"
+   ]
+  },
+  {
+   "name": "rdf_load",
+   "requiredScopes": [
+    "rdf.load"
+   ],
+   "properties": [
+    "baseIri",
+    "data",
+    "format",
+    "graphId",
+    "targetGraphIri"
+   ],
+   "required": [
+    "graphId",
+    "data",
+    "format"
+   ]
+  },
+  {
+   "name": "rdf_dump",
+   "requiredScopes": [
+    "rdf.dump"
+   ],
+   "properties": [
+    "format",
+    "graphId",
+    "sourceGraphIri"
+   ],
+   "required": [
+    "graphId",
+    "format"
+   ]
+  },
+  {
+   "name": "workflow_book_open",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "handoffIntent",
+    "handoff_intent",
+    "intent",
+    "pageId",
+    "page_id",
+    "workflowName",
+    "workflow_name"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "workflow_book_choose",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "choiceId",
+    "choice_id",
+    "graphId",
+    "graph_id",
+    "handoffIntent",
+    "handoff_intent",
+    "intent",
+    "pageId",
+    "page_id",
+    "workflowName",
+    "workflow_name"
+   ],
+   "required": [
+    "graphId",
+    "choiceId"
+   ]
+  },
+  {
+   "name": "workflow_book_apply",
+   "requiredScopes": [
+    "rdf.query",
+    "rdf.update",
+    "rdf.load"
+   ],
+   "properties": [
+    "baseIri",
+    "base_iri",
+    "data",
+    "format",
+    "graphId",
+    "graph_id",
+    "handoffIntent",
+    "handoff_intent",
+    "intent",
+    "operation",
+    "pageId",
+    "page_id",
+    "sparqlUpdate",
+    "sparql_update",
+    "targetGraphIri",
+    "target_graph_iri",
+    "update",
+    "workflowName",
+    "workflow_name"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "workflow_book_compose",
+   "requiredScopes": [
+    "rdf.query",
+    "rdf.update"
+   ],
+   "properties": [
+    "agentId",
+    "agentNodeUri",
+    "agentType",
+    "agent_id",
+    "agent_type",
+    "authoringSessionUri",
+    "authoring_session_uri",
+    "compositionEventUri",
+    "composition_event_uri",
+    "description",
+    "documentId",
+    "document_id",
+    "driverAgent",
+    "driverLease",
+    "driver_agent",
+    "driver_lease",
+    "eventUri",
+    "event_uri",
+    "graphId",
+    "graph_id",
+    "inputBlock",
+    "inputBlockId",
+    "inputDocumentId",
+    "input_block",
+    "input_block_id",
+    "input_document_id",
+    "label",
+    "nodeLabel",
+    "nodeUri",
+    "node_label",
+    "node_uri",
+    "operation",
+    "order",
+    "pageId",
+    "page_id",
+    "phaseDescription",
+    "phaseIndex",
+    "phaseOrder",
+    "phaseTitle",
+    "phaseUri",
+    "phase_description",
+    "phase_index",
+    "phase_order",
+    "phase_title",
+    "phase_uri",
+    "rationale",
+    "scriptBlock",
+    "scriptSha256",
+    "script_block",
+    "script_sha256",
+    "seedUri",
+    "seed_uri",
+    "seededFrom",
+    "seeded_from",
+    "sessionUri",
+    "session_uri",
+    "sourceBlockId",
+    "sourceDocumentId",
+    "source_block_id",
+    "source_document_id",
+    "title",
+    "whenToUse",
+    "when_to_use",
+    "why",
+    "workflowArgsBlockId",
+    "workflowArgsBlockUri",
+    "workflowArgsDocumentId",
+    "workflowName",
+    "workflowUri",
+    "workflow_name",
+    "workflow_uri"
+   ],
+   "required": [
+    "graphId",
+    "operation"
+   ]
+  },
+  {
+   "name": "workflow_book_validate",
+   "requiredScopes": [
+    "rdf.query"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "workflowName",
+    "workflow_name"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "semantic_search",
+   "requiredScopes": [
+    "search.semantic.read"
+   ],
+   "properties": [
+    "graphId",
+    "limit",
+    "query"
+   ],
+   "required": [
+    "graphId",
+    "query"
+   ]
+  },
+  {
+   "name": "memory_semantic_recall",
+   "requiredScopes": [
+    "memory.read",
+    "search.semantic.read"
+   ],
+   "properties": [
+    "cutoff",
+    "graphId",
+    "includeEpisodes",
+    "k",
+    "minScore",
+    "query"
+   ],
+   "required": [
+    "graphId",
+    "query"
+   ]
+  },
+  {
+   "name": "semantic_reason",
+   "requiredScopes": [
+    "search.semantic.read"
+   ],
+   "properties": [
+    "graphId",
+    "headIri",
+    "limit",
+    "relationIri",
+    "tailIri"
+   ],
+   "required": [
+    "graphId",
+    "relationIri"
+   ]
+  },
+  {
+   "name": "list_restore_points",
+   "requiredScopes": [
+    "time-travel.read"
+   ],
+   "properties": [
+    "cursor",
+    "graphId",
+    "graph_id",
+    "limit"
+   ],
+   "required": []
+  },
+  {
+   "name": "get_restore_point",
+   "requiredScopes": [
+    "time-travel.read"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "restorePointId",
+    "restore_point_id"
+   ],
+   "required": [
+    "restorePointId"
+   ]
+  },
+  {
+   "name": "create_restore_point",
+   "requiredScopes": [
+    "time-travel.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "label",
+    "trigger"
+   ],
+   "required": []
+  },
+  {
+   "name": "diff_restore_points",
+   "requiredScopes": [
+    "time-travel.read"
+   ],
+   "properties": [
+    "against",
+    "graphId",
+    "graph_id",
+    "restorePointId",
+    "restore_point_id"
+   ],
+   "required": [
+    "restorePointId"
+   ]
+  },
+  {
+   "name": "delete_restore_point",
+   "requiredScopes": [
+    "time-travel.write"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "restorePointId",
+    "restore_point_id"
+   ],
+   "required": [
+    "restorePointId"
+   ]
+  },
+  {
+   "name": "restore_to_restore_point",
+   "requiredScopes": [
+    "time-travel.restore"
+   ],
+   "properties": [
+    "dryRun",
+    "dry_run",
+    "graphId",
+    "graph_id",
+    "restorePointId",
+    "restore_point_id"
+   ],
+   "required": [
+    "restorePointId"
+   ]
+  },
+  {
+   "name": "get_restore_operation",
+   "requiredScopes": [
+    "time-travel.read"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "operationId",
+    "operation_id"
+   ],
+   "required": [
+    "operationId"
+   ]
+  },
+  {
+   "name": "cancel_restore_operation",
+   "requiredScopes": [
+    "time-travel.restore"
+   ],
+   "properties": [
+    "graphId",
+    "graph_id",
+    "operationId",
+    "operation_id"
+   ],
+   "required": [
+    "operationId"
+   ]
+  },
+  {
+   "name": "read_artifact",
+   "requiredScopes": [
+    "artifacts.read"
+   ],
+   "properties": [
+    "artifactId",
+    "artifact_id",
+    "graphId",
+    "graph_id",
+    "strict_utf8"
+   ],
+   "required": [
+    "artifact_id"
+   ]
+  },
+  {
+   "name": "create_artifact_text",
+   "requiredScopes": [
+    "artifacts.write",
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "artifact_id",
+    "filename",
+    "graph_id",
+    "graph_incarnation",
+    "mime_type",
+    "operation_id",
+    "parent_id",
+    "text"
+   ],
+   "required": [
+    "graph_id",
+    "graph_incarnation",
+    "artifact_id",
+    "operation_id",
+    "filename",
+    "mime_type",
+    "text"
+   ]
+  },
+  {
+   "name": "write_artifact_text",
+   "requiredScopes": [
+    "artifacts.write",
+    "workspace.write.crdt"
+   ],
+   "properties": [
+    "artifact_id",
+    "expected_content_sha256",
+    "graph_id",
+    "graph_incarnation",
+    "operation_id",
+    "text"
+   ],
+   "required": [
+    "graph_id",
+    "graph_incarnation",
+    "artifact_id",
+    "operation_id",
+    "expected_content_sha256",
+    "text"
+   ]
+  },
+  {
+   "name": "list_artifact_kinds",
+   "requiredScopes": [
+    "artifacts.read"
+   ],
+   "properties": [],
+   "required": []
+  },
+  {
+   "name": "list_artifact_revisions",
+   "requiredScopes": [
+    "artifacts.read"
+   ],
+   "properties": [
+    "artifactId",
+    "artifact_id",
+    "graphId",
+    "graph_id"
+   ],
+   "required": [
+    "artifact_id"
+   ]
+  },
+  {
+   "name": "restore_artifact_revision",
+   "requiredScopes": [
+    "artifacts.write"
+   ],
+   "properties": [
+    "artifactId",
+    "artifact_id",
+    "graphId",
+    "graph_id",
+    "revisionId",
+    "revision_id"
+   ],
+   "required": [
+    "artifact_id",
+    "revision_id"
+   ]
+  },
+  {
+   "name": "edit_artifact_image",
+   "requiredScopes": [
+    "artifacts.write"
+   ],
+   "properties": [
+    "artifactId",
+    "artifact_id",
+    "graphId",
+    "graph_id",
+    "instruction",
+    "prompt"
+   ],
+   "required": [
+    "artifact_id",
+    "prompt"
+   ]
+  },
+  {
+   "name": "source_pull",
+   "requiredScopes": [
+    "sources.read"
+   ],
+   "properties": [
+    "graphId",
+    "graphIncarnation",
+    "graph_id",
+    "graph_incarnation"
+   ],
+   "required": [
+    "graphId"
+   ]
+  },
+  {
+   "name": "source_push",
+   "requiredScopes": [
+    "sources.write"
+   ],
+   "properties": [
+    "graphId",
+    "graphIncarnation",
+    "graph_id",
+    "graph_incarnation",
+    "operations"
+   ],
+   "required": [
+    "graphId",
+    "graphIncarnation",
+    "operations"
+   ]
+  },
+  {
+   "name": "source_rebuild",
+   "requiredScopes": [
+    "sources.rebuild"
+   ],
+   "properties": [
+    "graphId",
+    "graphIncarnation",
+    "graph_id",
+    "graph_incarnation"
+   ],
+   "required": [
+    "graphId",
+    "graphIncarnation"
+   ]
+  },
+  {
+   "name": "flow_seed_board",
+   "requiredScopes": [
+    "documents.write.crdt"
+   ],
+   "properties": [
+    "graphId",
+    "json",
+    "replace"
+   ],
+   "required": [
+    "graphId",
+    "json"
+   ]
+  },
+  {
+   "name": "flow_export_board",
+   "requiredScopes": [
+    "documents.read"
+   ],
+   "properties": [
+    "graphId",
+    "restorePointId"
+   ],
+   "required": [
+    "graphId"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+# Guest payload only. The fully resolved, hash-locked closure lives in
+# python-runtime-requirements.lock and is installed by the Rust `uv` binary.
+ipykernel==6.29.5
+ipython==9.15.0
+dill==0.4.1
+httpx==0.28.1
+mcp==2.0.0
+tyro==1.0.15
+requests
+pyyaml
+tomli
+python-dotenv
+pandas
+numpy
+scipy
+beautifulsoup4
+lxml
+pydantic

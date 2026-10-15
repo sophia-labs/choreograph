@@ -1,0 +1,14 @@
+[Unit]
+Description=Periodically recover an unhealthy Phanes listener
+
+[Timer]
+# The release is installed late in cloud-init, often more than two minutes
+# after boot. Delay from timer activation so the first health check cannot race
+# the initial docker run while its container is still being registered.
+OnActiveSec=2min
+OnUnitActiveSec=30s
+AccuracySec=5s
+Unit=phanes-health.service
+
+[Install]
+WantedBy=timers.target

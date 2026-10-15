@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.data/
+src/.data/
+deploy/local-package/
+deploy/runtime-bundles/
+*.log
+.env
+.DS_Store

@@ -1,0 +1,77 @@
+{
+  "bundles": [
+    {
+      "id": "sophia-agent-runtime",
+      "description": "Sophia agent semantic core with simple and constrained-Prime profiles",
+      "digest": "46b3ebd85ef39a27aecf87276a3c024f6f602d55ab5b3249c9f59e2f8e4d4750",
+      "mounts": [
+        {
+          "guest_path": "/opt/choreograph-runtime/sophia-agent",
+          "mode": "ro",
+          "host_path": "../../prime-agent-sophia"
+        }
+      ]
+    },
+    {
+      "id": "sophia-kernel-runtime",
+      "description": "Sophia-owned Python kernel control and harness runtime",
+      "mounts": [
+        {
+          "guest_path": "/opt/choreograph-runtime/sophia-kernel-runtime",
+          "mode": "ro",
+          "host_path": "/opt/choreograph-runtime/sophia-kernel-runtime"
+        }
+      ]
+    },
+    {
+      "id": "python-runtime",
+      "description": "Pinned third-party CPython and ipykernel sandbox guest payload",
+      "mounts": [
+        {
+          "guest_path": "/opt/runtime/python",
+          "host_path": "/opt/runtime/python"
+        }
+      ]
+    },
+    {
+      "id": "julia-runtime",
+      "description": "Pinned portable Julia plus the baked IJulia depot sandbox guest payload",
+      "mounts": [
+        {
+          "guest_path": "/opt/runtime/julia",
+          "host_path": "/opt/runtime/julia"
+        }
+      ]
+    },
+    {
+      "id": "ocaml-runtime",
+      "description": "Pinned opam switch with ocaml-jupyter and its bundled libzmq sandbox guest payload",
+      "mounts": [
+        {
+          "guest_path": "/opt/runtime/ocaml",
+          "host_path": "/opt/runtime/ocaml"
+        }
+      ]
+    },
+    {
+      "id": "cpp-runtime",
+      "description": "Pinned xeus-cpp with its clang-repl toolchain and sysroot sandbox guest payload",
+      "mounts": [
+        {
+          "guest_path": "/opt/runtime/cpp",
+          "host_path": "/opt/runtime/cpp"
+        }
+      ]
+    },
+    {
+      "id": "jupyter-bridge",
+      "description": "Sophia-owned native Rust Jupyter controller",
+      "mounts": [
+        {
+          "guest_path": "/opt/choreograph-runtime/bridges",
+          "host_path": "/opt/choreograph-runtime/bridges"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,361 @@
+{
+  "source": "choreograph r20261003 buildWorkspaceChatInputs (the deployed credits release), generated 2026-10-06",
+  "inputs": {
+    "config": {
+      "graphId": "angels",
+      "provider": "openrouter",
+      "model": "google/gemini-2.5-flash",
+      "agentId": "agent-53c21c4f17de7e54",
+      "toolMode": "dynamic",
+      "includeTools": [
+        "document_digest",
+        "get_block",
+        "get_block_values",
+        "get_document_history",
+        "get_important_blocks",
+        "get_values",
+        "get_wires",
+        "get_workspace",
+        "list_documents",
+        "list_wire_predicates",
+        "query_blocks",
+        "quick_orient",
+        "read_blocks",
+        "read_document",
+        "search_blocks",
+        "search_documents",
+        "sparql_query",
+        "traverse_wires"
+      ],
+      "strictToolManifest": false,
+      "systemPrompt": "You are Sophia's workspace assistant in the graph \"angels\".\nYou can read and search this workspace: its documents, blocks, wires, values and RDF (SPARQL SELECT).\nYou cannot change anything here. If the user asks for a change, say what you would change and where, and that they can make it themselves.\nAnswer plainly and briefly. When an answer comes from the workspace, name the documents you used. If you did not find something, say so.",
+      "runtime": {
+        "schema": "choreograph.agent-runtime-binding.v2",
+        "kind": "prime",
+        "bundle": {
+          "id": "sophia-agent-runtime",
+          "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "profileRef": {
+          "schema": "sophia.meaningful-object-ref.v1",
+          "kind": "agent-runtime-profile",
+          "ownerPrincipal": "user:owner-1",
+          "graphId": "angels",
+          "objectId": "builtin:workspace-chat-v1:runtime-profile",
+          "version": "1",
+          "digest": "sha256:7112f17e81268d4f3aee8b9a2f7923eaf2554ecf46e06088189db9a1911249f7"
+        },
+        "constraints": {
+          "maxTurns": 24,
+          "maxWallTimeMs": 900000,
+          "maxTokens": 500000,
+          "maxPromptTokensPerCall": 240000,
+          "maxCompletionTokensPerCall": 32000,
+          "maxInlineToolResultBytes": 32768,
+          "maxCostUsdMicros": 1000000,
+          "maxChildren": 0,
+          "maxChildDepth": 0,
+          "maxConcurrentChildren": 0,
+          "maxArtifactBytes": 268435456,
+          "idlePassivateMs": 60000,
+          "allowPersistentKernel": true,
+          "allowAutonomousContinuation": false,
+          "allowSchedules": false,
+          "allowWorkflowProposals": false
+        }
+      },
+      "ontology": {
+        "schema": "sophia.agent-ontology-binding.v1",
+        "subject": {
+          "agentId": "agent-53c21c4f17de7e54",
+          "agentUri": "urn:sophia:agent:agent-53c21c4f17de7e54",
+          "observerId": "agent-53c21c4f17de7e54",
+          "registeredName": "sophia-workspace-assistant:user:owner-1/angels",
+          "identityAlgorithm": "agent-identity-v1-registered-name"
+        },
+        "objects": {
+          "agent": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "agent",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "urn:sophia:agent:agent-53c21c4f17de7e54",
+            "version": "1",
+            "digest": "sha256:78767bbbb146bfe7e89529b8d6d45c0d3f102e63a06f0d64343fc8b1f0be4be3"
+          },
+          "geist": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "geist",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "builtin:workspace-chat-v1:geist",
+            "version": "1",
+            "digest": "sha256:344b9a90d879473501db65b0a2dec7946a8e4fbf9b19ffd12109c35c88e3ca7c"
+          },
+          "prompt": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "prompt",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "builtin:workspace-chat-v1:prompt",
+            "version": "1",
+            "digest": "sha256:2c096961a2f8f7b0a233c5aafc0fed8fc7a424bf4ac76f5c88e5fba8ae2073bc"
+          },
+          "skills": [],
+          "harness": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "harness",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "workspace-chat-v1",
+            "version": "1",
+            "digest": "sha256:edd4d6839e449c8d0f5e94bceaa520f5b8d49b2a5b2cd82a08d25f0c442021bf"
+          },
+          "toolManifest": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "tool-manifest",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "builtin:workspace-chat-v1:reader-tools",
+            "version": "1",
+            "digest": "sha256:41ec074e82ca495c7754e3da3fe21ddf5fb37ac419d35f66bf2930d88c032ea6"
+          },
+          "toolGrant": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "tool-grant",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "builtin:workspace-chat-v1:reader-grant",
+            "version": "1",
+            "digest": "sha256:b431dd1726222aa731bc6634f22d2b4f2b1fd9d358f5f1b05c963e72f5684cad"
+          },
+          "runtimeProfile": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "agent-runtime-profile",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "builtin:workspace-chat-v1:runtime-profile",
+            "version": "1",
+            "digest": "sha256:7112f17e81268d4f3aee8b9a2f7923eaf2554ecf46e06088189db9a1911249f7"
+          }
+        },
+        "mode": {
+          "iri": "urn:sophia:mode:workspace-reader",
+          "digest": "bb252e2d23796b834eab19f2bbd7a05c0eed0b310a44ee0aa3a35d08016f8576"
+        },
+        "resolvedAt": 1759000000000
+      }
+    },
+    "args": {
+      "text": "What is in this workspace?",
+      "pilot": {
+        "agentId": "agent-53c21c4f17de7e54",
+        "provider": "openrouter",
+        "model": "google/gemini-2.5-flash",
+        "systemPrompt": "You are Sophia's workspace assistant in the graph \"angels\".\nYou can read and search this workspace: its documents, blocks, wires, values and RDF (SPARQL SELECT).\nYou cannot change anything here. If the user asks for a change, say what you would change and where, and that they can make it themselves.\nAnswer plainly and briefly. When an answer comes from the workspace, name the documents you used. If you did not find something, say so.",
+        "includeTools": [
+          "document_digest",
+          "get_block",
+          "get_block_values",
+          "get_document_history",
+          "get_important_blocks",
+          "get_values",
+          "get_wires",
+          "get_workspace",
+          "list_documents",
+          "list_wire_predicates",
+          "query_blocks",
+          "quick_orient",
+          "read_blocks",
+          "read_document",
+          "search_blocks",
+          "search_documents",
+          "sparql_query",
+          "traverse_wires"
+        ],
+        "maxTurns": 24,
+        "runtime": {
+          "schema": "choreograph.agent-runtime-binding.v2",
+          "kind": "prime",
+          "bundle": {
+            "id": "sophia-agent-runtime",
+            "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "profileRef": {
+            "schema": "sophia.meaningful-object-ref.v1",
+            "kind": "agent-runtime-profile",
+            "ownerPrincipal": "user:owner-1",
+            "graphId": "angels",
+            "objectId": "builtin:workspace-chat-v1:runtime-profile",
+            "version": "1",
+            "digest": "sha256:7112f17e81268d4f3aee8b9a2f7923eaf2554ecf46e06088189db9a1911249f7"
+          },
+          "constraints": {
+            "maxTurns": 24,
+            "maxWallTimeMs": 900000,
+            "maxTokens": 500000,
+            "maxPromptTokensPerCall": 240000,
+            "maxCompletionTokensPerCall": 32000,
+            "maxInlineToolResultBytes": 32768,
+            "maxCostUsdMicros": 1000000,
+            "maxChildren": 0,
+            "maxChildDepth": 0,
+            "maxConcurrentChildren": 0,
+            "maxArtifactBytes": 268435456,
+            "idlePassivateMs": 60000,
+            "allowPersistentKernel": true,
+            "allowAutonomousContinuation": false,
+            "allowSchedules": false,
+            "allowWorkflowProposals": false
+          }
+        },
+        "ontology": {
+          "schema": "sophia.agent-ontology-binding.v1",
+          "subject": {
+            "agentId": "agent-53c21c4f17de7e54",
+            "agentUri": "urn:sophia:agent:agent-53c21c4f17de7e54",
+            "observerId": "agent-53c21c4f17de7e54",
+            "registeredName": "sophia-workspace-assistant:user:owner-1/angels",
+            "identityAlgorithm": "agent-identity-v1-registered-name"
+          },
+          "objects": {
+            "agent": {
+              "schema": "sophia.meaningful-object-ref.v1",
+              "kind": "agent",
+              "ownerPrincipal": "user:owner-1",
+              "graphId": "angels",
+              "objectId": "urn:sophia:agent:agent-53c21c4f17de7e54",
+              "version": "1",
+              "digest": "sha256:78767bbbb146bfe7e89529b8d6d45c0d3f102e63a06f0d64343fc8b1f0be4be3"
+            },
+            "geist": {
+              "schema": "sophia.meaningful-object-ref.v1",
+              "kind": "geist",
+              "ownerPrincipal": "user:owner-1",
+              "graphId": "angels",
+              "objectId": "builtin:workspace-chat-v1:geist",
+              "version": "1",
+              "digest": "sha256:344b9a90d879473501db65b0a2dec7946a8e4fbf9b19ffd12109c35c88e3ca7c"
+            },
+            "prompt": {
+              "schema": "sophia.meaningful-object-ref.v1",
+              "kind": "prompt",
+              "ownerPrincipal": "user:owner-1",
+              "graphId": "angels",
+              "objectId": "builtin:workspace-chat-v1:prompt",
+              "version": "1",
+              "digest": "sha256:2c096961a2f8f7b0a233c5aafc0fed8fc7a424bf4ac76f5c88e5fba8ae2073bc"
+            },
+            "skills": [],
+            "harness": {
+              "schema": "sophia.meaningful-object-ref.v1",
+              "kind": "harness",
+              "ownerPrincipal": "user:owner-1",
+              "graphId": "angels",
+              "objectId": "workspace-chat-v1",
+              "version": "1",
+              "digest": "sha256:edd4d6839e449c8d0f5e94bceaa520f5b8d49b2a5b2cd82a08d25f0c442021bf"
+            },
+            "toolManifest": {
+              "schema": "sophia.meaningful-object-ref.v1",
+              "kind": "tool-manifest",
+              "ownerPrincipal": "user:owner-1",
+              "graphId": "angels",
+              "objectId": "builtin:workspace-chat-v1:reader-tools",
+              "version": "1",
+              "digest": "sha256:41ec074e82ca495c7754e3da3fe21ddf5fb37ac419d35f66bf2930d88c032ea6"
+            },
+            "toolGrant": {
+              "schema": "sophia.meaningful-object-ref.v1",
+              "kind": "tool-grant",
+              "ownerPrincipal": "user:owner-1",
+              "graphId": "angels",
+              "objectId": "builtin:workspace-chat-v1:reader-grant",
+              "version": "1",
+              "digest": "sha256:b431dd1726222aa731bc6634f22d2b4f2b1fd9d358f5f1b05c963e72f5684cad"
+            },
+            "runtimeProfile": {
+              "schema": "sophia.meaningful-object-ref.v1",
+              "kind": "agent-runtime-profile",
+              "ownerPrincipal": "user:owner-1",
+              "graphId": "angels",
+              "objectId": "builtin:workspace-chat-v1:runtime-profile",
+              "version": "1",
+              "digest": "sha256:7112f17e81268d4f3aee8b9a2f7923eaf2554ecf46e06088189db9a1911249f7"
+            }
+          },
+          "mode": {
+            "iri": "urn:sophia:mode:workspace-reader",
+            "digest": "bb252e2d23796b834eab19f2bbd7a05c0eed0b310a44ee0aa3a35d08016f8576"
+          },
+          "resolvedAt": 1759000000000
+        }
+      }
+    },
+    "schemaInput": {
+      "trigger": {
+        "kind": "sophia-cluster.message",
+        "text": "What is in this workspace?"
+      },
+      "contextRefs": [],
+      "interactionMode": "headed"
+    },
+    "hostContext": {
+      "schema": "sophia.workspace-chat-host-context.v1",
+      "agentId": "agent-53c21c4f17de7e54",
+      "graphId": "angels",
+      "tools": [
+        "document_digest",
+        "get_block",
+        "get_block_values",
+        "get_document_history",
+        "get_important_blocks",
+        "get_values",
+        "get_wires",
+        "get_workspace",
+        "list_documents",
+        "list_wire_predicates",
+        "query_blocks",
+        "quick_orient",
+        "read_blocks",
+        "read_document",
+        "search_blocks",
+        "search_documents",
+        "sparql_query",
+        "traverse_wires"
+      ],
+      "mode": {
+        "mode": {
+          "iri": "urn:sophia:mode:workspace-reader",
+          "label": "Reader",
+          "access": "read",
+          "allowsTool": [
+            "document_digest",
+            "get_block",
+            "get_block_values",
+            "get_document_history",
+            "get_important_blocks",
+            "get_values",
+            "get_wires",
+            "get_workspace",
+            "list_documents",
+            "list_wire_predicates",
+            "query_blocks",
+            "quick_orient",
+            "read_blocks",
+            "read_document",
+            "search_blocks",
+            "search_documents",
+            "sparql_query",
+            "traverse_wires"
+          ],
+          "graphScope": [
+            "urn:graph:angels"
+          ],
+          "requiresApproval": []
+        },
+        "digest": "bb252e2d23796b834eab19f2bbd7a05c0eed0b310a44ee0aa3a35d08016f8576"
+      }
+    }
+  }
+}

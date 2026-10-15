@@ -1,0 +1,22 @@
+FROM amazonlinux@sha256:c4b0d324eaacbc5805ab5f147ba71963184752da90340bf0803c1034a170c8d1
+
+RUN dnf install -y \
+        cmake \
+        curl-minimal \
+        diffutils \
+        findutils \
+        gcc \
+        gcc-c++ \
+        git \
+        make \
+        nodejs \
+        perl \
+        python3 \
+        shadow-utils \
+        tar \
+        which \
+    && dnf clean all
+
+WORKDIR /workspace
+
+ENTRYPOINT ["/bin/bash"]

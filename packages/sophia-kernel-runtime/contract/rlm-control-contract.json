@@ -1,0 +1,16 @@
+{
+  "limits": {
+    "prompt_utf8_bytes": 65536,
+    "name_chars": 64,
+    "model_chars": 256,
+    "target_chars": 256,
+    "id_chars": 256,
+    "error_code_chars": 128,
+    "error_message_chars": 4096
+  },
+  "run_states": ["queued", "claimed", "cancelling", "completed", "failed", "cancelled"],
+  "open_session_states": ["open", "closing", "faulted"],
+  "host_error_classes": ["invalid", "denied", "conflict", "not_found", "unavailable", "internal"],
+  "child_session_id_pattern": "^ags_[0-9a-f]{24}$",
+  "child_run_id_pattern": "^acr_[0-9a-f]{24}$"
+}

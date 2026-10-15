@@ -1,0 +1,536 @@
+{
+ "fetchedAt": "2026-10-01T22:24:00.000Z",
+ "source": "GET https://openrouter.ai/api/v1/models/{id}/endpoints, read 2026-10-01 22:19-22:24Z for the price-gap round; each listing verbatim",
+ "calledThatDay": {
+  "amazon/nova-premier-v1": "every call: 404, the provider says the model version reached the end of its life",
+  "openai/gpt-5.2-chat": "every call: 404, its one endpoint (Azure) is BYOK-only",
+  "kwaipilot/kat-coder-pro-v2.5": "every call: 400 from its one provider (AtlasCloud), twice, hours apart",
+  "meta/muse-spark-1.1": "every call: 403, the account must confirm 18+ first",
+  "sakana/sakana-namazu": "every call: 404, the account's guardrails and data policy remove its one endpoint",
+  "qwen/qwen-2.5-72b-instruct": "served (DeepInfra), though every endpoint's status is negative",
+  "unbiased/pareto-26.10-preview": "served; listed 8 h before this read, already with a day's uptime figure"
+ },
+ "models": {
+  "amazon/nova-premier-v1": {
+   "id": "amazon/nova-premier-v1",
+   "name": "Amazon: Nova Premier 1.0",
+   "created": 1761950332,
+   "description": "Amazon Nova Premier is the most capable of Amazon\u2019s multimodal models for complex reasoning tasks and for use as the best teacher for distilling custom models.",
+   "architecture": {
+    "tokenizer": "Nova",
+    "instruct_type": null,
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ]
+   },
+   "endpoints": [
+    {
+     "name": "Amazon Bedrock | amazon/nova-premier-v1",
+     "model_id": "amazon/nova-premier-v1",
+     "model_name": "Amazon: Nova Premier 1.0",
+     "context_length": 1000000,
+     "pricing": {
+      "prompt": "0.0000025",
+      "completion": "0.0000125",
+      "input_cache_read": "0.000000625",
+      "discount": 0
+     },
+     "provider_name": "Amazon Bedrock",
+     "tag": "amazon-bedrock",
+     "quantization": "unknown",
+     "max_completion_tokens": 32000,
+     "max_prompt_tokens": null,
+     "supported_parameters": [
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "top_k",
+      "stop",
+      "tools"
+     ],
+     "supports_tool_choice": {
+      "none": true,
+      "auto": true,
+      "required": true,
+      "function": true
+     },
+     "status": 0,
+     "uptime_last_30m": null,
+     "uptime_last_5m": null,
+     "uptime_last_1d": null,
+     "supports_implicit_caching": false,
+     "native_tools": {},
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    }
+   ]
+  },
+  "openai/gpt-5.2-chat": {
+   "id": "openai/gpt-5.2-chat",
+   "name": "OpenAI: GPT-5.2 Chat",
+   "created": 1765389783,
+   "description": "GPT-5.2 Chat (AKA Instant) is the fast, lightweight member of the 5.2 family, optimized for low-latency chat while retaining strong general intelligence. It uses adaptive reasoning to selectively \u201cthink\u201d on...",
+   "architecture": {
+    "tokenizer": "GPT",
+    "instruct_type": null,
+    "modality": "text+image+file->text",
+    "input_modalities": [
+     "file",
+     "image",
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ]
+   },
+   "endpoints": [
+    {
+     "name": "Azure | openai/gpt-5.2-chat-20251211",
+     "model_id": "openai/gpt-5.2-chat",
+     "model_name": "OpenAI: GPT-5.2 Chat",
+     "context_length": 128000,
+     "pricing": {
+      "prompt": "0.00000175",
+      "completion": "0.000014",
+      "web_search": "0.01",
+      "input_cache_read": "0.000000175",
+      "discount": 0
+     },
+     "provider_name": "Azure",
+     "tag": "azure",
+     "quantization": "unknown",
+     "max_completion_tokens": 32000,
+     "max_prompt_tokens": 96000,
+     "supported_parameters": [
+      "max_completion_tokens",
+      "structured_outputs",
+      "response_format",
+      "seed",
+      "tools",
+      "tool_choice",
+      "verbosity"
+     ],
+     "supports_tool_choice": {
+      "none": true,
+      "auto": true,
+      "required": true,
+      "function": true
+     },
+     "status": 0,
+     "uptime_last_30m": null,
+     "uptime_last_5m": null,
+     "uptime_last_1d": null,
+     "supports_implicit_caching": true,
+     "native_tools": {
+      "openrouter:apply_patch": {
+       "type": "apply_patch"
+      }
+     },
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    }
+   ]
+  },
+  "kwaipilot/kat-coder-pro-v2.5": {
+   "id": "kwaipilot/kat-coder-pro-v2.5",
+   "name": "Kwaipilot: KAT-Coder-Pro V2.5",
+   "created": 1783714589,
+   "description": "KAT-Coder-Pro V2.5 is a flagship-level Agentic Coding model that can directly hand over an entire issue or an entire business workflow to it, allowing it to autonomously locate and make...",
+   "architecture": {
+    "tokenizer": "Other",
+    "instruct_type": null,
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ]
+   },
+   "endpoints": [
+    {
+     "name": "AtlasCloud | kwaipilot/kat-coder-pro-v2.5-20260710",
+     "model_id": "kwaipilot/kat-coder-pro-v2.5",
+     "model_name": "Kwaipilot: KAT-Coder-Pro V2.5",
+     "context_length": 262144,
+     "pricing": {
+      "prompt": "0.00000074",
+      "completion": "0.00000296",
+      "input_cache_read": "0.00000015",
+      "discount": 0
+     },
+     "provider_name": "AtlasCloud",
+     "tag": "atlas-cloud/fp8",
+     "quantization": "fp8",
+     "max_completion_tokens": 235929,
+     "max_prompt_tokens": null,
+     "supported_parameters": [
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "top_k",
+      "min_p",
+      "frequency_penalty",
+      "presence_penalty",
+      "repetition_penalty",
+      "stop",
+      "seed",
+      "logit_bias",
+      "response_format",
+      "structured_outputs",
+      "tools",
+      "tool_choice"
+     ],
+     "supports_tool_choice": {
+      "none": false,
+      "auto": true,
+      "required": true,
+      "function": true
+     },
+     "status": 0,
+     "uptime_last_30m": null,
+     "uptime_last_5m": null,
+     "uptime_last_1d": null,
+     "supports_implicit_caching": false,
+     "native_tools": {},
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    }
+   ]
+  },
+  "meta/muse-spark-1.1": {
+   "id": "meta/muse-spark-1.1",
+   "name": "Meta: Muse Spark 1.1",
+   "created": 1784215741,
+   "description": "Muse Spark 1.1 is a multimodal reasoning model from Meta, built for agentic tasks. It accepts text, images, video, and PDF documents and returns text, with a 1M-token context window....",
+   "architecture": {
+    "tokenizer": "Other",
+    "instruct_type": null,
+    "modality": "text+image+file+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video",
+     "file"
+    ],
+    "output_modalities": [
+     "text"
+    ]
+   },
+   "endpoints": [
+    {
+     "name": "Meta | meta/muse-spark-1.1-20260709",
+     "model_id": "meta/muse-spark-1.1",
+     "model_name": "Meta: Muse Spark 1.1",
+     "context_length": 1048576,
+     "pricing": {
+      "prompt": "0.00000125",
+      "completion": "0.00000425",
+      "web_search": "0.0025",
+      "input_cache_read": "0.00000015",
+      "discount": 0
+     },
+     "provider_name": "Meta",
+     "tag": "meta",
+     "quantization": "unknown",
+     "max_completion_tokens": 943718,
+     "max_prompt_tokens": null,
+     "supported_parameters": [
+      "reasoning",
+      "include_reasoning",
+      "max_tokens",
+      "repetition_penalty",
+      "top_k",
+      "temperature",
+      "top_p",
+      "tools",
+      "tool_choice",
+      "structured_outputs",
+      "response_format",
+      "reasoning_effort"
+     ],
+     "supports_tool_choice": {
+      "none": true,
+      "auto": true,
+      "required": true,
+      "function": true
+     },
+     "status": 0,
+     "uptime_last_30m": 100,
+     "uptime_last_5m": 100,
+     "uptime_last_1d": 99.99765147956788,
+     "supports_implicit_caching": false,
+     "native_tools": {
+      "openrouter:web_search": {
+       "type": "web_search"
+      }
+     },
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    }
+   ]
+  },
+  "sakana/sakana-namazu": {
+   "id": "sakana/sakana-namazu",
+   "name": "Sakana: Sakana Namazu",
+   "created": 1786410129,
+   "description": "Sakana Namazu is a Japanese-specialized reasoning model from Sakana AI, based on Kimi K2.6 with additional training for Japanese language and business contexts. It is suited for Japanese instruction following,...",
+   "architecture": {
+    "tokenizer": "Other",
+    "instruct_type": null,
+    "modality": "text+image+file->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "file"
+    ],
+    "output_modalities": [
+     "text"
+    ]
+   },
+   "endpoints": [
+    {
+     "name": "Sakana AI | sakana/namazu-20260811",
+     "model_id": "sakana/sakana-namazu",
+     "model_name": "Sakana: Sakana Namazu",
+     "context_length": 262144,
+     "pricing": {
+      "prompt": "0.00000095",
+      "completion": "0.000004",
+      "web_search": "0.007",
+      "input_cache_read": "0.00000015",
+      "discount": 0
+     },
+     "provider_name": "Sakana AI",
+     "tag": "sakana",
+     "quantization": "unknown",
+     "max_completion_tokens": 65536,
+     "max_prompt_tokens": null,
+     "supported_parameters": [
+      "reasoning",
+      "include_reasoning",
+      "tools",
+      "tool_choice",
+      "structured_outputs",
+      "web_search_options",
+      "reasoning_effort"
+     ],
+     "supports_tool_choice": {
+      "none": true,
+      "auto": true,
+      "required": true,
+      "function": true
+     },
+     "status": 0,
+     "uptime_last_30m": null,
+     "uptime_last_5m": null,
+     "uptime_last_1d": 100,
+     "supports_implicit_caching": false,
+     "native_tools": {
+      "openrouter:web_search": {
+       "type": "web_search"
+      }
+     },
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    }
+   ]
+  },
+  "qwen/qwen-2.5-72b-instruct": {
+   "id": "qwen/qwen-2.5-72b-instruct",
+   "name": "Qwen2.5 72B Instruct",
+   "created": 1726704000,
+   "description": "Qwen2.5 72B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has greatly improved capabilities in coding and...",
+   "architecture": {
+    "tokenizer": "Qwen",
+    "instruct_type": "chatml",
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ]
+   },
+   "endpoints": [
+    {
+     "name": "DeepInfra | qwen/qwen-2.5-72b-instruct",
+     "model_id": "qwen/qwen-2.5-72b-instruct",
+     "model_name": "Qwen2.5 72B Instruct",
+     "context_length": 32768,
+     "pricing": {
+      "prompt": "0.00000036",
+      "completion": "0.0000004",
+      "discount": 0
+     },
+     "provider_name": "DeepInfra",
+     "tag": "deepinfra/fp8",
+     "quantization": "fp8",
+     "max_completion_tokens": 16384,
+     "max_prompt_tokens": null,
+     "supported_parameters": [
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "stop",
+      "frequency_penalty",
+      "presence_penalty",
+      "repetition_penalty",
+      "top_k",
+      "seed",
+      "min_p",
+      "tools",
+      "tool_choice",
+      "logit_bias",
+      "structured_outputs",
+      "response_format"
+     ],
+     "supports_tool_choice": {
+      "none": true,
+      "auto": true,
+      "required": false,
+      "function": false
+     },
+     "status": -5,
+     "uptime_last_30m": 67.88830715532286,
+     "uptime_last_5m": 92.35668789808918,
+     "uptime_last_1d": 98.78125133677362,
+     "supports_implicit_caching": false,
+     "native_tools": {},
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    },
+    {
+     "name": "Novita | qwen/qwen-2.5-72b-instruct",
+     "model_id": "qwen/qwen-2.5-72b-instruct",
+     "model_name": "Qwen2.5 72B Instruct",
+     "context_length": 32000,
+     "pricing": {
+      "prompt": "0.00000038",
+      "completion": "0.0000004",
+      "discount": 0
+     },
+     "provider_name": "Novita",
+     "tag": "novita/bf16",
+     "quantization": "bf16",
+     "max_completion_tokens": 8192,
+     "max_prompt_tokens": null,
+     "supported_parameters": [
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "stop",
+      "frequency_penalty",
+      "presence_penalty",
+      "seed",
+      "top_k",
+      "repetition_penalty",
+      "tools",
+      "tool_choice"
+     ],
+     "supports_tool_choice": {
+      "none": true,
+      "auto": true,
+      "required": true,
+      "function": true
+     },
+     "status": -5,
+     "uptime_last_30m": 74.69026548672566,
+     "uptime_last_5m": 23.863636363636363,
+     "uptime_last_1d": 96.43679795250961,
+     "supports_implicit_caching": false,
+     "native_tools": {},
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    }
+   ]
+  },
+  "unbiased/pareto-26.10-preview": {
+   "id": "unbiased/pareto-26.10-preview",
+   "name": "Pareto 26.10 Preview",
+   "created": 1790863623,
+   "description": "Pareto is a multimodal composite model built for research, coding, and agentic workflows, while delivering frontier-level performance across a broad range of general-purpose tasks. This is a preview of the...",
+   "architecture": {
+    "tokenizer": "Other",
+    "instruct_type": null,
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ]
+   },
+   "endpoints": [
+    {
+     "name": "Unbiased | unbiased/pareto-26.10-preview-20260929",
+     "model_id": "unbiased/pareto-26.10-preview",
+     "model_name": "Pareto 26.10 Preview",
+     "context_length": 1048576,
+     "pricing": {
+      "prompt": "0.0000008",
+      "completion": "0.0000032",
+      "input_cache_read": "0.00000003",
+      "discount": 0
+     },
+     "provider_name": "Unbiased",
+     "tag": "unbiased",
+     "quantization": "unknown",
+     "max_completion_tokens": 131072,
+     "max_prompt_tokens": null,
+     "supported_parameters": [
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "tools",
+      "tool_choice"
+     ],
+     "supports_tool_choice": {
+      "none": false,
+      "auto": true,
+      "required": false,
+      "function": false
+     },
+     "status": 0,
+     "uptime_last_30m": 99.7324414715719,
+     "uptime_last_5m": 99.6742671009772,
+     "uptime_last_1d": 99.89995235826584,
+     "supports_implicit_caching": false,
+     "native_tools": {},
+     "supports_voice_cloning": false,
+     "supports_multiple_audio_references": false,
+     "supports_image_reference": false,
+     "latency_last_30m": null,
+     "throughput_last_30m": null
+    }
+   ]
+  }
+ }
+}
