@@ -1,0 +1,75 @@
+# Cloud observability stack for Choreograph EC2 deployment.
+#
+# Runs alongside the sandbox-mgmt systemd service on the same host.
+# The app exports OTLP to localhost:4318 (otel-collector).
+# Grafana is the only service exposed to the ALB (port 3000).
+# Jaeger and Prometheus are accessible through Grafana's datasource proxy.
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.117.0
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "127.0.0.1:4318:4318"   # OTLP HTTP (app → collector, local only)
+      - "127.0.0.1:8889:8889"   # Prometheus exporter (scraped by prometheus service)
+    restart: unless-stopped
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - METRICS_STORAGE_TYPE=prometheus
+      - PROMETHEUS_SERVER_URL=http://prometheus:9090
+      - PROMETHEUS_QUERY_NORMALIZE_CALLS=true
+      - PROMETHEUS_QUERY_NORMALIZE_DURATION=true
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.size=5GB"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss:11.4.0
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      # Auth: ALB handles OIDC, Grafana trusts forwarded headers
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_BASIC_ENABLED=false
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_PROXY_ENABLED=true
+      - GF_AUTH_PROXY_HEADER_NAME=X-Amzn-Oidc-Data
+      - GF_AUTH_PROXY_HEADER_PROPERTY=email
+      - GF_AUTH_PROXY_AUTO_SIGN_UP=true
+      - GF_AUTH_PROXY_HEADERS=Email:X-Amzn-Oidc-Data
+      # All users get Admin (internal observability tool)
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      # Server
+      # Public URL Grafana serves under; supply per deploy environment via the
+      # GRAFANA_ROOT_URL env var (e.g. https://admin.choreograph.example.com).
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-https://admin.choreograph.example.com}
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/sandbox-overview.json
+    ports:
+      - "0.0.0.0:3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus-data:
+  grafana-data:

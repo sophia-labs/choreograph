@@ -1,0 +1,367 @@
+{
+  "uid": "agent-operations",
+  "title": "Agent Operations",
+  "tags": ["sandbox-mgmt"],
+  "timezone": "browser",
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "template",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+        "query": "label_values(sandbox_mgmt_agent_runs_total, template)",
+        "includeAll": true,
+        "current": { "text": "All", "value": "$__all" },
+        "refresh": 2
+      }
+    ]
+  },
+  "panels": [
+    {
+      "title": "Agent Runs",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "title": "Agent Runs / min",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(sandbox_mgmt_agent_runs_total{template=~\"$template\"}[5m])) * 60 or vector(0)",
+          "legendFormat": "runs/min"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "cpm" }
+      }
+    },
+    {
+      "title": "Agent Error Rate",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(sandbox_mgmt_agent_run_errors_total{template=~\"$template\"}[5m])) / sum(rate(sandbox_mgmt_agent_runs_total{template=~\"$template\"}[5m])) or vector(0)",
+          "legendFormat": "error rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0.1, "color": "yellow" },
+              { "value": 0.3, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Median Turns / Run",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(sandbox_mgmt_agent_turns_per_run_bucket{template=~\"$template\"}[5m])) by (le))",
+          "legendFormat": "p50 turns"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short", "decimals": 1 }
+      }
+    },
+    {
+      "title": "Run Duration p95",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(sandbox_mgmt_agent_run_duration_seconds_bucket{template=~\"$template\"}[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "decimals": 1 }
+      }
+    },
+    {
+      "title": "Agent Run Duration",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(sandbox_mgmt_agent_run_duration_seconds_bucket{template=~\"$template\"}[5m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(sandbox_mgmt_agent_run_duration_seconds_bucket{template=~\"$template\"}[5m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(sandbox_mgmt_agent_run_duration_seconds_bucket{template=~\"$template\"}[5m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "Turns per Run",
+      "type": "heatmap",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(increase(sandbox_mgmt_agent_turns_per_run_bucket{template=~\"$template\"}[$__rate_interval])) by (le)",
+          "legendFormat": "{{ le }}",
+          "format": "heatmap"
+        }
+      ],
+      "options": {
+        "calculate": false,
+        "color": { "scheme": "Oranges" }
+      }
+    },
+    {
+      "title": "LLM Proxy",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "collapsed": false
+    },
+    {
+      "title": "LLM Requests / min by Model",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (model) (rate(sandbox_mgmt_llm_requests_total{template=~\"$template\"}[5m])) * 60",
+          "legendFormat": "{{ model }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "cpm" }
+      }
+    },
+    {
+      "title": "LLM Request Duration by Model",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (model, le) (rate(sandbox_mgmt_llm_request_duration_seconds_bucket{template=~\"$template\"}[5m])))",
+          "legendFormat": "{{ model }} p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (model, le) (rate(sandbox_mgmt_llm_request_duration_seconds_bucket{template=~\"$template\"}[5m])))",
+          "legendFormat": "{{ model }} p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "LLM Tokens / min by Direction",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (direction) (rate(sandbox_mgmt_llm_tokens_total{template=~\"$template\"}[5m])) * 60",
+          "legendFormat": "{{ direction }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" }
+      }
+    },
+    {
+      "title": "Tool Calls",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "collapsed": false
+    },
+    {
+      "title": "Tool Calls / min by Tool",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (tool_name) (rate(sandbox_mgmt_tool_calls_total{template=~\"$template\"}[5m])) * 60",
+          "legendFormat": "{{ tool_name }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "cpm" }
+      }
+    },
+    {
+      "title": "Tool Call Duration by Tool",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (tool_name, le) (rate(sandbox_mgmt_tool_call_duration_seconds_bucket{template=~\"$template\"}[5m])))",
+          "legendFormat": "{{ tool_name }} p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (tool_name, le) (rate(sandbox_mgmt_tool_call_duration_seconds_bucket{template=~\"$template\"}[5m])))",
+          "legendFormat": "{{ tool_name }} p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "Tool Error Rate by Tool",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (tool_name) (rate(sandbox_mgmt_tool_calls_total{template=~\"$template\", outcome=\"error\"}[5m])) / sum by (tool_name) (rate(sandbox_mgmt_tool_calls_total{template=~\"$template\"}[5m]))",
+          "legendFormat": "{{ tool_name }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0.05, "color": "yellow" },
+              { "value": 0.2, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Gate Calls (Mnemosyne Proxy)",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "collapsed": false
+    },
+    {
+      "title": "Gate Calls / min by Tool",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 33 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (gate) (rate(sandbox_mgmt_gate_calls_total{template=~\"$template\"}[5m])) * 60",
+          "legendFormat": "{{ gate }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "cpm" }
+      }
+    },
+    {
+      "title": "Gate Call Duration by Tool",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 33 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (gate, le) (rate(sandbox_mgmt_gate_call_duration_seconds_bucket{template=~\"$template\"}[5m])))",
+          "legendFormat": "{{ gate }} p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (gate, le) (rate(sandbox_mgmt_gate_call_duration_seconds_bucket{template=~\"$template\"}[5m])))",
+          "legendFormat": "{{ gate }} p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "Gate Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 33 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (gate) (rate(sandbox_mgmt_gate_calls_total{template=~\"$template\", outcome=\"error\"}[5m])) / sum by (gate) (rate(sandbox_mgmt_gate_calls_total{template=~\"$template\"}[5m]))",
+          "legendFormat": "{{ gate }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0.05, "color": "yellow" },
+              { "value": 0.2, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Span-Derived Metrics",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+      "collapsed": false
+    },
+    {
+      "title": "Agent Op Latency p95 (from spans)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 42 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (span_name, le) (rate(traces_span_metrics_duration_milliseconds_bucket{span_name=~\"gate.call|llm.request|tool.execute\"}[5m])))",
+          "legendFormat": "{{ span_name }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "ms" }
+      }
+    },
+    {
+      "title": "Agent Op Error Rate (from spans)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 42 },
+      "datasource": { "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (span_name) (rate(traces_span_metrics_calls_total{span_name=~\"gate.call|llm.request|tool.execute\", status_code=\"STATUS_CODE_ERROR\"}[5m])) / sum by (span_name) (rate(traces_span_metrics_calls_total{span_name=~\"gate.call|llm.request|tool.execute\"}[5m]))",
+          "legendFormat": "{{ span_name }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0.05, "color": "yellow" },
+              { "value": 0.2, "color": "red" }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "schemaVersion": 39
+}

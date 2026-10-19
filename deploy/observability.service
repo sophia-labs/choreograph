@@ -1,0 +1,21 @@
+[Unit]
+Description=Choreograph Observability Stack (OTEL Collector + Prometheus + Jaeger + Grafana)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/choreograph/deploy/observability
+ExecStart=/usr/bin/docker compose up -d --remove-orphans
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=120
+TimeoutStopSec=30
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=choreograph-obs
+
+[Install]
+WantedBy=multi-user.target

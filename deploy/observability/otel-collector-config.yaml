@@ -1,0 +1,48 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+connectors:
+  spanmetrics:
+    histogram:
+      explicit:
+        buckets: [5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s]
+    dimensions:
+      - name: sandbox.id
+      - name: sandbox.template
+      - name: sandbox.terminal_state
+      - name: sandbox.oom
+      - name: sandbox.kill.reason
+      # Agent operations
+      - name: gate.name
+      - name: llm.model
+      - name: tool.name
+      - name: tool.outcome
+    exemplars:
+      enabled: true
+
+processors:
+  batch:
+    timeout: 2s
+    send_batch_size: 512
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/jaeger, spanmetrics]
+    metrics:
+      receivers: [spanmetrics, otlp]
+      processors: [batch]
+      exporters: [prometheus]
