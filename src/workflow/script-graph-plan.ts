@@ -92,6 +92,14 @@ const refused = []
 const steps = []
 const cap = ${GRAPH_PLAN_LIMITS.itemsPerCollection}
 
+// A step that answers without calling submit() gets one more chance, told plainly (2026-10-18: three of 26 clerks
+// lost their passage this way). The retry is its own node (" again"), so its session and testimony are its own.
+const ask = async (prompt, o) => {
+	const r = await agent(prompt, o)
+	if (r && r.structured !== undefined) return r
+	return agent(prompt + "\\n\\nYour last attempt ended without calling submit(). Call submit() now with your answer; if there is nothing to report, submit an empty list.", { ...o, label: o.label + " again" })
+}
+
 for (const ph of plan.phases) {
 	phase(ph.title)
 	await parallel(ph.steps.map((step) => async () => {
@@ -115,7 +123,7 @@ for (const ph of plan.phases) {
 			const items = collections[step.over] || []
 			// One agent node per item, each with its own label (and so its own node key and Agent Session).
 			const answers = await pipeline(items.map((item, i) => ({ item, i })), ({ item, i }) =>
-				agent("The item:\\n" + JSON.stringify(item, null, 2), { ...opts, label: step.label + " #" + (i + 1) }).then((r) => ({ item, out: r.structured })),
+				ask("The item:\\n" + JSON.stringify(item, null, 2), { ...opts, label: step.label + " #" + (i + 1) }).then((r) => ({ item, out: r && r.structured })),
 			)
 			if (step.checks) {
 				const passed = []
@@ -136,7 +144,7 @@ for (const ph of plan.phases) {
 		const given = step.consumes.length
 			? step.consumes.map((c) => "The collection " + c + ":\\n" + JSON.stringify(collections[c] || [], null, 2)).join("\\n\\n")
 			: "The run input:\\n" + JSON.stringify(args.inputs || {}, null, 2)
-		const r = await agent(given, opts)
+		const r = await ask(given, opts)
 		const items = ((r.structured && r.structured.items) || []).slice(0, cap)
 		collections[step.produces] = items
 		steps.push({ step: step.iri, runs: 1, produced: items.length })
