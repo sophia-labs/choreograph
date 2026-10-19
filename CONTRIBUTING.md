@@ -4,6 +4,9 @@ Thanks for your interest. Sophia Compute (code name `choreograph`) is licensed u
 maintained by Sophia Labs. By contributing, you agree that your contributions are submitted under, and may be
 distributed under, that same license.
 
+This repository is the canonical source: pull requests here are what ships Sophia Compute, and there is no private
+copy behind it. A push to `main` builds, tests and deploys the hosted service.
+
 ## Getting started
 
 The repository uses [pnpm](https://pnpm.io/) through Corepack and Node.js 22.19 or newer. pi comes from npm
@@ -42,6 +45,18 @@ real code (real processes, real stores), not mocks.
   canonical JSON and digest contract; `packages/sophia-kernel-runtime` and `crates/jupyter-bridge` are the kernel
   runtime for the bubblewrap path.
 - `deploy/` builds what runs: the gardend service folder and the Linux runtime bundles.
+
+## Run these locally before opening a PR
+
+CI runs the same three commands on Linux; running them first saves a round trip.
+
+```sh
+pnpm build   # compiles every package
+pnpm check   # Biome and the typecheck baseline
+pnpm test    # the unit suites (the Linux-only cgroup and bubblewrap suites skip elsewhere)
+```
+
+If you touched `deploy/`, also build what runs: `node deploy/build-gardend-service.mjs <dir> --natives host`.
 
 ## Pull requests
 
