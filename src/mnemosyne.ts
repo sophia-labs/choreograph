@@ -950,7 +950,13 @@ export function resolveGatewayServiceAuth(onBehalfOf: string | undefined): Hoste
  */
 export function resolveDirectMcpAuth(userId: string | undefined): HostedDirectMcpConfig | undefined {
 	const mcpUrl = process.env.MNEMOSYNE_MCP_URL?.trim();
-	const accessToken = process.env.MNEMOSYNE_MCP_ACCESS_TOKEN?.trim() || process.env.MNEMOSYNE_MCP_BEARER_TOKEN?.trim();
+	// A self-host operator may hand Choreograph a token of its own (`gardend token create`, set in the service manifest):
+	// the member token gardend mints for a supervised service cannot load or update RDF, and a run's provenance and a
+	// graph plan's testimony are RDF writes. gardend reserves the MNEMOSYNE_ names, hence a CHOREOGRAPH_ one.
+	const accessToken =
+		process.env.CHOREOGRAPH_MCP_ACCESS_TOKEN?.trim() ||
+		process.env.MNEMOSYNE_MCP_ACCESS_TOKEN?.trim() ||
+		process.env.MNEMOSYNE_MCP_BEARER_TOKEN?.trim();
 	if (!mcpUrl && !accessToken) {
 		return undefined;
 	}

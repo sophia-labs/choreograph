@@ -235,6 +235,14 @@ import {
 	readDomainAgentHostContext,
 } from "./workflow/script-domain-agent-activity-loop.js";
 import {
+	buildGraphPlanInputs,
+	finalizeGraphPlanRun,
+	GRAPH_PLAN_SCRIPT,
+	loadApprovedGraphPlan,
+	parseGraphPlanRequest,
+	readGraphPlanHostContext,
+} from "./workflow/script-graph-plan.js";
+import {
 	buildHojaSwarmWorkflowInputs,
 	HOJA_SWARM_SCRIPT,
 	HOJA_SWARM_WORKFLOW_NAME,
@@ -259,6 +267,7 @@ import {
 	workspaceChatGrantTools,
 	workspaceChatHostFacts,
 	workspaceChatViewerRefusal,
+	workspaceReaderFence,
 } from "./workflow/workspace-chat.js";
 import {
 	gatewayGraphRoleRequired,
@@ -272,6 +281,7 @@ import { GitWorktreeProvider } from "./workspace/git-workspace-provider.js";
 const DOMAIN_AGENT_ACTIVITY_LOOP_COMPILED = compileWorkflow(DOMAIN_AGENT_ACTIVITY_LOOP_SCRIPT);
 const HOJA_SWARM_COMPILED = compileWorkflow(HOJA_SWARM_SCRIPT);
 const WORKSPACE_CHAT_COMPILED = compileWorkflow(WORKSPACE_CHAT_SCRIPT);
+const GRAPH_PLAN_COMPILED = compileWorkflow(GRAPH_PLAN_SCRIPT);
 
 /**
  * sha256 (hex) of the compiled workflow SOURCE — a property of the workflow
@@ -283,6 +293,7 @@ const DOMAIN_AGENT_ACTIVITY_LOOP_SCRIPT_SHA256 = createHash("sha256")
 	.digest("hex");
 const HOJA_SWARM_SCRIPT_SHA256 = createHash("sha256").update(HOJA_SWARM_COMPILED.source).digest("hex");
 const WORKSPACE_CHAT_SCRIPT_SHA256 = createHash("sha256").update(WORKSPACE_CHAT_COMPILED.source).digest("hex");
+const GRAPH_PLAN_SCRIPT_SHA256 = createHash("sha256").update(GRAPH_PLAN_COMPILED.source).digest("hex");
 
 /**
  * Populate the in-process registry at module load (before the HTTP server
@@ -478,6 +489,52 @@ registerWorkflow({
 	scriptSha256: HOJA_SWARM_SCRIPT_SHA256,
 	buildInputs(body, ctx) {
 		return buildHojaSwarmWorkflowInputs(body, ctx.graphId);
+	},
+});
+
+/**
+ * Built-in graph plan (`graph-plan-v1`, 2026-10-18): a workflow whose definition is a named RDF graph. The host reads
+ * and compiles the definition, refuses unless the caller names the digest of exactly that plan, and binds every step
+ * to a read-only agent. The script walks data; nothing from the graph is evaluated, so no dynamic-source flag applies.
+ */
+registerWorkflow({
+	compiled: GRAPH_PLAN_COMPILED,
+	scriptSha256: GRAPH_PLAN_SCRIPT_SHA256,
+	async buildInputs(body, ctx) {
+		if (!ctx.graph || !ctx.graphOwnerPrincipal) {
+			throw new InvocationFault(
+				"graph_plan_requires_owner_scope",
+				"a graph plan runs in its home graph, on an owner-scoped host invocation",
+				409,
+			);
+		}
+		const request = parseGraphPlanRequest(body);
+		const { plan, digest } = await loadApprovedGraphPlan({ graph: ctx.graph, graphId: ctx.graphId, request });
+		let runtimeBundle: { id: string; digest: string };
+		try {
+			const descriptor = resolveRuntimeBundleDescriptor(SOPHIA_AGENT_RUNTIME_BUNDLE_ID);
+			runtimeBundle = { id: descriptor.id, digest: descriptor.digest };
+		} catch (error) {
+			throw new InvocationFault(
+				"runtime_unavailable",
+				`the agent runtime bundle is not installed on this host: ${error instanceof Error ? error.message : String(error)}`,
+				503,
+			);
+		}
+		const liveTools = ctx.listGraphTools ? await ctx.listGraphTools() : undefined;
+		return buildGraphPlanInputs({
+			graphId: ctx.graphId,
+			graphOwnerPrincipal: ctx.graphOwnerPrincipal,
+			request,
+			plan,
+			digest,
+			runtimeBundle,
+			inference: resolveWorkspaceChatInference(),
+			...(liveTools ? { liveTools } : {}),
+		});
+	},
+	async finalizeRun(run, ctx) {
+		await finalizeGraphPlanRun(run, ctx);
 	},
 });
 
@@ -3888,6 +3945,7 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 			const parentInvocationId = envelope?.invocationId ?? `inv-${runId.slice(4)}`;
 			const domainHost = readDomainAgentHostContext(inputs.hostContext);
 			const workspaceChatHost = readWorkspaceChatHostContext(inputs.hostContext);
+			const graphPlanHost = readGraphPlanHostContext(inputs.hostContext);
 			// Exam 1, finding 2: the host's own bookkeeping (wf: provenance at start, per node and at the end, the agt:
 			// fold, Emporium ingest, evolution projection) is written as the person with sparql_update, outside every
 			// manifest. A workspace chat bound to the Reader may belong to someone who can only view the graph: its run
@@ -4084,6 +4142,15 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 									mnemosyne: workspaceChatGrantTools(builtIn.fence.mode.allowsTool, workspaceChatHost.tools),
 								},
 								mode: builtIn.fence,
+							};
+						}
+						if (graphPlanHost) {
+							// Built-in graph plan: no graph grant. Every step is the workspace Reader, fenced to this
+							// graph, with exactly the read tools its spec names.
+							const fence = workspaceReaderFence(graphPlanHost.graphId);
+							return {
+								exactTools: { mnemosyne: workspaceChatGrantTools(fence.mode.allowsTool, spec.includeTools) },
+								mode: fence,
 							};
 						}
 						if (!domainHost && localAgentDefaultsEnabled()) {
