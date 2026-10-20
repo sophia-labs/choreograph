@@ -32,6 +32,7 @@ import {
 	GRAPH_PLAN_LIMITS,
 	GRAPH_PLAN_WORKFLOW_NAME,
 	GraphPlanError,
+	type GraphPlanSourceV1,
 	type GraphPlanStepV1,
 	type GraphPlanV1,
 	graphPlanDigest,
@@ -143,7 +144,9 @@ for (const ph of plan.phases) {
 		}
 		const given = step.consumes.length
 			? step.consumes.map((c) => "The collection " + c + ":\\n" + JSON.stringify(collections[c] || [], null, 2)).join("\\n\\n")
-			: "The run input:\\n" + JSON.stringify(args.inputs || {}, null, 2)
+			: step.reads && step.reads.length && Object.keys(args.inputs || {}).length === 0
+				? "Begin with your sources."
+				: "The run input:\\n" + JSON.stringify(args.inputs || {}, null, 2)
 		const r = await ask(given, opts)
 		const items = ((r.structured && r.structured.items) || []).slice(0, cap)
 		collections[step.produces] = items
@@ -347,6 +350,17 @@ function stepSystemPrompt(plan: GraphPlanV1, step: GraphPlanStepV1): string {
 		step.instructions,
 		"",
 	];
+	const sources = (step.reads ?? [])
+		.map((iri) => plan.sources?.find((source) => source.iri === iri))
+		.filter((source): source is GraphPlanSourceV1 => source !== undefined);
+	if (sources.length > 0) {
+		lines.push(
+			"You read:",
+			...sources.map((source) => `- ${source.label}: ${sourceWords(source)}.`),
+			"Read it with your tools; your instructions may call it by name.",
+			"",
+		);
+	}
 	if (step.checks) {
 		lines.push(
 			"You check one item at a time. Answer ok: true only if the item meets your instructions exactly; otherwise ok: false, a short reason, and, where it helps, the nearest thing that would be right.",
@@ -363,6 +377,19 @@ function stepSystemPrompt(plan: GraphPlanV1, step: GraphPlanStepV1): string {
 		"When you have your answer, call submit() with it. That call is your only answer: never reply in plain text, and do not stop without calling submit().",
 	);
 	return lines.join("\n");
+}
+
+/** Where a source is, in the words a step is given: a document, or a run of its blocks. */
+export function sourceWords(source: GraphPlanSourceV1): string {
+	const range =
+		source.fromBlock && source.toBlock
+			? `, from block ${source.fromBlock} through block ${source.toBlock}`
+			: source.fromBlock
+				? `, from block ${source.fromBlock} to its end`
+				: source.toBlock
+					? `, from its beginning through block ${source.toBlock}`
+					: "";
+	return `document ${source.documentId}${range}`;
 }
 
 /** The trusted host facts of a graph-plan run (never from the script's args): its home graph and approved plan. */

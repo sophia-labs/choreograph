@@ -9,7 +9,10 @@
  *   ?s a wf:AgentNode ; wf:inPhase ?p ; wf:label "the Reader" ; wf:agentType "segmenter" ;
  *      wf:instructions "…" ; wf:mode "once" | "perItem" ; wf:over ?collection ;
  *      wf:consumes ?collection ; wf:produces ?collection ; wf:itemSchema "{json schema of one item}" ;
- *      wf:checks ?collection .
+ *      wf:checks ?collection ; wf:reads ?source .
+ *   ?source a wf:Source ; wf:label "Chapter I" ; wf:documentId "doc-…" ; wf:fromBlock "block-…" ; wf:toBlock "block-…" .
+ *   ?dest a wf:Destination ; wf:label "The book's margin" ; wf:kind "margin" ; wf:receives ?collection ;
+ *      wf:documentId "doc-…" .
  *
  * Phases run in `wf:order`; the steps of a phase run in parallel. A `once` step runs one agent
  * (with the run input, or the whole of each collection it consumes); a `perItem` step runs one
@@ -17,6 +20,11 @@
  * `wf:itemSchema`. A check (`wf:checks`) runs once per item of the collection it checks, answers a
  * fixed verdict, and produces the items it passed. A step may only read collections produced in an
  * earlier phase, so the plan is acyclic by construction.
+ *
+ * Sources and destinations (2026-10-19, Vera: "first-class") name what a workflow reads and where its results go, so
+ * an instruction can say "the book" instead of a document id and a person approves where a run will publish. A step
+ * that reads sources is told them; a destination is where Publish puts what it receives. A plan without them compiles
+ * to exactly what it did before (the new fields are absent, not empty), so its digest holds.
  *
  * Everything here is pure: the host reads the triples (`definitionQuery`), compiles them, and pins
  * the compiled plan's digest. What runs is exactly what was digested.
@@ -33,6 +41,8 @@ const DCT_TITLE = "http://purl.org/dc/terms/title";
 export const GRAPH_PLAN_LIMITS = Object.freeze({
 	phases: 6,
 	steps: 12,
+	sources: 6,
+	destinations: 4,
 	instructionsChars: 4000,
 	schemaChars: 4000,
 	itemsPerCollection: 200,
@@ -61,6 +71,30 @@ export interface GraphPlanStepV1 {
 	readonly produces?: string;
 	readonly checks?: string;
 	readonly itemSchema?: Record<string, unknown>;
+	/** The sources (`wf:Source` IRIs) the step reads, sorted; absent when it reads none. */
+	readonly reads?: readonly string[];
+}
+
+/** What a workflow reads: a document of this workspace, or a run of its blocks. */
+export interface GraphPlanSourceV1 {
+	readonly iri: string;
+	readonly id: string;
+	readonly label: string;
+	readonly documentId: string;
+	readonly fromBlock?: string;
+	readonly toBlock?: string;
+}
+
+/** Where a workflow's results go when a person publishes them. One kind in v1: comments in a document's margin. */
+export interface GraphPlanDestinationV1 {
+	readonly iri: string;
+	readonly id: string;
+	readonly label: string;
+	readonly kind: "margin";
+	/** The collection it receives. */
+	readonly receives: string;
+	/** The document whose margin, for findings that name no `documentId` of their own. */
+	readonly documentId?: string;
 }
 
 export interface GraphPlanPhaseV1 {
@@ -76,7 +110,14 @@ export interface GraphPlanV1 {
 	readonly name: string;
 	readonly title: string;
 	readonly phases: readonly GraphPlanPhaseV1[];
+	/** Sorted by IRI; absent when there are none. */
+	readonly sources?: readonly GraphPlanSourceV1[];
+	/** Sorted by IRI; absent when there are none. */
+	readonly destinations?: readonly GraphPlanDestinationV1[];
 }
+
+const DOCUMENT_ID = /^[A-Za-z0-9_-]{1,128}$/;
+const BLOCK_ID = /^[A-Za-z0-9_.:-]{1,128}$/;
 
 export class GraphPlanError extends Error {
 	constructor(readonly problems: readonly string[]) {
@@ -288,6 +329,7 @@ export function compileGraphPlan(triples: readonly Triple[]): GraphPlanV1 {
 		}
 		if (mode === "perItem" && !over) problems.push(`${short(s)} runs per item but names no collection (wf:over)`);
 		const consumes = iris(s, `${WF}consumes`);
+		const reads = iris(s, `${WF}reads`);
 		const produces = iriOf(s, `${WF}produces`, "wf:produces", !checks);
 		const schemaText = literal(s, `${WF}itemSchema`, "wf:itemSchema", !checks);
 		let itemSchema: Record<string, unknown> | undefined;
@@ -318,6 +360,7 @@ export function compileGraphPlan(triples: readonly Triple[]): GraphPlanV1 {
 			...(produces ? { produces } : {}),
 			...(checks ? { checks } : {}),
 			...(itemSchema ? { itemSchema } : {}),
+			...(reads.length > 0 ? { reads } : {}),
 			phase: phase ?? "",
 		};
 	});
@@ -333,6 +376,61 @@ export function compileGraphPlan(triples: readonly Triple[]): GraphPlanV1 {
 	const ids = steps.map((s) => s.id);
 	if (new Set(ids).size !== ids.length)
 		problems.push("two steps share a local name; give each step its own IRI fragment");
+
+	const sourceIris = typed("Source");
+	if (sourceIris.length > GRAPH_PLAN_LIMITS.sources) problems.push(`at most ${GRAPH_PLAN_LIMITS.sources} sources`);
+	const sources: GraphPlanSourceV1[] = sourceIris.map((s) => {
+		const label = literal(s, `${WF}label`, "wf:label", true) ?? short(s);
+		const documentId = literal(s, `${WF}documentId`, "wf:documentId", true);
+		if (documentId !== undefined && !DOCUMENT_ID.test(documentId))
+			problems.push(`${short(s)}'s wf:documentId is not a document id`);
+		const block = (name: "fromBlock" | "toBlock"): string | undefined => {
+			const value = literal(s, `${WF}${name}`, `wf:${name}`, false);
+			if (value !== undefined && !BLOCK_ID.test(value)) problems.push(`${short(s)}'s wf:${name} is not a block id`);
+			return value;
+		};
+		const fromBlock = block("fromBlock");
+		const toBlock = block("toBlock");
+		return {
+			iri: s,
+			id: localId(s),
+			label,
+			documentId: documentId ?? "",
+			...(fromBlock ? { fromBlock } : {}),
+			...(toBlock ? { toBlock } : {}),
+		};
+	});
+	for (const step of steps) {
+		for (const read of step.reads ?? []) {
+			if (!sourceIris.includes(read))
+				problems.push(
+					`${short(step.iri)} reads ${short(read)}, which is not a source of this workflow (wf:Source)`,
+				);
+		}
+	}
+
+	const destinationIris = typed("Destination");
+	if (destinationIris.length > GRAPH_PLAN_LIMITS.destinations)
+		problems.push(`at most ${GRAPH_PLAN_LIMITS.destinations} destinations`);
+	const destinations: GraphPlanDestinationV1[] = destinationIris.map((d) => {
+		const label = literal(d, `${WF}label`, "wf:label", true) ?? short(d);
+		const kind = literal(d, `${WF}kind`, "wf:kind", true);
+		if (kind !== undefined && kind !== "margin") problems.push(`${short(d)}'s wf:kind is "${kind}"; use "margin"`);
+		const receives = iriOf(d, `${WF}receives`, "wf:receives", true);
+		if (receives && !producedBy.has(receives))
+			problems.push(`${short(d)} receives ${short(receives)}, which no step produces`);
+		const documentId = literal(d, `${WF}documentId`, "wf:documentId", false);
+		if (documentId !== undefined && !DOCUMENT_ID.test(documentId))
+			problems.push(`${short(d)}'s wf:documentId is not a document id`);
+		return {
+			iri: d,
+			id: localId(d),
+			label,
+			kind: "margin" as const,
+			receives: receives ?? "",
+			...(documentId ? { documentId } : {}),
+		};
+	});
 	if (problems.length > 0) throw new GraphPlanError([...new Set(problems)]);
 
 	return {
@@ -349,6 +447,8 @@ export function compileGraphPlan(triples: readonly Triple[]): GraphPlanV1 {
 				.map(({ phase: _phase, ...step }) => step)
 				.sort((a, b) => a.iri.localeCompare(b.iri)),
 		})),
+		...(sources.length > 0 ? { sources } : {}),
+		...(destinations.length > 0 ? { destinations } : {}),
 	};
 }
 
