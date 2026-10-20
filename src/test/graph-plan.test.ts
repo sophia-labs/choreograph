@@ -20,6 +20,8 @@ const FIXTURE = JSON.parse(
 	readFileSync(new URL("./fixtures/graph-plan-freud-ch1.sparql.json", import.meta.url), "utf8"),
 ) as unknown;
 const PINNED = "sha256:3d3efe3add6543d7d800941ee10559f4729e29b6d69c8416ce5c00d37dcc0b33";
+// The same definition with a source the Reader reads and a margin the verified entries go to (2026-10-19).
+const PINNED_WITH_SOURCES = "sha256:e0f63e28e36771e32eb181a178e8b8b96021dd20b84cbce7c5440c38df83546a";
 
 describe("graph-plan-v1 compiler", () => {
 	it("compiles the Freud definition into three phases, in order", () => {
@@ -146,7 +148,8 @@ describe("graph-plan-v1 compiler", () => {
 			]);
 			assert.deepEqual(plan.phases[0].steps[0].reads, [`${W}#book`]);
 			const digest = graphPlanDigest(plan);
-			assert.notEqual(digest, PINNED);
+			// The browser pane reaches the same digest (shrubbery apps/organism/src/cell/__tests__/graph-plan.test.ts).
+			assert.equal(digest, PINNED_WITH_SOURCES);
 			const elsewhere = [...base(), ...book, ...margin].map((t) =>
 				t.p === `${WF}documentId` && t.s.endsWith("#margin") ? { ...t, o: text("another-doc") } : t,
 			);
