@@ -417,14 +417,30 @@ export function graphPlanRunGraphIri(workflowIri: string, runId: string): string
 	return `${workflowIri}:run:${runId.replace(/[^A-Za-z0-9_-]/g, "_")}`;
 }
 
-export function serializeGraphPlanRun(input: {
+interface GraphPlanRunTestimony {
 	readonly runId: string;
 	readonly status: string;
 	readonly definition: string;
 	readonly digest: string;
 	readonly workflow: string;
 	readonly output: unknown;
-}): string {
+}
+
+/** The run's testimony as a SPARQL update into its own named graph (for a cell that grants `sparql_update`). */
+export function serializeGraphPlanRun(input: GraphPlanRunTestimony): string {
+	const { runGraph, triples } = graphPlanRunTriples(input);
+	return `PREFIX wf: <${WF}>\nINSERT DATA { GRAPH <${runGraph}> {\n${triples.join("\n")}\n} }`;
+}
+
+/**
+ * The same testimony as Turtle, for gardend's `workflow_run_record`, which writes it into the run graph with only
+ * document-write scope (a self-hosted gardend gives Compute a member token, which may not `sparql_update`).
+ */
+export function serializeGraphPlanRunTurtle(input: GraphPlanRunTestimony): string {
+	return `@prefix wf: <${WF}> .\n${graphPlanRunTriples(input).triples.join("\n")}\n`;
+}
+
+function graphPlanRunTriples(input: GraphPlanRunTestimony): { runGraph: string; triples: string[] } {
 	const runGraph = graphPlanRunGraphIri(input.workflow, input.runId);
 	const run = `<${runGraph}#run>`;
 	const out = isRecord(input.output) ? input.output : {};
@@ -458,7 +474,7 @@ export function serializeGraphPlanRun(input: {
 			`<${runGraph}#step-${i + 1}> a wf:StepRun ; wf:partOfRun ${run} ; wf:step <${rec.step}> ; wf:runs ${Number(rec.runs) || 0} ; wf:produced ${Number(rec.produced) || 0}${rec.refused !== undefined ? ` ; wf:refused ${Number(rec.refused) || 0}` : ""} .`,
 		);
 	});
-	return `PREFIX wf: <${WF}>\nINSERT DATA { GRAPH <${runGraph}> {\n${triples.join("\n")}\n} }`;
+	return { runGraph, triples };
 }
 
 export async function finalizeGraphPlanRun(
@@ -476,17 +492,46 @@ export async function finalizeGraphPlanRun(
 		typeof host.digest !== "string"
 	)
 		return;
-	await ctx.graph.sparqlUpdate(
-		ctx.graphId,
-		serializeGraphPlanRun({
-			runId: run.runId,
-			status: String(run.status),
-			definition: host.definition,
-			digest: host.digest,
-			workflow: host.workflow,
-			output: run.output,
-		}),
-	);
+	const testimony: GraphPlanRunTestimony = {
+		runId: run.runId,
+		status: String(run.status),
+		definition: host.definition,
+		digest: host.digest,
+		workflow: host.workflow,
+		output: run.output,
+	};
+	// gardend's own tool first: it needs only document-write scope, which a self-hosted Compute holds. A cell without
+	// the tool (older than 2026-10-20) still takes the update, when this host may make one.
+	const documentId = host.workflow.startsWith(WORKFLOW_IRI_PREFIX)
+		? host.workflow.slice(WORKFLOW_IRI_PREFIX.length)
+		: "";
+	if (ctx.graph.recordWorkflowRun && /^[A-Za-z0-9_-]{1,128}$/.test(documentId)) {
+		try {
+			await ctx.graph.recordWorkflowRun(ctx.graphId, {
+				documentId,
+				runId: run.runId,
+				turtle: serializeGraphPlanRunTurtle(testimony),
+			});
+			return;
+		} catch (recordError) {
+			try {
+				await ctx.graph.sparqlUpdate(ctx.graphId, serializeGraphPlanRun(testimony));
+				return;
+			} catch (updateError) {
+				throw new Error(
+					`the run's results could not be written to its graph: workflow_run_record: ${errorText(recordError)}; sparql_update: ${errorText(updateError)}`,
+				);
+			}
+		}
+	}
+	await ctx.graph.sparqlUpdate(ctx.graphId, serializeGraphPlanRun(testimony));
+}
+
+/** A workflow document's IRI is this prefix and its document id (gardend's `workflow_plan_create`). */
+const WORKFLOW_IRI_PREFIX = "urn:sophia:wf:";
+
+function errorText(error: unknown): string {
+	return error instanceof Error ? error.message : String(error);
 }
 
 /** A SPARQL string literal: JSON's escaping is valid SPARQL ECHAR/UCHAR. */

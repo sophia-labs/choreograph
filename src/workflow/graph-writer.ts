@@ -68,6 +68,14 @@ export interface GraphWriter {
 	): Promise<unknown>;
 	/** Privileged registered-vocabulary projection lane; absent when no host auth is configured. */
 	emporiumIngest?(graphId: string, request: GenericIngestRequest): Promise<unknown>;
+	/**
+	 * gardend's `workflow_run_record`: a finished workflow run's testimony (Turtle, only triples about that run) into
+	 * the workflow document's own run graph, replacing it. Needs document-write scope, not `rdf.update`.
+	 */
+	recordWorkflowRun?(
+		graphId: string,
+		run: { readonly documentId: string; readonly runId: string; readonly turtle: string },
+	): Promise<void>;
 }
 
 export interface HostedGraphWriterOptions {
@@ -290,6 +298,13 @@ export function readOnlyGraphWriter(graph: GraphWriter): GraphWriter {
 			throw new GraphWriteRefusedError("sparql_update");
 		},
 		sparqlQuery: (graphId, sparql) => graph.sparqlQuery(graphId, sparql),
+		...(graph.recordWorkflowRun
+			? {
+					recordWorkflowRun: async () => {
+						throw new GraphWriteRefusedError("workflow_run_record");
+					},
+				}
+			: {}),
 		searchDocuments: (graphId, query, limit) => graph.searchDocuments(graphId, query, limit),
 		readDocument: (graphId, documentId, options) => graph.readDocument(graphId, documentId, options),
 		writeDocument: async () => {
@@ -327,6 +342,18 @@ export function makeHostedGraphWriter(
 		},
 		async sparqlQuery(graphId, sparql) {
 			return proxy.callTool("sparql_query", { graphId, query: sparql });
+		},
+		async recordWorkflowRun(graphId, run) {
+			// An MCP tool's refusal comes back as a result with isError, not a throw: say it, so the caller can fall back.
+			const result = await proxy.callTool("workflow_run_record", {
+				graphId,
+				documentId: run.documentId,
+				runId: run.runId,
+				turtle: run.turtle,
+			});
+			if (isRecord(result) && result.isError === true) {
+				throw new Error(`workflow_run_record refused: ${toolResultText(result).slice(0, 500)}`);
+			}
 		},
 		async searchDocuments(graphId, query, limit) {
 			const raw = await proxy.callTool("search_documents", { graph_id: graphId, query, limit });
@@ -667,4 +694,13 @@ function tryParseJson(text: string): unknown {
 	} catch {
 		return undefined;
 	}
+}
+
+/** The text parts of an MCP tool result, joined. */
+function toolResultText(result: Record<string, unknown>): string {
+	const content = Array.isArray(result.content) ? result.content : [];
+	return content
+		.map((part) => (isRecord(part) && typeof part.text === "string" ? part.text : ""))
+		.filter(Boolean)
+		.join(" ");
 }

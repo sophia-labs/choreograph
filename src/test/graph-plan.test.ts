@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import * as oxigraph from "oxigraph";
 import {
 	compileGraphPlan,
 	GraphPlanError,
@@ -11,7 +12,11 @@ import {
 	triplesFromSparqlResult,
 	WF,
 } from "../workflow/graph-plan.js";
-import { buildGraphPlanInputs, serializeGraphPlanRun } from "../workflow/script-graph-plan.js";
+import {
+	buildGraphPlanInputs,
+	serializeGraphPlanRun,
+	serializeGraphPlanRunTurtle,
+} from "../workflow/script-graph-plan.js";
 
 // The definition as a live gardend answered `SELECT ?s ?p ?o WHERE { GRAPH <urn:sophia:wf:freud-ch1:v1> { … } }`
 // on 2026-10-18; the run that day pinned this digest, and the browser pane computes the same one
@@ -22,6 +27,8 @@ const FIXTURE = JSON.parse(
 const PINNED = "sha256:3d3efe3add6543d7d800941ee10559f4729e29b6d69c8416ce5c00d37dcc0b33";
 // The same definition with a source the Reader reads and a margin the verified entries go to (2026-10-19).
 const PINNED_WITH_SOURCES = "sha256:e0f63e28e36771e32eb181a178e8b8b96021dd20b84cbce7c5440c38df83546a";
+
+const RDF_TYPE_IRI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 describe("graph-plan-v1 compiler", () => {
 	it("compiles the Freud definition into three phases, in order", () => {
@@ -81,6 +88,39 @@ describe("graph-plan-v1 compiler", () => {
 		});
 		assert.match(sparql, /INSERT DATA \{ GRAPH <urn:sophia:wf:freud-ch1:run:wfr-1> \{/);
 		assert.match(sparql, /wf:json "\{\\"who\\":\\"Maury\\",\\"quote\\":\\"He said \\\\\\"no\\\\\\"\.\\"\}"/);
+	});
+
+	it("writes the same testimony as Turtle about the run alone, for gardend's workflow_run_record", () => {
+		const input = {
+			runId: "wfr-1/a",
+			status: "completed",
+			definition: "urn:sophia:wf:freud-ch1:v1",
+			digest: PINNED,
+			workflow: "urn:sophia:wf:freud-ch1",
+			output: {
+				collections: {
+					"urn:sophia:wf:freud-ch1#passages": [{ text: "one" }, { text: "two" }],
+					"urn:sophia:wf:freud-ch1#verified": [{ who: "Maury", quote: 'He said "no".' }],
+				},
+				refused: [{ step: "urn:sophia:wf:freud-ch1#censor", item: { who: "x" }, verdict: { pass: false } }],
+				steps: [{ step: "urn:sophia:wf:freud-ch1#censor", runs: 2, produced: 1, refused: 1 }],
+			},
+		};
+		const store = new oxigraph.Store();
+		const runGraph = oxigraph.namedNode("urn:sophia:wf:freud-ch1:run:wfr-1_a");
+		store.load(serializeGraphPlanRunTurtle(input), { format: "text/turtle", to_graph_name: runGraph });
+		const quads = store.match(null, null, null, runGraph);
+		// gardend refuses any triple whose subject is not in the run's own namespace: every one here is.
+		for (const q of quads) assert.match(q.subject.value, /^urn:sophia:wf:freud-ch1:run:wfr-1_a#/);
+		const count = (type: string) =>
+			store.match(null, oxigraph.namedNode(RDF_TYPE_IRI), oxigraph.namedNode(`${WF}${type}`), runGraph).length;
+		assert.deepEqual(["GraphPlanRun", "Item", "Refusal", "StepRun"].map(count), [1, 3, 1, 1]);
+		const json = store.match(null, oxigraph.namedNode(`${WF}json`), null, runGraph).map((q) => q.object.value);
+		assert.ok(json.includes(JSON.stringify({ who: "Maury", quote: 'He said "no".' })));
+		// The update form says the same triples.
+		const viaUpdate = new oxigraph.Store();
+		viaUpdate.update(serializeGraphPlanRun(input));
+		assert.equal(viaUpdate.match(null, null, null, runGraph).length, quads.length);
 	});
 
 	describe("sources and destinations (2026-10-19)", () => {
