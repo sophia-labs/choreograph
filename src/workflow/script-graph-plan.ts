@@ -7,6 +7,11 @@
  * below is the whole interpreter; it walks data and never evaluates anything from the graph. After
  * the run, `finalizeGraphPlanRun` writes what each step produced, and what each check refused, into
  * the run's own named graph.
+ *
+ * Testimony with provenance (2026-10-20, plans/2026-10-20-typed-objects D5): the record names, per step, the being
+ * the host cast for it (`wf:castAgent`), and per item the sitting that handed it back (`wf:sitting`, the node's
+ * label). An agent that never handed back an answer that fit is recorded too (`wf:Unfit`, with the runtime's words),
+ * so nothing a step was given disappears without a trace.
  */
 import { agentModeRef } from "../agent-runtime/agent-mode.js";
 import { createMeaningfulObjectRef } from "../agent-runtime/meaningful-object.js";
@@ -21,6 +26,7 @@ import {
 	validateResolvedAgentRuntimeBinding,
 } from "../agent-runtime/profile.js";
 import {
+	CANONICAL_AGENT_ID,
 	mintAgentUri,
 	mintStandaloneAgentId,
 	STANDALONE_AGENT_IDENTITY_ALGORITHM,
@@ -36,6 +42,7 @@ import {
 	type GraphPlanStepV1,
 	type GraphPlanV1,
 	graphPlanDigest,
+	localId,
 	stepOutputSchema,
 	triplesFromSparqlResult,
 	WF,
@@ -82,16 +89,24 @@ export const GRAPH_PLAN_SCRIPT = `export const meta = {
 	outputs: {
 		type: "object",
 		additionalProperties: false,
-		required: ["collections", "refused", "steps"],
-		properties: { collections: {}, refused: {}, steps: {} },
+		required: ["collections", "sittings", "refused", "unfit", "steps"],
+		properties: { collections: {}, sittings: {}, refused: {}, unfit: {}, steps: {} },
 	},
 }
 
 const plan = args.plan
 const collections = {}
+// Beside each collection, position by position, the sitting that handed back each of its items: the label of the node
+// ("Experiment clerk #3"). Kept apart from the items, so the next step is given exactly what was handed back.
+const sittings = {}
 const refused = []
+// An agent that never handed back an answer that fit: which step, which sitting, and the runtime's words. Recorded,
+// never dropped.
+const unfit = []
 const steps = []
 const cap = ${GRAPH_PLAN_LIMITS.itemsPerCollection}
+const answered = (r) => r && r.structured !== undefined && r.structured !== null
+const why = (r) => (r && typeof r.output === "string" && r.output.trim()) || "no answer was handed back"
 
 // A step that answers without calling submit() gets one more chance, told plainly (2026-10-18: three of 26 clerks
 // lost their passage this way). The retry is its own node (" again"), so its session and testimony are its own.
@@ -122,22 +137,43 @@ for (const ph of plan.phases) {
 		}
 		if (step.mode === "perItem") {
 			const items = collections[step.over] || []
+			const madeBy = sittings[step.over] || []
 			// One agent node per item, each with its own label (and so its own node key and Agent Session).
-			const answers = await pipeline(items.map((item, i) => ({ item, i })), ({ item, i }) =>
-				ask("The item:\\n" + JSON.stringify(item, null, 2), { ...opts, label: step.label + " #" + (i + 1) }).then((r) => ({ item, out: r && r.structured })),
-			)
+			const answers = await pipeline(items.map((item, i) => ({ item, i })), ({ item, i }) => {
+				const sitting = step.label + " #" + (i + 1)
+				return ask("The item:\\n" + JSON.stringify(item, null, 2), { ...opts, label: sitting }).then((r) => ({ item, i, sitting, r }))
+			})
 			if (step.checks) {
+				// A check passes items; it does not make them. What it passes keeps the sitting of the one who made it.
 				const passed = []
+				const passedBy = []
 				for (const a of answers) {
-					if (a.out && a.out.ok === true) passed.push(a.item)
-					else refused.push({ step: step.iri, item: a.item, verdict: a.out || null })
+					const out = a.r && a.r.structured
+					if (out && out.ok === true) {
+						passed.push(a.item)
+						passedBy.push(madeBy[a.i])
+					} else refused.push({ step: step.iri, item: a.item, verdict: out || null })
 				}
-				if (step.produces) collections[step.produces] = passed
+				if (step.produces) {
+					collections[step.produces] = passed
+					sittings[step.produces] = passedBy
+				}
 				steps.push({ step: step.iri, runs: items.length, produced: passed.length, refused: items.length - passed.length })
 			} else {
 				const produced = []
-				for (const a of answers) for (const x of (a.out && a.out.items) || []) produced.push(x)
+				const producedBy = []
+				for (const a of answers) {
+					if (!answered(a.r)) {
+						unfit.push({ step: step.iri, sitting: a.sitting, violation: why(a.r) })
+						continue
+					}
+					for (const x of a.r.structured.items || []) {
+						produced.push(x)
+						producedBy.push(a.sitting)
+					}
+				}
 				collections[step.produces] = produced.slice(0, cap)
+				sittings[step.produces] = producedBy.slice(0, cap)
 				steps.push({ step: step.iri, runs: items.length, produced: produced.length })
 			}
 			return
@@ -148,12 +184,14 @@ for (const ph of plan.phases) {
 				? "Begin with your sources."
 				: "The run input:\\n" + JSON.stringify(args.inputs || {}, null, 2)
 		const r = await ask(given, opts)
+		if (!answered(r)) unfit.push({ step: step.iri, sitting: step.label, violation: why(r) })
 		const items = ((r.structured && r.structured.items) || []).slice(0, cap)
 		collections[step.produces] = items
+		sittings[step.produces] = items.map(() => step.label)
 		steps.push({ step: step.iri, runs: 1, produced: items.length })
 	}))
 }
-return { collections, refused, steps }
+return { collections, sittings, refused, unfit, steps }
 `;
 
 export interface GraphPlanRequestV1 {
@@ -312,6 +350,11 @@ export function buildGraphPlanInputs(input: {
 			steps: phase.steps.map((step) => ({ ...step, outputSchema: stepOutputSchema(step), agent: agentFor(step) })),
 		})),
 	};
+	// The being cast for each step, by step IRI: what the run record names as `wf:castAgent`. Host facts, never the
+	// script's: every sitting of a step runs as this one being.
+	const castAgents = Object.fromEntries(
+		runnable.phases.flatMap((phase) => phase.steps.map((step) => [step.iri, step.agent.agentId] as const)),
+	);
 	const first = runnable.phases[0]?.steps[0]?.agent;
 	return {
 		config: {
@@ -337,6 +380,7 @@ export function buildGraphPlanInputs(input: {
 				digest: input.digest,
 				workflow: plan.workflow,
 				name: plan.name,
+				castAgents,
 			},
 		},
 	};
@@ -372,11 +416,28 @@ function stepSystemPrompt(plan: GraphPlanV1, step: GraphPlanStepV1): string {
 	} else {
 		lines.push("Answer with the items you produce.");
 	}
+	if (step.itemClass && !step.checks) lines.push(`Each item you hand back is ${withArticle(itemClassName(step))}.`);
 	lines.push(
 		"You may read and search this workspace with your tools. You do not write to it; the host records what you answer.",
 		"When you have your answer, call submit() with it. That call is your only answer: never reply in plain text, and do not stop without calling submit().",
 	);
 	return lines.join("\n");
+}
+
+/**
+ * What a class-bound step's items are called: the class's label when the plan carries one (its derived schema's
+ * `title`), else the class IRI's fragment ("DreamReport").
+ */
+function itemClassName(step: GraphPlanStepV1): string {
+	const title = step.itemSchema?.title;
+	if (typeof title === "string" && title.trim() && title.length <= 120 && !/[\r\n]/.test(title)) return title.trim();
+	const iri = step.itemClass ?? "";
+	const hash = iri.lastIndexOf("#");
+	return (hash >= 0 ? iri.slice(hash + 1) : "") || localId(iri);
+}
+
+function withArticle(name: string): string {
+	return `${/^(?!uni|use|usu|eu|one)[aeiou]/i.test(name) ? "an" : "a"} ${name}`;
 }
 
 /** Where a source is, in the words a step is given: a document, or a run of its blocks. */
@@ -424,6 +485,8 @@ interface GraphPlanRunTestimony {
 	readonly digest: string;
 	readonly workflow: string;
 	readonly output: unknown;
+	/** The being the host cast for each step, by step IRI (`buildGraphPlanInputs`'s host context). */
+	readonly castAgents?: Readonly<Record<string, string>>;
 }
 
 /** The run's testimony as a SPARQL update into its own named graph (for a cell that grants `sparql_update`). */
@@ -440,6 +503,9 @@ export function serializeGraphPlanRunTurtle(input: GraphPlanRunTestimony): strin
 	return `@prefix wf: <${WF}> .\n${graphPlanRunTriples(input).triples.join("\n")}\n`;
 }
 
+/** An IRI that may stand between angle brackets in Turtle and SPARQL. */
+const IRI = /^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>"{}|\\^`]+$/;
+
 function graphPlanRunTriples(input: GraphPlanRunTestimony): { runGraph: string; triples: string[] } {
 	const runGraph = graphPlanRunGraphIri(input.workflow, input.runId);
 	const run = `<${runGraph}#run>`;
@@ -448,13 +514,16 @@ function graphPlanRunTriples(input: GraphPlanRunTestimony): { runGraph: string; 
 		`${run} a wf:GraphPlanRun ; wf:runId ${lit(input.runId)} ; wf:status ${lit(input.status)} ; wf:definition <${input.definition}> ; wf:definitionDigest ${lit(input.digest)} ; wf:workflow <${input.workflow}> .`,
 	];
 	const collections = isRecord(out.collections) ? out.collections : {};
+	const sittings = isRecord(out.sittings) ? out.sittings : {};
 	let n = 0;
 	for (const [collection, items] of Object.entries(collections)) {
 		if (!Array.isArray(items)) continue;
+		const madeBy = sittings[collection];
 		items.forEach((item, position) => {
 			n += 1;
+			const sitting = Array.isArray(madeBy) && typeof madeBy[position] === "string" ? madeBy[position] : undefined;
 			triples.push(
-				`<${runGraph}#item-${n}> a wf:Item ; wf:partOfRun ${run} ; wf:inCollection <${collection}> ; wf:position ${position} ; wf:json ${lit(JSON.stringify(item))} .`,
+				`<${runGraph}#item-${n}> a wf:Item ; wf:partOfRun ${run} ; wf:inCollection <${collection}> ; wf:position ${position} ; wf:json ${lit(JSON.stringify(item))}${sitting ? ` ; wf:sitting ${lit(sitting)}` : ""} .`,
 			);
 		});
 	}
@@ -466,12 +535,24 @@ function graphPlanRunTriples(input: GraphPlanRunTestimony): { runGraph: string; 
 			`<${runGraph}#refused-${i + 1}> a wf:Refusal ; wf:partOfRun ${run} ;${step ? ` wf:checkedBy <${step}> ;` : ""} wf:json ${lit(JSON.stringify(rec.item ?? null))} ; wf:verdict ${lit(JSON.stringify(rec.verdict ?? null))} .`,
 		);
 	});
+	const unfit = Array.isArray(out.unfit) ? out.unfit : [];
+	unfit.forEach((u, i) => {
+		const rec = isRecord(u) ? u : {};
+		const step = typeof rec.step === "string" && IRI.test(rec.step) ? rec.step : undefined;
+		const violation =
+			typeof rec.violation === "string" && rec.violation.trim() ? rec.violation : "no answer was handed back";
+		triples.push(
+			`<${runGraph}#unfit-${i + 1}> a wf:Unfit ; wf:partOfRun ${run}${step ? ` ; wf:step <${step}>` : ""}${typeof rec.sitting === "string" ? ` ; wf:sitting ${lit(rec.sitting)}` : ""} ; wf:violation ${lit(violation)} .`,
+		);
+	});
 	const steps = Array.isArray(out.steps) ? out.steps : [];
 	steps.forEach((s, i) => {
 		const rec = isRecord(s) ? s : {};
 		if (typeof rec.step !== "string") return;
+		const agentId = input.castAgents?.[rec.step];
+		const cast = agentId && CANONICAL_AGENT_ID.test(agentId) ? ` ; wf:castAgent <${mintAgentUri(agentId)}>` : "";
 		triples.push(
-			`<${runGraph}#step-${i + 1}> a wf:StepRun ; wf:partOfRun ${run} ; wf:step <${rec.step}> ; wf:runs ${Number(rec.runs) || 0} ; wf:produced ${Number(rec.produced) || 0}${rec.refused !== undefined ? ` ; wf:refused ${Number(rec.refused) || 0}` : ""} .`,
+			`<${runGraph}#step-${i + 1}> a wf:StepRun ; wf:partOfRun ${run} ; wf:step <${rec.step}> ; wf:runs ${Number(rec.runs) || 0} ; wf:produced ${Number(rec.produced) || 0}${rec.refused !== undefined ? ` ; wf:refused ${Number(rec.refused) || 0}` : ""}${cast} .`,
 		);
 	});
 	return { runGraph, triples };
@@ -492,6 +573,11 @@ export async function finalizeGraphPlanRun(
 		typeof host.digest !== "string"
 	)
 		return;
+	const castAgents = isRecord(host.castAgents)
+		? Object.fromEntries(
+				Object.entries(host.castAgents).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+			)
+		: {};
 	const testimony: GraphPlanRunTestimony = {
 		runId: run.runId,
 		status: String(run.status),
@@ -499,6 +585,7 @@ export async function finalizeGraphPlanRun(
 		digest: host.digest,
 		workflow: host.workflow,
 		output: run.output,
+		castAgents,
 	};
 	// gardend's own tool first: it needs only document-write scope, which a self-hosted Compute holds. A cell without
 	// the tool (older than 2026-10-20) still takes the update, when this host may make one.

@@ -1,0 +1,816 @@
+[
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 2,
+    "ts": 1792521636823,
+    "type": "node_queued",
+    "label": "Passage cutter",
+    "phase_index": 1,
+    "payload": {
+      "model": "google/gemini-2.5-flash",
+      "agentId": "agent-eb966074fbcc322a",
+      "agentType": "segmenter",
+      "runtimeKind": "prime",
+      "geistObjectRef": {
+        "schema": "sophia.meaningful-object-ref.v1",
+        "kind": "geist",
+        "ownerPrincipal": "user:default",
+        "graphId": "freud-dreams",
+        "objectId": "builtin:graph-plan-v1:segmenter:geist",
+        "version": "1",
+        "digest": "sha256:170e077ac4c38056a6494dbbfdcf2dbb09b8680d7c1802d97a45fd070eacb411"
+      },
+      "graphId": "freud-dreams",
+      "nodeKey": "1:passage-cutter",
+      "sessionId": "ags_ddb38605131940fa400d",
+      "invocationId": "ags_ddb38605131940fa400d:generation:0"
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 3,
+    "ts": 1792521636867,
+    "type": "node_started",
+    "label": "Passage cutter",
+    "phase_index": 1,
+    "payload": {}
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 4,
+    "ts": 1792521638456,
+    "type": "tool_call",
+    "label": "Passage cutter",
+    "phase_index": 1,
+    "payload": {
+      "gate": "read_blocks",
+      "args": {
+        "limit": 100,
+        "documentId": "doc-5ca098bcf9024343952d2789d060f543",
+        "blockId": "block-be1fe535"
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 5,
+    "ts": 1792521639831,
+    "type": "tool_call",
+    "label": "Passage cutter",
+    "phase_index": 1,
+    "payload": {
+      "gate": "read_blocks",
+      "args": {
+        "limit": 100,
+        "blockId": "block-be1fe535",
+        "documentId": "doc-5ca098bcf9024343952d2789d060f543"
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 6,
+    "ts": 1792521658382,
+    "type": "tool_call",
+    "label": "Passage cutter",
+    "phase_index": 1,
+    "payload": {
+      "gate": "submit",
+      "args": {
+        "items": [
+          {
+            "text": "I. The External Sensory Stimuli.—The younger Strümpell,\nson of the philosopher whose writings on the subject have\nalready more than once served us as a guide in the problem\nof dreams, has, as is well known, reported his observations on\na patient who was afflicted with general anæsthesia of the\nskin and with paralysis of several of the higher sensory organs.\nThis man merged into sleep when his few remaining sensory\npaths from the outer world were shut off. When we wish to\nsleep we are wont to strive for a situation resembling the\none in Strümpell’s experiment. We close the most important\nsensory paths, the eyes, and we endeavour to keep away from\nthe other senses every stimulus and every change of the\nstimuli acting upon them. We then fall asleep, although we\nare never perfectly successful in our preparations. We can\nneither keep the stimuli away from the sensory organs\naltogether, nor can we fully extinguish the irritability of the\nsensory organs. That we may at any time be awakened by\nstronger stimuli should prove to us “that the mind has remained\nin constant communication with the material world\neven during sleep.” The sensory stimuli which reach us during\nsleep may easily become the source of dreams.",
+            "blockId": "block-be1fe535"
+          },
+          {
+            "text": "There are a great many stimuli of such nature, ranging\nfrom those that are unavoidable, being brought on by the\nsleeping state or at least occasionally induced by it, to the\naccidental waking stimuli which are adapted or calculated\nto put an end to sleep. Thus a strong light may force itself\ninto the eyes, a noise may become perceptible, or some odoriferous\nmatter may irritate the mucous membrane of the nose.\nIn the spontaneous movements of sleep we may lay bare parts\nof the body and thus expose them to a sensation of cold, or\nthrough change of position we may produce sensations of\npressure and touch. A fly may bite us, or a slight accident at\nnight may simultaneously attack more than one sense. Observers\nhave called attention to a whole series of dreams in\nwhich the stimulus verified on waking, and a part of the\ndream content corresponded to such a degree that the stimulus\ncould be recognised as the source of the dream.",
+            "blockId": "block-bf1fe6c8"
+          },
+          {
+            "text": "I shall here cite a number of such dreams collected by\nJessen[36] (p. 527), traceable to more or less accidental objective\nsensory stimuli. “Every indistinctly perceived noise gives\nrise to corresponding dream pictures; the rolling of thunder\ntakes us into the thick of battle, the crowing of a cock may be\ntransformed into human shrieks of terror, and the creaking of a\ndoor may conjure up dreams of burglars breaking into the\nhouse. When one of our blankets slips off at night we may\ndream that we are walking about naked or falling into the\nwater. If we lie diagonally across the bed with our feet\nextending beyond the edge, we may dream of standing on\nthe brink of a terrifying precipice, or of falling from a steep\nheight. Should our head accidentally get under the pillow\nwe may then imagine a big rock hanging over us and about to\ncrush us under its weight. Accumulation of semen produces\nvoluptuous dreams, and local pain the idea of suffering ill\ntreatment, of hostile attacks, or of accidental bodily injuries.”",
+            "blockId": "block-c01fe85b"
+          },
+          {
+            "text": "“Meier (Versuch einer Erklärung des Nachtwandelns, Halle,\n1758, p. 33), once dreamed of being assaulted by several\npersons who threw him flat on the ground and drove a stake\ninto the ground between his big and second toes. While\nimagining this in his dream he suddenly awoke and felt a blade\nof straw sticking between his toes. The same author, according\nto Hemmings (Von den Traumen und Nachtwandeln,\nWeimar, 1784, p. 258) dreamed on another occasion that he\nwas being hanged when his shirt was pinned somewhat tight\naround his neck. Hauffbauer dreamed in his youth of having\nfallen from a high wall and found upon waking that the bedstead\nhad come apart, and that he had actually fallen to the\nfloor.... Gregory relates that he once applied a hot-water\nbottle to his feet, and dreamed of taking a trip to the summit\nof Mount Ætna, where he found the heat on the ground almost\nunbearable. After having applied a blistering plaster to his\nhead, a second man dreamed of being scalped by Indians; a\nthird, whose shirt was damp, dreamed of being dragged through\na stream. An attack of gout caused the patient to believe\nthat he was in the hands of the Inquisition, and suffering pains\nof torture (Macnish).”",
+            "blockId": "block-c11fe9ee"
+          },
+          {
+            "blockId": "block-c21feb81",
+            "text": "The argument based upon the resemblance between\nstimulus and dream content is reinforced if through a systematic\ninduction of stimuli we succeed in producing dreams\ncorresponding to the stimuli. According to Macnish such\nexperiments have already been made by Giron de Buzareingues.\n“He left his knee exposed and dreamed of travelling in a\nmail coach at night. He remarked in this connection that\ntravellers would well know how cold the knees become in a\ncoach at night. Another time he left the back of his head\nuncovered, and dreamed of taking part in a religious ceremony\nin the open air. In the country where he lived it was customary\nto keep the head always covered except on such occasions.”"
+          },
+          {
+            "text": "Maury[48] reports new observations on dreams produced in\nhimself. (A number of other attempts produced no results.)",
+            "blockId": "block-c31fed14"
+          },
+          {
+            "blockId": "block-c41feea7",
+            "text": "He was tickled with a feather on his lips and on the tip\nof his nose. He dreamed of awful torture, viz. that a mask\nof pitch was stuck to his face and then forcibly torn off,\ntaking the skin with it."
+          },
+          {
+            "blockId": "block-c61ff1cd",
+            "text": "Scissors were sharpened on pincers. He heard bells\nringing, then sounds of alarm which took him back to the\nJune days of 1848."
+          },
+          {
+            "text": "Cologne water was put on his nose. He found himself\nin Cairo in the shop of John Maria Farina. This was followed\nby mad adventures which he was unable to reproduce.",
+            "blockId": "block-a81fc293"
+          },
+          {
+            "blockId": "block-aa1fc5b9",
+            "text": "His neck was lightly pinched. He dreamed that a\nblistering plaster was put on him, and thought of a doctor\nwho treated him in his childhood."
+          },
+          {
+            "blockId": "block-ac1fc8df",
+            "text": "A hot iron was brought near his face. He dreamed\nthat chauffeurs[G] broke into the house and forced the occupants\nto give up their money by sticking their feet into burning\ncoals. The Duchess of Abrantés, whose secretary he imagined\nhimself in the dream, then entered."
+          },
+          {
+            "text": "A drop of water was let fall on his forehead. He\nimagined himself in Italy perspiring heavily and drinking\nwhite wine of Orvieto.",
+            "blockId": "block-ae1fcc05"
+          },
+          {
+            "text": "When a burning candle was repeatedly focussed on him\nthrough red paper, he dreamed of the weather, of heat, and of a\nstorm at sea which he once experienced in the English Channel.",
+            "blockId": "block-b01fcf2b"
+          },
+          {
+            "text": "D’Hervey,[34] Weygandt,[75] and others have made other\nattempts to produce dreams experimentally.",
+            "blockId": "block-b21fd251"
+          },
+          {
+            "blockId": "block-b31fd3e4",
+            "text": "Many have observed the striking skill of the dream in\ninterweaving into its structure sudden impressions from the\nouter world in such a manner as to present a gradually prepared\nand initiated catastrophe (Hildebrandt)[35]. “In\nformer years,” this author relates, “I occasionally made use\nof an alarm clock in order to wake regularly at a certain\nhour in the morning. It probably happened hundreds of\ntimes that the sound of this instrument fitted into an apparently\nvery long and connected dream, as if the entire\ndream had been especially designed for it, as if it found in\nthis sound its appropriate and logically indispensable point,\nits inevitable issue.”"
+          },
+          {
+            "blockId": "block-b41fd577",
+            "text": "I shall cite three of these alarm-clock dreams for another\npurpose."
+          },
+          {
+            "text": "Volkelt (p. 68) relates: “A composer once dreamed that\nhe was teaching school, and was just explaining something to\nhis pupils. He had almost finished when he turned to one\nof the boys with the question: ‘Did you understand me?’\nThe boy cried out like one possessed ‘Ya.’ Annoyed at this,\nhe reprimanded him for shouting. But now the entire class\nwas screaming ‘Orya,’ then ‘Euryo,’ and finally ‘Feueryo.’\nHe was now aroused by an actual alarm of fire in the street.”",
+            "blockId": "block-b51fd70a"
+          },
+          {
+            "blockId": "block-b61fd89d",
+            "text": "Garnier (Traité des Facultés de l’Âme, 1865), reported by\nRadestock,[54] relates that Napoleon I., while sleeping in a\ncarriage, was awakened from a dream by an explosion which\nbrought back to him the crossing of the Tagliamento and the\nbombarding of the Austrians, so that he started up crying,\n“We are undermined!”"
+          },
+          {
+            "text": "The following dream of Maury[48] has become celebrated.\nHe was sick, and remained in bed; his mother sat beside\nhim. He then dreamed of the reign of terror at the time of\nthe Revolution. He took part in terrible scenes of murder,\nand finally he himself was summoned before the Tribunal.\nThere he saw Robespierre, Marat, Fouquier-Tinville, and all\nthe sorry heroes of that cruel epoch; he had to give an account\nof himself, and, after all sort of incidents which did not fix\nthemselves in his memory, he was sentenced to death. Accompanied\nby an enormous crowd, he was led to the place of\nexecution. He mounted the scaffold, the executioner tied him\nto the board, it tipped, and the knife of the guillotine fell. He\nfelt his head severed from the trunk, and awakened in terrible\nanxiety, only to find that the top piece of the bed had fallen\ndown, and had actually struck his cervical vertebra in the\nsame manner as the knife of a guillotine.",
+            "blockId": "block-97213ad0"
+          },
+          {
+            "blockId": "block-98213c63",
+            "text": "This dream gave rise to an interesting discussion introduced\nby Le Lorrain[45] and Egger[20] in the Revue Philosophique.\nThe question was whether, and how, it was possible for the\ndreamer to crowd together an amount of dream content\napparently so large in the short space of time elapsing between\nthe perception of the waking stimulus and the awakening."
+          },
+          {
+            "blockId": "block-99213df6",
+            "text": "Examples of this nature make it appear that the objective\nstimuli during sleep are the most firmly established of all\nthe dream sources; indeed, it is the only stimulus which plays\nany part in the layman’s knowledge. If we ask an educated\nperson, who is, however, unacquainted with the literature of\ndreams, how dreams originate, he is sure to answer by referring\nto a case familiar to him in which a dream has been explained\nafter waking by a recognised objective stimulus. Scientific\ninvestigation cannot, however, stop here, but is incited to\nfurther research by the observation that the stimulus influencing\nthe senses during sleep does not appear in the dream\nat all in its true form, but is replaced by some other presentation\nwhich is in some way related to it. But the relation\nexisting between the stimulus and the result of the dream is,\naccording to Maury,[47] “une affinité quelconque mais qui n’est\npas unique et exclusive” (p. 72). If we read, e.g., three of\nHildebrandt’s “Alarm Clock Dreams,” we will then have to\ninquire why the same stimulus evoked so many different\nresults, and why just these results and no others."
+          },
+          {
+            "blockId": "block-9a213f89",
+            "text": "(P. 37). “I am taking a walk on a beautiful spring morning.\nI saunter through the green fields to a neighbouring village,\nwhere I see the natives going to church in great numbers,\nwearing their holiday attire and carrying their hymn-books\nunder their arms. I remember that it is Sunday, and that\nthe morning service will soon begin. I decide to attend it,\nbut as I am somewhat overheated I also decide to cool off\nin the cemetery surrounding the church. While reading the\nvarious epitaphs, I hear the sexton ascend the tower and see the\nsmall village bell in the cupola which is about to give signal for\nthe beginning of the devotions. For another short while it\nhangs motionless, then it begins to swing, and suddenly its\nnotes resound so clearly and penetratingly that my sleep\ncomes to an end. But the sound of bells comes from the\nalarm clock.”"
+          },
+          {
+            "text": "“A second combination. It is a clear day, the streets are\ncovered with deep snow. I have promised to take part in a\nsleigh-ride, but have had to wait for some time before it was\nannounced that the sleigh is in front of my house. The\npreparations for getting into the sleigh are now made. I put\non my furs and adjust my muff, and at last I am in my place.\nBut the departure is still delayed, until the reins give the\nimpatient horses the perceptible sign. They start, and the\nsleigh bells, now forcibly shaken, begin their familiar janizary\nmusic with a force that instantly tears the gossamer of my\ndream. Again it is only the shrill sound of my alarm clock.”",
+            "blockId": "block-9b21411c"
+          },
+          {
+            "text": "Still a third example. “I see the kitchen-maid walk along\nthe corridor to the dining-room with several dozen plates\npiled up. The porcelain column in her arms seems to me to\nbe in danger of losing its equilibrium. ‘Take care,’ I exclaim,\n‘you will drop the whole pile.’ The usual retort is\nnaturally not wanting—that she is used to such things. Meanwhile\nI continue to follow her with my worried glance, and\nbehold! at the door-step the fragile dishes fall, tumble, and\nroll across the floor in hundreds of pieces. But I soon notice\nthat the noise continuing endlessly is not really a rattling but\na true ringing, and with this ringing the dreamer now becomes\naware that the alarm clock has done its duty.”",
+            "blockId": "block-9c2142af"
+          },
+          {
+            "blockId": "block-9d214442",
+            "text": "The question why the dreaming mind misjudges the nature\nof the objective sensory stimulus has been answered by\nStrümpell,[66] and almost identically by Wundt,[76] to the effect\nthat the reaction of the mind to the attacking stimuli in sleep\nis determined by the formation of illusions. A sensory impression\nis recognised by us and correctly interpreted, i.e. it\nis classed with the memory group to which it belongs according\nto all previous experience, if the impression is strong, clear,\nand long enough, and if we have the necessary time at our\ndisposal for this reflection. If these conditions are not fulfilled,\nwe mistake the objects which give rise to the impression, and\non its basis we form an illusion. “If one takes a walk in an\nopen field and perceives indistinctly a distant object, it may\nhappen that he will at first take it for a horse.” On closer\ninspection the image of a cow resting may obtrude itself, and\nthe presentation may finally resolve itself with certainty into\na group of people sitting. The impressions which the mind\nreceives during sleep through outer stimuli are of a similar\nindistinct nature; they give rise to illusions because the\nimpression evokes a greater or lesser number of memory\npictures through which the impression receives its psychic\nvalue. In which of the many spheres of memory to be taken\ninto consideration the corresponding pictures are aroused,\nand which of the possible association connections thereby\ncome into force, this, even according to Strümpell, remains\nindeterminable, and is left, as it were, to the caprice of the\npsychic life."
+          },
+          {
+            "blockId": "block-9e2145d5",
+            "text": "We may here take our choice. We may admit that the\nlaws of the dream formation cannot really be traced any\nfurther, and therefore refrain from asking whether or not the\ninterpretation of the illusion evoked by the sensory impression\ndepends upon still other conditions; or we may suppose that\nthe objective sensory stimulus encroaching upon sleep plays\nonly a modest part as a dream source, and that other factors\ndetermine the choice of the memory picture to be evoked.\nIndeed, on carefully examining Maury’s experimentally produced\ndreams, which I have purposely reported in detail, one is apt\nto think that the experiment really explains the origin of only\none of the dream elements, and that the rest of the dream\ncontent appears in fact too independent, too much determined\nin detail, to be explained by the one demand, viz. that it must\nagree with the element experimentally introduced. Indeed\none even begins to doubt the illusion theory, and the power of\nthe objective impression to form the dream, when one learns\nthat this impression at times experiences the most peculiar\nand far-fetched interpretations during the sleeping state.\nThus B. M. Simon[63] tells of a dream in which he saw persons\nof gigantic stature[H] seated at a table, and heard distinctly the\nawful rattling produced by the impact of their jaws while\nchewing. On waking he heard the clacking of the hoofs of a\nhorse galloping past his window. If the noise of the horse’s\nhoofs had recalled ideas from the memory sphere of “Gulliver’s\nTravels,” the sojourn with the giants of Brobdingnag and the\nvirtuous horse-creatures—as I should perhaps interpret it\nwithout any assistance on the author’s part—should not the\nchoice of a memory sphere so uncommon for the stimulus have\nsome further illumination from other motives."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 7,
+    "ts": 1792521658443,
+    "type": "node_done",
+    "label": "Passage cutter",
+    "phase_index": 1,
+    "payload": {
+      "state": "done",
+      "status": "terminated",
+      "turns": 3,
+      "tokens": 78200,
+      "tool_calls": 3,
+      "output": "{\n  \"items\": [\n    {\n      \"text\": \"I. The External Sensory Stimuli.—The younger Strümpell,\\nson of the philosopher whose writings on the subject have\\nalready more than once served us as a guide in the problem\\nof dreams, has, as is well known, reported his observations on\\na patient who was afflicted with general anæsthesia of the\\nskin and with paralysis of several of the higher sensory organs.\\nThis man merged into sleep when his few remaining sensory\\npaths from the outer world were shut off. When we wish to\\nsleep we are wont to strive for a situation resembling the\\none in Strümpell’s experiment. We close the most important\\nsensory paths, the eyes, and we endeavour to keep away from\\nthe other senses every stimulus and every change of the\\nstimuli acting upon them. We then fall asleep, although we\\nare never perfectly successful in our preparations. We can\\nneither keep the stimuli away from the sensory organs\\naltogether, nor can we fully extinguish the irritability of the\\nsensory organs. That we may at any time be awakened by\\nstronger stimuli should prove to us “that the mind has remained\\nin constant communication with the material world\\neven during sleep.” The sensory stimuli which reach us during\\nsleep may easily become the source of dreams.\",\n      \"blockId\": \"block-be1fe535\"\n    },\n    {\n      \"text\": \"There are a great many stimuli of such nature, ranging\\nfrom those that are unavoidable, being brought on by the\\nsleeping state or at least occasionally induced by it, to the\\naccidental waking stimuli which are adapted or calculated\\nto put an end to sleep. Thus a strong light may force itself\\ninto the eyes, a noise may become perceptible, or some odoriferous\\nmatter may irritate the mucous membrane of the nose.\\nIn the spontaneous movements of sleep we may lay bare parts\\nof the body and thus expose them to a sensation of cold, or\\nthrough change of position we may produce sensations of\\npressure and touch. A fly may bite us, or a slight accident at\\nnight may simultaneously attack more than one sense. Observers\\nhave called attention to a whole series of dreams in\\nwhich the stimulus verified on waking, and a part of the\\ndream content corresponded to such a degree that the stimulus\\ncould be recognised as the source of the dream.\",\n      \"blockId\": \"block-bf1fe6c8\"\n    },\n    {\n      \"text\": \"I shall here cite a number of such dreams collected by\\nJessen[36] (p. 527), traceable to more or less accidental objective\\nsensory stimuli. “Every indistinctly perceived noise gives\\nrise to corresponding dream pictures; the rolling of thunder\\ntakes us into the thick of battle, the crowing of a cock may be\\ntransformed into human shrieks of terror, and the creaking of a\\ndoor may conjure up dreams of burglars breaking into the\\nhouse. When one of our blankets slips off at night we may\\ndream that we are walking about naked or falling into the\\nwater. If we lie diagonally across the bed with our feet\\nextending beyond the edge, we may dream of standing on\\nthe brink of a terrifying precipice, or of falling from a steep\\nheight. Should our head accidentally get under the pillow\\nwe may then imagine a big rock hanging over us and about to\\ncrush us under its weight. Accumulation of semen produces\\nvoluptuous dreams, and local pain the idea of suffering ill\\ntreatment, of hostile attacks, or of accidental bodily injuries.”\",\n      \"blockId\": \"block-c01fe85b\"\n    },\n    {\n      \"text\": \"“Meier (Versuch einer Erklärung des Nachtwandelns, Halle,\\n1758, p. 33), once dreamed of being assaulted by several\\npersons who threw him flat on the ground and drove a stake\\ninto the ground between his big and second toes. While\\nimagining this in his dream he suddenly awoke and felt a blade\\nof straw sticking between his toes. The same author, according\\nto Hemmings (Von den Traumen und Nachtwandeln,\\nWeimar, 1784, p. 258) dreamed on another occasion that he\\nwas being hanged when his shirt was pinned somewhat tight\\naround his neck. Hauffbauer dreamed in his youth of having\\nfallen from a high wall and found upon waking that the bedstead\\nhad come apart, and that he had actually fallen to the\\nfloor.... Gregory relates that he once applied a hot-water\\nbottle to his feet, and dreamed of taking a trip to the summit\\nof Mount Ætna, where he found the heat on the ground almost\\nunbearable. After having applied a blistering plaster to his\\nhead, a second man dreamed of being scalped by Indians; a\\nthird, whose shirt was damp, dreamed of being dragged through\\na stream. An attack of gout caused the patient to believe\\nthat he was in the hands of the Inquisition, and suffering pains\\nof torture (Macnish).”\",\n      \"blockId\": \"block-c11fe9ee\"\n    },\n    {\n      \"blockId\": \"block-c21feb81\",\n      \"text\": \"The argument based upon the resemblance between\\nstimulus and dream content is reinforced if through a systematic\\ninduction of stimuli we succeed in producing dreams\\ncorresponding to the stimuli. According to Macnish such\\nexperiments have already been made by Giron de Buzareingues.\\n“He left his knee exposed and dreamed of travelling in a\\nmail coach at night. He remarked in this connection that\\ntravellers would well know how cold the knees become in a\\ncoach at night. Another time he left the back of his head\\nuncovered, and dreamed of taking part in a religious ceremony\\nin the open air. In the country where he lived it was customary\\nto keep the head always covered except on such occasions.”\"\n    },\n    {\n      \"text\": \"Maury[48] reports new observations on dreams produced in\\nhimself. (A number of other attempts produced no results.)\",\n      \"blockId\": \"block-c31fed14\"\n    },\n    {\n      \"blockId\": \"block-c41feea7\",\n      \"text\": \"He was tickled with a feather on his lips and on the tip\\nof his nose. He dreamed of awful torture, viz. that a mask\\nof pitch was stuck to his face and then forcibly torn off,\\ntaking the skin with it.\"\n    },\n    {\n      \"blockId\": \"block-c61ff1cd\",\n      \"text\": \"Scissors were sharpened on pincers. He heard bells\\nringing, then sounds of alarm which took him back to the\\nJune days of 1848.\"\n    },\n    {\n      \"text\": \"Cologne water was put on his nose. He found himself\\nin Cairo in the shop of John Maria Farina. This was followed\\nby mad adventures which he was unable to reproduce.\",\n      \"blockId\": \"block-a81fc293\"\n    },\n    {\n      \"blockId\": \"block-aa1fc5b9\",\n      \"text\": \"His neck was lightly pinched. He dreamed that a\\nblistering plaster was put on him, and thought of a doctor\\nwho treated him in his childhood.\"\n    },\n    {\n      \"blockId\": \"block-ac1fc8df\",\n      \"text\": \"A hot iron was brought near his face. He dreamed\\nthat chauffeurs[G] broke into the house and forced the occupants\\nto give up their money by sticking their feet into burning\\ncoals. The Duchess of Abrantés, whose secretary he imagined\\nhimself in the dream, then entered.\"\n    },\n    {\n      \"text\": \"A drop of water was let fall on his forehead. He\\nimagined himself in Italy perspiring heavily and drinking\\nwhite wine of Orvieto.\",\n      \"blockId\": \"block-ae1fcc05\"\n    },\n    {\n      \"text\": \"When a burning candle was repeatedly focussed on him\\nthrough red paper, he dreamed of the weather, of heat, and of a\\nstorm at sea which he once experienced in the English Channel.\",\n      \"blockId\": \"block-b01fcf2b\"\n    },\n    {\n      \"text\": \"D’Hervey,[34] Weygandt,[75] and others have made other\\nattempts to produce dreams experimentally.\",\n      \"blockId\": \"block-b21fd251\"\n    },\n    {\n      \"blockId\": \"block-b31fd3e4\",\n      \"text\": \"Many have observed the striking skill of the dream in\\ninterweaving into its structure sudden impressions from the\\nouter world in such a manner as to present a gradually prepared\\nand initiated catastrophe (Hildebrandt)[35]. “In\\nformer years,” this author relates, “I occasionally made use\\nof an alarm clock in order to wake regularly at a certain\\nhour in the morning. It probably happened hundreds of\\ntimes that the sound of this instrument fitted into an apparently\\nvery long and connected dream, as if the entire\\ndream had been especially designed for it, as if it found in\\nthis sound its appropriate and logically indispensable point,\\nits inevitable issue.”\"\n    },\n    {\n      \"blockId\": \"block-b41fd577\",\n      \"text\": \"I shall cite three of these alarm-clock dreams for another\\npurpose.\"\n    },\n    {\n      \"text\": \"Volkelt (p. 68) relates: “A composer once dreamed that\\nhe was teaching school, and was just explaining something to\\nhis pupils. He had almost finished when he turned to one\\nof the boys with the question: ‘Did you understand me?’\\nThe boy cried out like one possessed ‘Ya.’ Annoyed at this,\\nhe reprimanded him for shouting. But now the entire class\\nwas screaming ‘Orya,’ then ‘Euryo,’ and finally ‘Feueryo.’\\nHe was now aroused by an actual alarm of fire in the street.”\",\n      \"blockId\": \"block-b51fd70a\"\n    },\n    {\n      \"blockId\": \"block-b61fd89d\",\n      \"text\": \"Garnier (Traité des Facultés de l’Âme, 1865), reported by\\nRadestock,[54] relates that Napoleon I., while sleeping in a\\ncarriage, was awakened from a dream by an explosion which\\nbrought back to him the crossing of the Tagliamento and the\\nbombarding of the Austrians, so that he started up crying,\\n“We are undermined!”\"\n    },\n    {\n      \"text\": \"The following dream of Maury[48] has become celebrated.\\nHe was sick, and remained in bed; his mother sat beside\\nhim. He then dreamed of the reign of terror at the time of\\nthe Revolution. He took part in terrible scenes of murder,\\nand finally he himself was summoned before the Tribunal.\\nThere he saw Robespierre, Marat, Fouquier-Tinville, and all\\nthe sorry heroes of that cruel epoch; he had to give an account\\nof himself, and, after all sort of incidents which did not fix\\nthemselves in his memory, he was sentenced to death. Accompanied\\nby an enormous crowd, he was led to the place of\\nexecution. He mounted the scaffold, the executioner tied him\\nto the board, it tipped, and the knife of the guillotine fell. He\\nfelt his head severed from the trunk, and awakened in terrible\\nanxiety, only to find that the top piece of the bed had fallen\\ndown, and had actually struck his cervical vertebra in the\\nsame manner as the knife of a guillotine.\",\n      \"blockId\": \"block-97213ad0\"\n    },\n    {\n      \"blockId\": \"block-98213c63\",\n      \"text\": \"This dream gave rise to an interesting discussion introduced\\nby Le Lorrain[45] and Egger[20] in the Revue Philosophique.\\nThe question was whether, and how, it was possible for the\\ndreamer to crowd together an amount of dream content\\napparently so large in the short space of time elapsing between\\nthe perception of the waking stimulus and the awakening.\"\n    },\n    {\n      \"blockId\": \"block-99213df6\",\n      \"text\": \"Examples of this nature make it appear that the objective\\nstimuli during sleep are the most firmly established of all\\nthe dream sources; indeed, it is the only stimulus which plays\\nany part in the layman’s knowledge. If we ask an educated\\nperson, who is, however, unacquainted with the literature of\\ndreams, how dreams originate, he is sure to answer by referring\\nto a case familiar to him in which a dream has been explained\\nafter waking by a recognised objective stimulus. Scientific\\ninvestigation cannot, however, stop here, but is incited to\\nfurther research by the observation that the stimulus influencing\\nthe senses during sleep does not appear in the dream\\nat all in its true form, but is replaced by some other presentation\\nwhich is in some way related to it. But the relation\\nexisting between the stimulus and the result of the dream is,\\naccording to Maury,[47] “une affinité quelconque mais qui n’est\\npas unique et exclusive” (p. 72). If we read, e.g., three of\\nHildebrandt’s “Alarm Clock Dreams,” we will then have to\\ninquire why the same stimulus evoked so many different\\nresults, and why just these results and no others.\"\n    },\n    {\n      \"blockId\": \"block-9a213f89\",\n      \"text\": \"(P. 37). “I am taking a walk on a beautiful spring morning.\\nI saunter through the green fields to a neighbouring village,\\nwhere I see the natives going to church in great numbers,\\nwearing their holiday attire and carrying their hymn-books\\nunder their arms. I remember that it is Sunday, and that\\nthe morning service will soon begin. I decide to attend it,\\nbut as I am somewhat overheated I also decide to cool off\\nin the cemetery surrounding the church. While reading the\\nvarious epitaphs, I hear the sexton ascend the tower and see the\\nsmall village bell in the cupola which is about to give signal for\\nthe beginning of the devotions. For another short while it\\nhangs motionless, then it begins to swing, and suddenly its\\nnotes resound so clearly and penetratingly that my sleep\\ncomes to an end. But the sound of bells comes from the\\nalarm clock.”\"\n    },\n    {\n      \"text\": \"“A second combination. It is a clear day, the streets are\\ncovered with deep snow. I have promised to take part in a\\nsleigh-ride, but have had to wait for some time before it was\\nannounced that the sleigh is in front of my house. The\\npreparations for getting into the sleigh are now made. I put\\non my furs and adjust my muff, and at last I am in my place.\\nBut the departure is still delayed, until the reins give the\\nimpatient horses the perceptible sign. They start, and the\\nsleigh bells, now forcibly shaken, begin their familiar janizary\\nmusic with a force that instantly tears the gossamer of my\\ndream. Again it is only the shrill sound of my alarm clock.”\",\n      \"blockId\": \"block-9b21411c\"\n    },\n    {\n      \"text\": \"Still a third example. “I see the kitchen-maid walk along\\nthe corridor to the dining-room with several dozen plates\\npiled up. The porcelain column in her arms seems to me to\\nbe in danger of losing its equilibrium. ‘Take care,’ I exclaim,\\n‘you will drop the whole pile.’ The usual retort is\\nnaturally not wanting—that she is used to such things. Meanwhile\\nI continue to follow her with my worried glance, and\\nbehold! at the door-step the fragile dishes fall, tumble, and\\nroll across the floor in hundreds of pieces. But I soon notice\\nthat the noise continuing endlessly is not really a rattling but\\na true ringing, and with this ringing the dreamer now becomes\\naware that the alarm clock has done its duty.”\",\n      \"blockId\": \"block-9c2142af\"\n    },\n    {\n      \"blockId\": \"block-9d214442\",\n      \"text\": \"The question why the dreaming mind misjudges the nature\\nof the objective sensory stimulus has been answered by\\nStrümpell,[66] and almost identically by Wundt,[76] to the effect\\nthat the reaction of the mind to the attacking stimuli in sleep\\nis determined by the formation of illusions. A sensory impression\\nis recognised by us and correctly interpreted, i.e. it\\nis classed with the memory group to which it belongs according\\nto all previous experience, if the impression is strong, clear,\\nand long enough, and if we have the necessary time at our\\ndisposal for this reflection. If these conditions are not fulfilled,\\nwe mistake the objects which give rise to the impression, and\\non its basis we form an illusion. “If one takes a walk in an\\nopen field and perceives indistinctly a distant object, it may\\nhappen that he will at first take it for a horse.” On closer\\ninspection the image of a cow resting may obtrude itself, and\\nthe presentation may finally resolve itself with certainty into\\na group of people sitting. The impressions which the mind\\nreceives during sleep through outer stimuli are of a similar\\nindistinct nature; they give rise to illusions because the\\nimpression evokes a greater or lesser number of memory\\npictures through which the impression receives its psychic\\nvalue. In which of the many spheres of memory to be taken\\ninto consideration the corresponding pictures are aroused,\\nand which of the possible association connections thereby\\ncome into force, this, even according to Strümpell, remains\\nindeterminable, and is left, as it were, to the caprice of the\\npsychic life.\"\n    },\n    {\n      \"blockId\": \"block-9e2145d5\",\n      \"text\": \"We may here take our choice. We may admit that the\\nlaws of the dream formation cannot really be traced any\\nfurther, and therefore refrain from asking whether or not the\\ninterpretation of the illusion evoked by the sensory impression\\ndepends upon still other conditions; or we may suppose that\\nthe objective sensory stimulus encroaching upon sleep plays\\nonly a modest part as a dream source, and that other factors\\ndetermine the choice of the memory picture to be evoked.\\nIndeed, on carefully examining Maury’s experimentally produced\\ndreams, which I have purposely reported in detail, one is apt\\nto think that the experiment really explains the origin of only\\none of the dream elements, and that the rest of the dream\\ncontent appears in fact too independent, too much determined\\nin detail, to be explained by the one demand, viz. that it must\\nagree with the element experimentally introduced. Indeed\\none even begins to doubt the illusion theory, and the power of\\nthe objective impression to form the dream, when one learns\\nthat this impression at times experiences the most peculiar\\nand far-fetched interpretations during the sleeping state.\\nThus B. M. Simon[63] tells of a dream in which he saw persons\\nof gigantic stature[H] seated at a table, and heard distinctly the\\nawful rattling produced by the impact of their jaws while\\nchewing. On waking he heard the clacking of the hoofs of a\\nhorse galloping past his window. If the noise of the horse’s\\nhoofs had recalled ideas from the memory sphere of “Gulliver’s\\nTravels,” the sojourn with the giants of Brobdingnag and the\\nvirtuous horse-creatures—as I should perhaps interpret it\\nwithout any assistance on the author’s part—should not the\\nchoice of a memory sphere so uncommon for the stimulus have\\nsome further illumination from other motives.\"\n    }\n  ]\n}",
+      "structured_output": {
+        "items": [
+          {
+            "text": "I. The External Sensory Stimuli.—The younger Strümpell,\nson of the philosopher whose writings on the subject have\nalready more than once served us as a guide in the problem\nof dreams, has, as is well known, reported his observations on\na patient who was afflicted with general anæsthesia of the\nskin and with paralysis of several of the higher sensory organs.\nThis man merged into sleep when his few remaining sensory\npaths from the outer world were shut off. When we wish to\nsleep we are wont to strive for a situation resembling the\none in Strümpell’s experiment. We close the most important\nsensory paths, the eyes, and we endeavour to keep away from\nthe other senses every stimulus and every change of the\nstimuli acting upon them. We then fall asleep, although we\nare never perfectly successful in our preparations. We can\nneither keep the stimuli away from the sensory organs\naltogether, nor can we fully extinguish the irritability of the\nsensory organs. That we may at any time be awakened by\nstronger stimuli should prove to us “that the mind has remained\nin constant communication with the material world\neven during sleep.” The sensory stimuli which reach us during\nsleep may easily become the source of dreams.",
+            "blockId": "block-be1fe535"
+          },
+          {
+            "text": "There are a great many stimuli of such nature, ranging\nfrom those that are unavoidable, being brought on by the\nsleeping state or at least occasionally induced by it, to the\naccidental waking stimuli which are adapted or calculated\nto put an end to sleep. Thus a strong light may force itself\ninto the eyes, a noise may become perceptible, or some odoriferous\nmatter may irritate the mucous membrane of the nose.\nIn the spontaneous movements of sleep we may lay bare parts\nof the body and thus expose them to a sensation of cold, or\nthrough change of position we may produce sensations of\npressure and touch. A fly may bite us, or a slight accident at\nnight may simultaneously attack more than one sense. Observers\nhave called attention to a whole series of dreams in\nwhich the stimulus verified on waking, and a part of the\ndream content corresponded to such a degree that the stimulus\ncould be recognised as the source of the dream.",
+            "blockId": "block-bf1fe6c8"
+          },
+          {
+            "text": "I shall here cite a number of such dreams collected by\nJessen[36] (p. 527), traceable to more or less accidental objective\nsensory stimuli. “Every indistinctly perceived noise gives\nrise to corresponding dream pictures; the rolling of thunder\ntakes us into the thick of battle, the crowing of a cock may be\ntransformed into human shrieks of terror, and the creaking of a\ndoor may conjure up dreams of burglars breaking into the\nhouse. When one of our blankets slips off at night we may\ndream that we are walking about naked or falling into the\nwater. If we lie diagonally across the bed with our feet\nextending beyond the edge, we may dream of standing on\nthe brink of a terrifying precipice, or of falling from a steep\nheight. Should our head accidentally get under the pillow\nwe may then imagine a big rock hanging over us and about to\ncrush us under its weight. Accumulation of semen produces\nvoluptuous dreams, and local pain the idea of suffering ill\ntreatment, of hostile attacks, or of accidental bodily injuries.”",
+            "blockId": "block-c01fe85b"
+          },
+          {
+            "text": "“Meier (Versuch einer Erklärung des Nachtwandelns, Halle,\n1758, p. 33), once dreamed of being assaulted by several\npersons who threw him flat on the ground and drove a stake\ninto the ground between his big and second toes. While\nimagining this in his dream he suddenly awoke and felt a blade\nof straw sticking between his toes. The same author, according\nto Hemmings (Von den Traumen und Nachtwandeln,\nWeimar, 1784, p. 258) dreamed on another occasion that he\nwas being hanged when his shirt was pinned somewhat tight\naround his neck. Hauffbauer dreamed in his youth of having\nfallen from a high wall and found upon waking that the bedstead\nhad come apart, and that he had actually fallen to the\nfloor.... Gregory relates that he once applied a hot-water\nbottle to his feet, and dreamed of taking a trip to the summit\nof Mount Ætna, where he found the heat on the ground almost\nunbearable. After having applied a blistering plaster to his\nhead, a second man dreamed of being scalped by Indians; a\nthird, whose shirt was damp, dreamed of being dragged through\na stream. An attack of gout caused the patient to believe\nthat he was in the hands of the Inquisition, and suffering pains\nof torture (Macnish).”",
+            "blockId": "block-c11fe9ee"
+          },
+          {
+            "blockId": "block-c21feb81",
+            "text": "The argument based upon the resemblance between\nstimulus and dream content is reinforced if through a systematic\ninduction of stimuli we succeed in producing dreams\ncorresponding to the stimuli. According to Macnish such\nexperiments have already been made by Giron de Buzareingues.\n“He left his knee exposed and dreamed of travelling in a\nmail coach at night. He remarked in this connection that\ntravellers would well know how cold the knees become in a\ncoach at night. Another time he left the back of his head\nuncovered, and dreamed of taking part in a religious ceremony\nin the open air. In the country where he lived it was customary\nto keep the head always covered except on such occasions.”"
+          },
+          {
+            "text": "Maury[48] reports new observations on dreams produced in\nhimself. (A number of other attempts produced no results.)",
+            "blockId": "block-c31fed14"
+          },
+          {
+            "blockId": "block-c41feea7",
+            "text": "He was tickled with a feather on his lips and on the tip\nof his nose. He dreamed of awful torture, viz. that a mask\nof pitch was stuck to his face and then forcibly torn off,\ntaking the skin with it."
+          },
+          {
+            "blockId": "block-c61ff1cd",
+            "text": "Scissors were sharpened on pincers. He heard bells\nringing, then sounds of alarm which took him back to the\nJune days of 1848."
+          },
+          {
+            "text": "Cologne water was put on his nose. He found himself\nin Cairo in the shop of John Maria Farina. This was followed\nby mad adventures which he was unable to reproduce.",
+            "blockId": "block-a81fc293"
+          },
+          {
+            "blockId": "block-aa1fc5b9",
+            "text": "His neck was lightly pinched. He dreamed that a\nblistering plaster was put on him, and thought of a doctor\nwho treated him in his childhood."
+          },
+          {
+            "blockId": "block-ac1fc8df",
+            "text": "A hot iron was brought near his face. He dreamed\nthat chauffeurs[G] broke into the house and forced the occupants\nto give up their money by sticking their feet into burning\ncoals. The Duchess of Abrantés, whose secretary he imagined\nhimself in the dream, then entered."
+          },
+          {
+            "text": "A drop of water was let fall on his forehead. He\nimagined himself in Italy perspiring heavily and drinking\nwhite wine of Orvieto.",
+            "blockId": "block-ae1fcc05"
+          },
+          {
+            "text": "When a burning candle was repeatedly focussed on him\nthrough red paper, he dreamed of the weather, of heat, and of a\nstorm at sea which he once experienced in the English Channel.",
+            "blockId": "block-b01fcf2b"
+          },
+          {
+            "text": "D’Hervey,[34] Weygandt,[75] and others have made other\nattempts to produce dreams experimentally.",
+            "blockId": "block-b21fd251"
+          },
+          {
+            "blockId": "block-b31fd3e4",
+            "text": "Many have observed the striking skill of the dream in\ninterweaving into its structure sudden impressions from the\nouter world in such a manner as to present a gradually prepared\nand initiated catastrophe (Hildebrandt)[35]. “In\nformer years,” this author relates, “I occasionally made use\nof an alarm clock in order to wake regularly at a certain\nhour in the morning. It probably happened hundreds of\ntimes that the sound of this instrument fitted into an apparently\nvery long and connected dream, as if the entire\ndream had been especially designed for it, as if it found in\nthis sound its appropriate and logically indispensable point,\nits inevitable issue.”"
+          },
+          {
+            "blockId": "block-b41fd577",
+            "text": "I shall cite three of these alarm-clock dreams for another\npurpose."
+          },
+          {
+            "text": "Volkelt (p. 68) relates: “A composer once dreamed that\nhe was teaching school, and was just explaining something to\nhis pupils. He had almost finished when he turned to one\nof the boys with the question: ‘Did you understand me?’\nThe boy cried out like one possessed ‘Ya.’ Annoyed at this,\nhe reprimanded him for shouting. But now the entire class\nwas screaming ‘Orya,’ then ‘Euryo,’ and finally ‘Feueryo.’\nHe was now aroused by an actual alarm of fire in the street.”",
+            "blockId": "block-b51fd70a"
+          },
+          {
+            "blockId": "block-b61fd89d",
+            "text": "Garnier (Traité des Facultés de l’Âme, 1865), reported by\nRadestock,[54] relates that Napoleon I., while sleeping in a\ncarriage, was awakened from a dream by an explosion which\nbrought back to him the crossing of the Tagliamento and the\nbombarding of the Austrians, so that he started up crying,\n“We are undermined!”"
+          },
+          {
+            "text": "The following dream of Maury[48] has become celebrated.\nHe was sick, and remained in bed; his mother sat beside\nhim. He then dreamed of the reign of terror at the time of\nthe Revolution. He took part in terrible scenes of murder,\nand finally he himself was summoned before the Tribunal.\nThere he saw Robespierre, Marat, Fouquier-Tinville, and all\nthe sorry heroes of that cruel epoch; he had to give an account\nof himself, and, after all sort of incidents which did not fix\nthemselves in his memory, he was sentenced to death. Accompanied\nby an enormous crowd, he was led to the place of\nexecution. He mounted the scaffold, the executioner tied him\nto the board, it tipped, and the knife of the guillotine fell. He\nfelt his head severed from the trunk, and awakened in terrible\nanxiety, only to find that the top piece of the bed had fallen\ndown, and had actually struck his cervical vertebra in the\nsame manner as the knife of a guillotine.",
+            "blockId": "block-97213ad0"
+          },
+          {
+            "blockId": "block-98213c63",
+            "text": "This dream gave rise to an interesting discussion introduced\nby Le Lorrain[45] and Egger[20] in the Revue Philosophique.\nThe question was whether, and how, it was possible for the\ndreamer to crowd together an amount of dream content\napparently so large in the short space of time elapsing between\nthe perception of the waking stimulus and the awakening."
+          },
+          {
+            "blockId": "block-99213df6",
+            "text": "Examples of this nature make it appear that the objective\nstimuli during sleep are the most firmly established of all\nthe dream sources; indeed, it is the only stimulus which plays\nany part in the layman’s knowledge. If we ask an educated\nperson, who is, however, unacquainted with the literature of\ndreams, how dreams originate, he is sure to answer by referring\nto a case familiar to him in which a dream has been explained\nafter waking by a recognised objective stimulus. Scientific\ninvestigation cannot, however, stop here, but is incited to\nfurther research by the observation that the stimulus influencing\nthe senses during sleep does not appear in the dream\nat all in its true form, but is replaced by some other presentation\nwhich is in some way related to it. But the relation\nexisting between the stimulus and the result of the dream is,\naccording to Maury,[47] “une affinité quelconque mais qui n’est\npas unique et exclusive” (p. 72). If we read, e.g., three of\nHildebrandt’s “Alarm Clock Dreams,” we will then have to\ninquire why the same stimulus evoked so many different\nresults, and why just these results and no others."
+          },
+          {
+            "blockId": "block-9a213f89",
+            "text": "(P. 37). “I am taking a walk on a beautiful spring morning.\nI saunter through the green fields to a neighbouring village,\nwhere I see the natives going to church in great numbers,\nwearing their holiday attire and carrying their hymn-books\nunder their arms. I remember that it is Sunday, and that\nthe morning service will soon begin. I decide to attend it,\nbut as I am somewhat overheated I also decide to cool off\nin the cemetery surrounding the church. While reading the\nvarious epitaphs, I hear the sexton ascend the tower and see the\nsmall village bell in the cupola which is about to give signal for\nthe beginning of the devotions. For another short while it\nhangs motionless, then it begins to swing, and suddenly its\nnotes resound so clearly and penetratingly that my sleep\ncomes to an end. But the sound of bells comes from the\nalarm clock.”"
+          },
+          {
+            "text": "“A second combination. It is a clear day, the streets are\ncovered with deep snow. I have promised to take part in a\nsleigh-ride, but have had to wait for some time before it was\nannounced that the sleigh is in front of my house. The\npreparations for getting into the sleigh are now made. I put\non my furs and adjust my muff, and at last I am in my place.\nBut the departure is still delayed, until the reins give the\nimpatient horses the perceptible sign. They start, and the\nsleigh bells, now forcibly shaken, begin their familiar janizary\nmusic with a force that instantly tears the gossamer of my\ndream. Again it is only the shrill sound of my alarm clock.”",
+            "blockId": "block-9b21411c"
+          },
+          {
+            "text": "Still a third example. “I see the kitchen-maid walk along\nthe corridor to the dining-room with several dozen plates\npiled up. The porcelain column in her arms seems to me to\nbe in danger of losing its equilibrium. ‘Take care,’ I exclaim,\n‘you will drop the whole pile.’ The usual retort is\nnaturally not wanting—that she is used to such things. Meanwhile\nI continue to follow her with my worried glance, and\nbehold! at the door-step the fragile dishes fall, tumble, and\nroll across the floor in hundreds of pieces. But I soon notice\nthat the noise continuing endlessly is not really a rattling but\na true ringing, and with this ringing the dreamer now becomes\naware that the alarm clock has done its duty.”",
+            "blockId": "block-9c2142af"
+          },
+          {
+            "blockId": "block-9d214442",
+            "text": "The question why the dreaming mind misjudges the nature\nof the objective sensory stimulus has been answered by\nStrümpell,[66] and almost identically by Wundt,[76] to the effect\nthat the reaction of the mind to the attacking stimuli in sleep\nis determined by the formation of illusions. A sensory impression\nis recognised by us and correctly interpreted, i.e. it\nis classed with the memory group to which it belongs according\nto all previous experience, if the impression is strong, clear,\nand long enough, and if we have the necessary time at our\ndisposal for this reflection. If these conditions are not fulfilled,\nwe mistake the objects which give rise to the impression, and\non its basis we form an illusion. “If one takes a walk in an\nopen field and perceives indistinctly a distant object, it may\nhappen that he will at first take it for a horse.” On closer\ninspection the image of a cow resting may obtrude itself, and\nthe presentation may finally resolve itself with certainty into\na group of people sitting. The impressions which the mind\nreceives during sleep through outer stimuli are of a similar\nindistinct nature; they give rise to illusions because the\nimpression evokes a greater or lesser number of memory\npictures through which the impression receives its psychic\nvalue. In which of the many spheres of memory to be taken\ninto consideration the corresponding pictures are aroused,\nand which of the possible association connections thereby\ncome into force, this, even according to Strümpell, remains\nindeterminable, and is left, as it were, to the caprice of the\npsychic life."
+          },
+          {
+            "blockId": "block-9e2145d5",
+            "text": "We may here take our choice. We may admit that the\nlaws of the dream formation cannot really be traced any\nfurther, and therefore refrain from asking whether or not the\ninterpretation of the illusion evoked by the sensory impression\ndepends upon still other conditions; or we may suppose that\nthe objective sensory stimulus encroaching upon sleep plays\nonly a modest part as a dream source, and that other factors\ndetermine the choice of the memory picture to be evoked.\nIndeed, on carefully examining Maury’s experimentally produced\ndreams, which I have purposely reported in detail, one is apt\nto think that the experiment really explains the origin of only\none of the dream elements, and that the rest of the dream\ncontent appears in fact too independent, too much determined\nin detail, to be explained by the one demand, viz. that it must\nagree with the element experimentally introduced. Indeed\none even begins to doubt the illusion theory, and the power of\nthe objective impression to form the dream, when one learns\nthat this impression at times experiences the most peculiar\nand far-fetched interpretations during the sleeping state.\nThus B. M. Simon[63] tells of a dream in which he saw persons\nof gigantic stature[H] seated at a table, and heard distinctly the\nawful rattling produced by the impact of their jaws while\nchewing. On waking he heard the clacking of the hoofs of a\nhorse galloping past his window. If the noise of the horse’s\nhoofs had recalled ideas from the memory sphere of “Gulliver’s\nTravels,” the sojourn with the giants of Brobdingnag and the\nvirtuous horse-creatures—as I should perhaps interpret it\nwithout any assistance on the author’s part—should not the\nchoice of a memory sphere so uncommon for the stimulus have\nsome further illumination from other motives."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 8,
+    "ts": 1792521658443,
+    "type": "token_usage",
+    "label": "Passage cutter",
+    "phase_index": 1,
+    "payload": {
+      "tokens": 78200,
+      "turns": 3
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 12,
+    "ts": 1792521658701,
+    "type": "node_queued",
+    "label": "Experiment clerk #2",
+    "phase_index": 2,
+    "payload": {
+      "model": "google/gemini-2.5-flash",
+      "agentId": "agent-62517a586738e5e9",
+      "agentType": "extractor",
+      "runtimeKind": "prime",
+      "geistObjectRef": {
+        "schema": "sophia.meaningful-object-ref.v1",
+        "kind": "geist",
+        "ownerPrincipal": "user:default",
+        "graphId": "freud-dreams",
+        "objectId": "builtin:graph-plan-v1:clerk:geist",
+        "version": "1",
+        "digest": "sha256:b56ef6338df6dbf1bae1cc4ab6a713e1621ba6c4c63ce74cf8ce67749e4095ab"
+      },
+      "graphId": "freud-dreams",
+      "nodeKey": "2:experiment-clerk-2",
+      "sessionId": "ags_e6a3e4c5e124dea26897",
+      "invocationId": "ags_e6a3e4c5e124dea26897:generation:0"
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 13,
+    "ts": 1792521658724,
+    "type": "node_queued",
+    "label": "Experiment clerk #3",
+    "phase_index": 2,
+    "payload": {
+      "model": "google/gemini-2.5-flash",
+      "agentId": "agent-62517a586738e5e9",
+      "agentType": "extractor",
+      "runtimeKind": "prime",
+      "geistObjectRef": {
+        "schema": "sophia.meaningful-object-ref.v1",
+        "kind": "geist",
+        "ownerPrincipal": "user:default",
+        "graphId": "freud-dreams",
+        "objectId": "builtin:graph-plan-v1:clerk:geist",
+        "version": "1",
+        "digest": "sha256:b56ef6338df6dbf1bae1cc4ab6a713e1621ba6c4c63ce74cf8ce67749e4095ab"
+      },
+      "graphId": "freud-dreams",
+      "nodeKey": "2:experiment-clerk-3",
+      "sessionId": "ags_a713ac7af22fefa9a3ec",
+      "invocationId": "ags_a713ac7af22fefa9a3ec:generation:0"
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 38,
+    "ts": 1792521659514,
+    "type": "node_started",
+    "label": "Experiment clerk #2",
+    "phase_index": 2,
+    "payload": {}
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 39,
+    "ts": 1792521659526,
+    "type": "node_started",
+    "label": "Experiment clerk #3",
+    "phase_index": 2,
+    "payload": {}
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 63,
+    "ts": 1792521667090,
+    "type": "tool_call",
+    "label": "Experiment clerk #2",
+    "phase_index": 2,
+    "payload": {
+      "gate": "submit",
+      "args": {
+        "items": []
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 64,
+    "ts": 1792521667108,
+    "type": "node_done",
+    "label": "Experiment clerk #2",
+    "phase_index": 2,
+    "payload": {
+      "state": "done",
+      "status": "terminated",
+      "turns": 1,
+      "tokens": 3544,
+      "tool_calls": 1,
+      "output": "{\n  \"items\": []\n}",
+      "structured_output": {
+        "items": []
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 65,
+    "ts": 1792521667108,
+    "type": "token_usage",
+    "label": "Experiment clerk #2",
+    "phase_index": 2,
+    "payload": {
+      "tokens": 3544,
+      "turns": 1
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 99,
+    "ts": 1792521673165,
+    "type": "tool_call",
+    "label": "Experiment clerk #3",
+    "phase_index": 2,
+    "payload": {
+      "gate": "submit",
+      "args": {
+        "items": [
+          {
+            "procedure": "one of our blankets slips off at night",
+            "who": "dreamer",
+            "blockId": "block-c01fe85b",
+            "dream": "we are walking about naked or falling into the water",
+            "quote": "When one of our blankets slips off at night we may dream that we are walking about naked or falling into the water."
+          },
+          {
+            "blockId": "block-c01fe85b",
+            "who": "dreamer",
+            "procedure": "lie diagonally across the bed with our feet extending beyond the edge",
+            "dream": "standing on the brink of a terrifying precipice, or of falling from a steep height",
+            "quote": "If we lie diagonally across the bed with our feet extending beyond the edge, we may dream of standing on the brink of a terrifying precipice, or of falling from a steep height."
+          },
+          {
+            "who": "dreamer",
+            "procedure": "head accidentally get under the pillow",
+            "dream": "a big rock hanging over us and about to crush us under its weight",
+            "quote": "Should our head accidentally get under the pillow we may then imagine a big rock hanging over us and about to crush us under its weight.",
+            "blockId": "block-c01fe85b"
+          },
+          {
+            "procedure": "accumulation of semen",
+            "blockId": "block-c01fe85b",
+            "dream": "voluptuous dreams",
+            "quote": "Accumulation of semen produces voluptuous dreams",
+            "who": "dreamer"
+          },
+          {
+            "blockId": "block-c01fe85b",
+            "who": "dreamer",
+            "procedure": "local pain",
+            "dream": "the idea of suffering ill treatment, of hostile attacks, or of accidental bodily injuries",
+            "quote": "and local pain the idea of suffering ill treatment, of hostile attacks, or of accidental bodily injuries."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 100,
+    "ts": 1792521673174,
+    "type": "node_done",
+    "label": "Experiment clerk #3",
+    "phase_index": 2,
+    "payload": {
+      "state": "done",
+      "status": "terminated",
+      "turns": 1,
+      "tokens": 3970,
+      "tool_calls": 1,
+      "output": "{\n  \"items\": [\n    {\n      \"procedure\": \"one of our blankets slips off at night\",\n      \"who\": \"dreamer\",\n      \"blockId\": \"block-c01fe85b\",\n      \"dream\": \"we are walking about naked or falling into the water\",\n      \"quote\": \"When one of our blankets slips off at night we may dream that we are walking about naked or falling into the water.\"\n    },\n    {\n      \"blockId\": \"block-c01fe85b\",\n      \"who\": \"dreamer\",\n      \"procedure\": \"lie diagonally across the bed with our feet extending beyond the edge\",\n      \"dream\": \"standing on the brink of a terrifying precipice, or of falling from a steep height\",\n      \"quote\": \"If we lie diagonally across the bed with our feet extending beyond the edge, we may dream of standing on the brink of a terrifying precipice, or of falling from a steep height.\"\n    },\n    {\n      \"who\": \"dreamer\",\n      \"procedure\": \"head accidentally get under the pillow\",\n      \"dream\": \"a big rock hanging over us and about to crush us under its weight\",\n      \"quote\": \"Should our head accidentally get under the pillow we may then imagine a big rock hanging over us and about to crush us under its weight.\",\n      \"blockId\": \"block-c01fe85b\"\n    },\n    {\n      \"procedure\": \"accumulation of semen\",\n      \"blockId\": \"block-c01fe85b\",\n      \"dream\": \"voluptuous dreams\",\n      \"quote\": \"Accumulation of semen produces voluptuous dreams\",\n      \"who\": \"dreamer\"\n    },\n    {\n      \"blockId\": \"block-c01fe85b\",\n      \"who\": \"dreamer\",\n      \"procedure\": \"local pain\",\n      \"dream\": \"the idea of suffering ill treatment, of hostile attacks, or of accidental bodily injuries\",\n      \"quote\": \"and local pain the idea of suffering ill treatment, of hostile attacks, or of accidental bodily injuries.\"\n    }\n  ]\n}",
+      "structured_output": {
+        "items": [
+          {
+            "procedure": "one of our blankets slips off at night",
+            "who": "dreamer",
+            "blockId": "block-c01fe85b",
+            "dream": "we are walking about naked or falling into the water",
+            "quote": "When one of our blankets slips off at night we may dream that we are walking about naked or falling into the water."
+          },
+          {
+            "blockId": "block-c01fe85b",
+            "who": "dreamer",
+            "procedure": "lie diagonally across the bed with our feet extending beyond the edge",
+            "dream": "standing on the brink of a terrifying precipice, or of falling from a steep height",
+            "quote": "If we lie diagonally across the bed with our feet extending beyond the edge, we may dream of standing on the brink of a terrifying precipice, or of falling from a steep height."
+          },
+          {
+            "who": "dreamer",
+            "procedure": "head accidentally get under the pillow",
+            "dream": "a big rock hanging over us and about to crush us under its weight",
+            "quote": "Should our head accidentally get under the pillow we may then imagine a big rock hanging over us and about to crush us under its weight.",
+            "blockId": "block-c01fe85b"
+          },
+          {
+            "procedure": "accumulation of semen",
+            "blockId": "block-c01fe85b",
+            "dream": "voluptuous dreams",
+            "quote": "Accumulation of semen produces voluptuous dreams",
+            "who": "dreamer"
+          },
+          {
+            "blockId": "block-c01fe85b",
+            "who": "dreamer",
+            "procedure": "local pain",
+            "dream": "the idea of suffering ill treatment, of hostile attacks, or of accidental bodily injuries",
+            "quote": "and local pain the idea of suffering ill treatment, of hostile attacks, or of accidental bodily injuries."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 101,
+    "ts": 1792521673174,
+    "type": "token_usage",
+    "label": "Experiment clerk #3",
+    "phase_index": 2,
+    "payload": {
+      "tokens": 3970,
+      "turns": 1
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 151,
+    "ts": 1792521682022,
+    "type": "node_queued",
+    "label": "Exact-quote checker #1",
+    "phase_index": 3,
+    "payload": {
+      "model": "google/gemini-2.5-flash",
+      "agentId": "agent-8e5db2cdd0f70794",
+      "agentType": "quote checker",
+      "runtimeKind": "prime",
+      "geistObjectRef": {
+        "schema": "sophia.meaningful-object-ref.v1",
+        "kind": "geist",
+        "ownerPrincipal": "user:default",
+        "graphId": "freud-dreams",
+        "objectId": "builtin:graph-plan-v1:quotechecker:geist",
+        "version": "1",
+        "digest": "sha256:11c4deebf397ffeb6b8f5ca3a03defebf32ae362ae09f7e700c6f466dd8ccea1"
+      },
+      "graphId": "freud-dreams",
+      "nodeKey": "3:exact-quote-checker-1",
+      "sessionId": "ags_4ea278d72d1b07e4a284",
+      "invocationId": "ags_4ea278d72d1b07e4a284:generation:0"
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 155,
+    "ts": 1792521682141,
+    "type": "node_queued",
+    "label": "Exact-quote checker #5",
+    "phase_index": 3,
+    "payload": {
+      "model": "google/gemini-2.5-flash",
+      "agentId": "agent-8e5db2cdd0f70794",
+      "agentType": "quote checker",
+      "runtimeKind": "prime",
+      "geistObjectRef": {
+        "schema": "sophia.meaningful-object-ref.v1",
+        "kind": "geist",
+        "ownerPrincipal": "user:default",
+        "graphId": "freud-dreams",
+        "objectId": "builtin:graph-plan-v1:quotechecker:geist",
+        "version": "1",
+        "digest": "sha256:11c4deebf397ffeb6b8f5ca3a03defebf32ae362ae09f7e700c6f466dd8ccea1"
+      },
+      "graphId": "freud-dreams",
+      "nodeKey": "3:exact-quote-checker-5",
+      "sessionId": "ags_bb9a5b287251f7600a8e",
+      "invocationId": "ags_bb9a5b287251f7600a8e:generation:0"
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 180,
+    "ts": 1792521682824,
+    "type": "node_started",
+    "label": "Exact-quote checker #1",
+    "phase_index": 3,
+    "payload": {}
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 184,
+    "ts": 1792521682858,
+    "type": "node_started",
+    "label": "Exact-quote checker #5",
+    "phase_index": 3,
+    "payload": {}
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 209,
+    "ts": 1792521685465,
+    "type": "tool_call",
+    "label": "Exact-quote checker #1",
+    "phase_index": 3,
+    "payload": {
+      "gate": "read_blocks",
+      "args": {
+        "blockId": "block-c01fe85b",
+        "documentId": "doc-5ca098bcf9024343952d2789d060f543"
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 219,
+    "ts": 1792521698927,
+    "type": "error",
+    "label": "Exact-quote checker #5",
+    "phase_index": 3,
+    "payload": {
+      "state": "done",
+      "status": "error",
+      "turns": 1,
+      "tokens": 0,
+      "tool_calls": 0,
+      "output": "Connection error."
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 220,
+    "ts": 1792521698927,
+    "type": "token_usage",
+    "label": "Exact-quote checker #5",
+    "phase_index": 3,
+    "payload": {
+      "tokens": 0,
+      "turns": 1
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 221,
+    "ts": 1792521698988,
+    "type": "node_queued",
+    "label": "Exact-quote checker #5 again",
+    "phase_index": 3,
+    "payload": {
+      "model": "google/gemini-2.5-flash",
+      "agentId": "agent-8e5db2cdd0f70794",
+      "agentType": "quote checker",
+      "runtimeKind": "prime",
+      "geistObjectRef": {
+        "schema": "sophia.meaningful-object-ref.v1",
+        "kind": "geist",
+        "ownerPrincipal": "user:default",
+        "graphId": "freud-dreams",
+        "objectId": "builtin:graph-plan-v1:quotechecker:geist",
+        "version": "1",
+        "digest": "sha256:11c4deebf397ffeb6b8f5ca3a03defebf32ae362ae09f7e700c6f466dd8ccea1"
+      },
+      "graphId": "freud-dreams",
+      "nodeKey": "3:exact-quote-checker-5-again",
+      "sessionId": "ags_70392a032816d71093cb",
+      "invocationId": "ags_70392a032816d71093cb:generation:0"
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 222,
+    "ts": 1792521699064,
+    "type": "node_started",
+    "label": "Exact-quote checker #5 again",
+    "phase_index": 3,
+    "payload": {}
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 291,
+    "ts": 1792521713111,
+    "type": "tool_call",
+    "label": "Exact-quote checker #1",
+    "phase_index": 3,
+    "payload": {
+      "gate": "submit",
+      "args": {
+        "ok": true
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 292,
+    "ts": 1792521713129,
+    "type": "node_done",
+    "label": "Exact-quote checker #1",
+    "phase_index": 3,
+    "payload": {
+      "state": "done",
+      "status": "terminated",
+      "turns": 2,
+      "tokens": 17206,
+      "tool_calls": 2,
+      "output": "{\n  \"ok\": true\n}",
+      "structured_output": {
+        "ok": true
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 293,
+    "ts": 1792521713129,
+    "type": "token_usage",
+    "label": "Exact-quote checker #1",
+    "phase_index": 3,
+    "payload": {
+      "tokens": 17206,
+      "turns": 2
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 294,
+    "ts": 1792521713846,
+    "type": "tool_call",
+    "label": "Exact-quote checker #5 again",
+    "phase_index": 3,
+    "payload": {
+      "gate": "read_blocks",
+      "args": {
+        "documentId": "doc-5ca098bcf9024343952d2789d060f543",
+        "format": "text",
+        "blockId": "block-c01fe85b"
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 331,
+    "ts": 1792521725907,
+    "type": "tool_call",
+    "label": "Exact-quote checker #5 again",
+    "phase_index": 3,
+    "payload": {
+      "gate": "submit",
+      "args": {
+        "ok": true
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 332,
+    "ts": 1792521725923,
+    "type": "node_done",
+    "label": "Exact-quote checker #5 again",
+    "phase_index": 3,
+    "payload": {
+      "state": "done",
+      "status": "terminated",
+      "turns": 2,
+      "tokens": 17309,
+      "tool_calls": 2,
+      "output": "{\n  \"ok\": true\n}",
+      "structured_output": {
+        "ok": true
+      }
+    }
+  },
+  {
+    "run_id": "wfr-mvh13mvy-5gthh8",
+    "seq": 333,
+    "ts": 1792521725923,
+    "type": "token_usage",
+    "label": "Exact-quote checker #5 again",
+    "phase_index": 3,
+    "payload": {
+      "tokens": 17309,
+      "turns": 2
+    }
+  }
+]
