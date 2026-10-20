@@ -51,6 +51,8 @@ export type RunEventType =
 	| "node_queued"
 	| "node_started"
 	| "tool_call"
+	// 2026-10-20: a tool call's outcome, `{ gate, isError }` (never its result). Journals before this have none.
+	| "tool_result"
 	| "token_usage"
 	| "node_done"
 	| "run_done"

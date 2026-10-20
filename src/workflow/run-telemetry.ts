@@ -79,6 +79,7 @@ export function toTelemetryEventType(type: RunEventType): TelemetryEventType | n
 			return "log";
 		// Fold into node.finished payload — not a top-level telemetry event.
 		case "tool_call":
+		case "tool_result":
 		case "token_usage":
 			return null;
 	}

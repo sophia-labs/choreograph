@@ -183,6 +183,21 @@ export function withJournal(deps: NodeRunnerDeps, journal: JournalStore, runId: 
 				return;
 			}
 
+			// The call's outcome, so the run record claims only what happened (a refused `remember` is not a memory).
+			// The result itself stays out of the journal.
+			if (event.category === "agent" && event.type === "tool_result") {
+				const inner = event.event;
+				if (inner.type === "tool_result") {
+					enqueueWrite({
+						type: "tool_result",
+						ts: tsOf(event.ts),
+						payload: { gate: inner.gate, isError: inner.is_error === true },
+						...base(),
+					});
+				}
+				return;
+			}
+
 			if (event.category === "agent-runtime" && event.type === "materialization.result") {
 				finish(event.result, "done", tsOf(event.ts));
 				return;

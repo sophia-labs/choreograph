@@ -26,6 +26,7 @@ import {
 	mintToolUri,
 	mintVoiceUri,
 } from "../agent-subject/agent-ontology.js";
+import { READ_ONLY_MNEMOSYNE_TOOLS } from "../mnemosyne.js";
 import type { JournalStore, RunEvent, RunHeader } from "./journal-store.js";
 import { serializeRunProvenance } from "./provenance.js";
 import type { AgentNodeResult, NodeState, RunRecord } from "./types.js";
@@ -41,6 +42,7 @@ const NODE_EVENT_TYPES = new Set<RunEvent["type"]>([
 	"node_queued",
 	"node_started",
 	"tool_call",
+	"tool_result",
 	"token_usage",
 	"node_done",
 	"error",
@@ -275,7 +277,7 @@ export function buildRunAgentSessionProjectionRecords(
 				ofAgent: agentUri,
 				toolName: tool,
 				toolStatus: "used",
-				toolAccess: "write",
+				toolAccess: foldedToolAccess(tool),
 			});
 		});
 	}
@@ -425,7 +427,11 @@ function reconstructAgents(events: RunEvent[]): AgentNodeResult[] {
 		model: string;
 		turns: number;
 		toolCalls: number;
-		usedTools: Set<string>;
+		/** Tools called, in first-call order (a call is an attempt: `tool_call` is journaled when it starts). */
+		calledTools: Set<string>;
+		/** Tools with at least one call that did not fail, and whether this node journaled outcomes at all. */
+		succeededTools: Set<string>;
+		outcomesJournaled: boolean;
 		tokens: number;
 		agentId?: string;
 		endedAt: number;
@@ -452,7 +458,9 @@ function reconstructAgents(events: RunEvent[]): AgentNodeResult[] {
 				model: "",
 				turns: 0,
 				toolCalls: 0,
-				usedTools: new Set<string>(),
+				calledTools: new Set<string>(),
+				succeededTools: new Set<string>(),
+				outcomesJournaled: false,
 				tokens: 0,
 				endedAt: e.ts,
 				order: order++,
@@ -486,7 +494,11 @@ function reconstructAgents(events: RunEvent[]): AgentNodeResult[] {
 				break;
 			case "tool_call":
 				// Counted defensively; the terminal SpawnResult tool_calls is canonical.
-				if (typeof payload.gate === "string") acc.usedTools.add(payload.gate);
+				if (typeof payload.gate === "string") acc.calledTools.add(payload.gate);
+				break;
+			case "tool_result":
+				acc.outcomesJournaled = true;
+				if (typeof payload.gate === "string" && payload.isError !== true) acc.succeededTools.add(payload.gate);
 				break;
 			case "token_usage":
 				if (typeof payload.tokens === "number") acc.tokens = payload.tokens;
@@ -519,7 +531,11 @@ function reconstructAgents(events: RunEvent[]): AgentNodeResult[] {
 			structured: a.structured,
 			model: a.model,
 			agentId: a.agentId,
-			usedTools: [...a.usedTools],
+			// A tool was used when a call to it succeeded. A journal from before outcomes were kept can only say it was
+			// called, so for that journal a call still counts, as it always did.
+			usedTools: a.outcomesJournaled
+				? [...a.calledTools].filter((tool) => a.succeededTools.has(tool))
+				: [...a.calledTools],
 			turns: a.turns,
 			toolCalls: a.toolCalls,
 			tokens: a.tokens,
@@ -681,8 +697,13 @@ function runToolBlock(agentId: string, tool: string): string {
 		`\tagt:ofAgent ${agentIri(mintAgentUri(agentId))} ;`,
 		`\tagt:toolName ${agentStr(tool)} ;`,
 		`\tagt:toolStatus ${agentStr("used")} ;`,
-		`\tagt:toolAccess ${agentStr("write")} .`,
+		`\tagt:toolAccess ${agentStr(foldedToolAccess(tool))} .`,
 	].join("\n");
+}
+
+/** A tool the host knows to be a read folds as `read` (a `recall` is not a memory write); anything else as `write`. */
+function foldedToolAccess(tool: string): "read" | "write" {
+	return READ_ONLY_MNEMOSYNE_TOOLS.has(tool) ? "read" : "write";
 }
 
 function terminalState(payload: Record<string, unknown>): NodeState {
