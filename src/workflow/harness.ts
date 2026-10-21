@@ -31,7 +31,7 @@ import {
 	type WorkflowDeps,
 } from "./interpreter-primitives.js";
 import { assertJsonSchema, type ExecutionBindingInput, resolveExecutionBinding } from "./invocation.js";
-import { isWorkflowPausedError } from "./runtime-control.js";
+import { isWorkflowPausedError, isWorkflowStoppedError } from "./runtime-control.js";
 import type { AgentNodeResult, RunRecord } from "./types.js";
 import { mintWorkflowUri } from "./vocab.js";
 
@@ -210,23 +210,29 @@ export async function runWorkflow(
 	const ctx = makeWorkflowContext(deps, inputs.config);
 	let returned: unknown;
 	let paused: Error | undefined;
+	let stopped: Error | undefined;
 	try {
 		returned = await compiled.body(ctx, inputs.args);
 	} catch (err) {
-		if (!isWorkflowPausedError(err)) {
+		if (isWorkflowStoppedError(err)) {
+			stopped = err as Error;
+			// The stop is ending the sittings still live in other branches; record their outcomes before the run's.
+			await ctx.settle(STOPPED_RUN_SETTLE_MS);
+		} else if (isWorkflowPausedError(err)) {
+			paused = err instanceof Error ? err : new Error(String(err));
+		} else {
 			throw err;
 		}
-		paused = err instanceof Error ? err : new Error(String(err));
 	}
-	if (!paused) assertJsonSchema(returned, compiled.meta.outputs, "output");
+	if (!paused && !stopped) assertJsonSchema(returned, compiled.meta.outputs, "output");
 
 	// ── Code serializes: write the synthesis document (best-effort), exactly as
 	// the driver does. The SCRIPT returns the synthesis payload; the orchestrator
 	// (here) writes it — agents never call write_document for the artifact.
 	const output = asWorkflowOutput(returned);
 	let synthesisDocId: string | undefined;
-	let note: string | undefined = paused?.message;
-	if (!paused && deps.graph && output?.synthesis?.markdown) {
+	let note: string | undefined = stopped?.message ?? paused?.message;
+	if (!paused && !stopped && deps.graph && output?.synthesis?.markdown) {
 		const docId = `wf-synthesis-${deps.runId}`;
 		try {
 			await deps.graph.writeDocument(inputs.config.graphId, docId, synthDocContent(output));
@@ -238,15 +244,17 @@ export async function runWorkflow(
 
 	const agents: AgentNodeResult[] = [...ctx.results];
 	const endedAt = deps.now();
-	const status: RunRecord["status"] = paused
-		? "paused"
-		: agents.length > 0 && agents.every((a) => a.state === "done")
-			? "completed"
-			: agents.some((a) => a.state === "error")
-				? "failed"
-				: agents.length === 0
-					? "completed"
-					: "stopped";
+	const status: RunRecord["status"] = stopped
+		? "stopped"
+		: paused
+			? "paused"
+			: agents.length > 0 && agents.every((a) => a.state === "done")
+				? "completed"
+				: agents.some((a) => a.state === "error")
+					? "failed"
+					: agents.length === 0
+						? "completed"
+						: "stopped";
 
 	return {
 		runId: deps.runId,
@@ -266,6 +274,9 @@ export async function runWorkflow(
 		note,
 	};
 }
+
+/** How long a stopped run waits for the sittings its stop is ending before it records its own end. */
+const STOPPED_RUN_SETTLE_MS = 30_000;
 
 function synthDocContent(output: WorkflowOutput): string {
 	const synthesis = output.synthesis;

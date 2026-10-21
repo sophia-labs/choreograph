@@ -109,7 +109,10 @@ import {
 } from "./session-transcript.js";
 import type { AgentNodeResult, AgentNodeSpec, WorkflowTerminalStatus } from "./types.js";
 
-export type WorkflowRuntimeStatus = "running" | "pausing" | "paused" | "resuming" | WorkflowTerminalStatus;
+/** `stopping`: a stop was asked for and the run's live sittings are being ended; it becomes `stopped`. */
+export type WorkflowRuntimeStatus = "running" | "pausing" | "paused" | "resuming" | "stopping" | WorkflowTerminalStatus;
+/** A run that has ended for good: nothing drives it, and a stop leaves it as it is. A paused run may still be stopped. */
+export const WORKFLOW_ENDED: ReadonlySet<string> = new Set(["completed", "failed", "stopped"]);
 /** Latest durable run outcome. Body residency/passivation is not a Session outcome. */
 export type AgentSessionStatus = "queued" | "running" | "completed" | "failed" | "cancelled";
 export type AgentSessionLifecycleState = "open" | "closing" | "closed" | "faulted";
@@ -137,6 +140,10 @@ export interface WorkflowInstanceRecord {
 	frontier_json: string | null;
 	pause_requested_at: number | null;
 	pause_reason: string | null;
+	/** When a stop was asked for, by whom (the owner's user id), and in what words: set once, never cleared. */
+	stop_requested_at: number | null;
+	stop_requested_by: string | null;
+	stop_reason: string | null;
 	started_at: number;
 	updated_at: number;
 	ended_at: number | null;
@@ -1675,6 +1682,9 @@ export class WorkflowRuntimeStore extends LibsqlStore {
 					frontier_json      TEXT,
 					pause_requested_at INTEGER,
 					pause_reason       TEXT,
+					stop_requested_at  INTEGER,
+					stop_requested_by  TEXT,
+					stop_reason        TEXT,
 					started_at         INTEGER NOT NULL,
 					updated_at         INTEGER NOT NULL,
 					ended_at           INTEGER,
@@ -2766,6 +2776,21 @@ export class WorkflowRuntimeStore extends LibsqlStore {
 			throw new Error(
 				"agent_sessions lacks durable graph_owner_principal; this hard-cut runtime requires a fresh store",
 			);
+		}
+		// Stores before 2026-10-21 have no stop request on a run.
+		const instanceInfo = await this.db.execute({ sql: "PRAGMA table_info(workflow_instances)", args: [] });
+		const instanceColumns = new Set(instanceInfo.rows.map((row) => String(row.name)));
+		for (const [name, declaration] of [
+			["stop_requested_at", "INTEGER"],
+			["stop_requested_by", "TEXT"],
+			["stop_reason", "TEXT"],
+		] as const) {
+			if (!instanceColumns.has(name)) {
+				await this.db.execute({
+					sql: `ALTER TABLE workflow_instances ADD COLUMN ${name} ${declaration}`,
+					args: [],
+				});
+			}
 		}
 		const eventInfo = await this.db.execute({ sql: "PRAGMA table_info(agent_session_events)", args: [] });
 		// G1 stores predate the G2 control columns and, importantly, their table
@@ -4002,7 +4027,7 @@ export class WorkflowRuntimeStore extends LibsqlStore {
 				sql: `
 					UPDATE workflow_instances
 					   SET status = CASE
-								WHEN status IN ('completed', 'failed', 'stopped', 'paused') THEN status
+								WHEN status IN ('completed', 'failed', 'stopped', 'paused', 'stopping') THEN status
 								ELSE 'pausing'
 						   END,
 						   pause_requested_at = COALESCE(pause_requested_at, ?),
@@ -4015,6 +4040,42 @@ export class WorkflowRuntimeStore extends LibsqlStore {
 			"UPSERT",
 		);
 		return this.getWorkflowInstance(runId);
+	}
+
+	/**
+	 * Ask a run to stop: it starts no new sitting (`assertWorkflowCanSchedule`, the pre-spawn gate) and becomes `stopping`
+	 * until its driver, or the stop route for a run nothing drives, marks it `stopped`. The first request's time, owner
+	 * and words are kept; a run that already ended is left as it is.
+	 */
+	async requestStop(
+		runId: string,
+		input: { by: string; reason?: string; now: number },
+	): Promise<{ instance: WorkflowInstanceRecord | null; first: boolean }> {
+		return this.tx(async (tx) => {
+			const before = await tx.execute({
+				sql: "SELECT status, stop_requested_at FROM workflow_instances WHERE run_id = ?",
+				args: [runId],
+			});
+			const row = before.rows[0];
+			const first = Boolean(row) && row!.stop_requested_at === null && !WORKFLOW_ENDED.has(String(row!.status));
+			await tx.execute({
+				sql: `
+					UPDATE workflow_instances
+					   SET status = CASE
+								WHEN status IN ('completed', 'failed', 'stopped') THEN status
+								ELSE 'stopping'
+						   END,
+						   stop_requested_at = COALESCE(stop_requested_at, ?),
+						   stop_requested_by = COALESCE(stop_requested_by, ?),
+						   stop_reason = COALESCE(stop_reason, ?),
+						   updated_at = ?
+					 WHERE run_id = ? AND status NOT IN ('completed', 'failed', 'stopped')
+				`,
+				args: [input.now, input.by, input.reason ?? null, input.now, runId],
+			});
+			const after = await tx.execute({ sql: "SELECT * FROM workflow_instances WHERE run_id = ?", args: [runId] });
+			return { instance: after.rows[0] ? rowToWorkflowInstance(after.rows[0]) : null, first };
+		}, "UPSERT");
 	}
 
 	async markPaused(runId: string, frontier: WorkflowFrontier): Promise<void> {
@@ -18792,6 +18853,9 @@ function rowToWorkflowInstance(row: Row): WorkflowInstanceRecord {
 		frontier_json: nullableString(row.frontier_json),
 		pause_requested_at: nullableNumber(row.pause_requested_at),
 		pause_reason: nullableString(row.pause_reason),
+		stop_requested_at: nullableNumber(row.stop_requested_at),
+		stop_requested_by: nullableString(row.stop_requested_by),
+		stop_reason: nullableString(row.stop_reason),
 		started_at: Number(row.started_at),
 		updated_at: Number(row.updated_at),
 		ended_at: nullableNumber(row.ended_at),

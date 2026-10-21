@@ -267,6 +267,11 @@ export interface WorkflowContext {
 	readonly logs: ReadonlyArray<LogLine>;
 	/** Phases declared so far, in declaration order. */
 	readonly phases: ReadonlyArray<Phase>;
+	/**
+	 * Resolves once every `agent()` started so far has settled, or after `withinMs`: a stopped run's harness waits here
+	 * for the sittings its stop is ending, so their outcomes are recorded before the run's.
+	 */
+	settle(withinMs: number): Promise<void>;
 }
 
 /**
@@ -279,6 +284,7 @@ export function makeWorkflowContext(deps: WorkflowDeps, config: InterpreterConfi
 	const results: AgentNodeResult[] = [];
 	const logs: LogLine[] = [];
 	const phases: Phase[] = [];
+	const inflight = new Set<Promise<AgentNodeResult>>();
 
 	/** The phase an unpinned `agent()` attributes to. Phase 1 until declared. */
 	let currentPhase: Phase = { index: 1, title: "" };
@@ -353,9 +359,31 @@ export function makeWorkflowContext(deps: WorkflowDeps, config: InterpreterConfi
 		if (opts.capabilities !== undefined) spec.capabilities = opts.capabilities;
 
 		specs.push(spec);
-		const result = await deps.runNode(spec);
+		const running = deps.runNode(spec);
+		inflight.add(running);
+		let result: AgentNodeResult;
+		try {
+			result = await running;
+		} finally {
+			inflight.delete(running);
+		}
 		results.push(result);
 		return { ...result, structured: result.structured as T | undefined };
+	}
+
+	async function settle(withinMs: number): Promise<void> {
+		// Real time, not the run's clock: this waits on processes, and a test's clock may not move.
+		const deadline = Date.now() + withinMs;
+		while (inflight.size > 0 && Date.now() < deadline) {
+			let timer: ReturnType<typeof setTimeout> | undefined;
+			await Promise.race([
+				Promise.allSettled([...inflight]),
+				new Promise((resolve) => {
+					timer = setTimeout(resolve, Math.max(0, deadline - Date.now()));
+				}),
+			]);
+			clearTimeout(timer);
+		}
 	}
 
 	async function invoke(request: ChildInvocationRequestV1): Promise<ChildInvocationResultV1> {
@@ -448,6 +476,7 @@ export function makeWorkflowContext(deps: WorkflowDeps, config: InterpreterConfi
 		phase,
 		log,
 		contract,
+		settle,
 		get specs() {
 			return specs;
 		},

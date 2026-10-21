@@ -1,6 +1,7 @@
 /**
- * A sitting never hangs its run (2026-10-21, "Sleepers, as Dream reports": a clerk read the same block two dozen
- * times, reached its turn cap and went silent, and the run sat in `running` with the Censor never started).
+ * A sitting never hangs its run, and a run can be stopped (2026-10-21, "Sleepers, as Dream reports": a clerk read the
+ * same block two dozen times, reached its turn cap and went silent, and the run sat in `running` with the Censor never
+ * started; nothing could end it).
  *
  * Under a real local-native orchestrator: a real server, real pi body processes, the host's own scripted models
  * (`mock:*`, served by the host's inference proxy, so no network and no key). Nothing is stubbed: the workflow goes in
@@ -52,12 +53,29 @@ return { first: { state: first.state, output: first.output, stopped: first.stopp
 `;
 }
 
+/** Three clerks that never answer, then a phase that must never start once the run is stopped. */
+function stalledSource(name: string): string {
+	return `export const meta = {
+	name: ${JSON.stringify(name)},
+	description: "Three stalled sittings, then a phase after them.",
+	phases: [{ title: "catalogue" }, { title: "censor" }],
+	execution: ${EXECUTION},
+	inputs: { type: "object", additionalProperties: false, properties: {} },
+}
+phase("catalogue")
+await parallel([1, 2, 3].map((n) => () => agent("Catalogue item " + n + ".", { label: "the Clerk #" + n, model: "mock:stall", provider: "openrouter", toolMode: "none", schema: ${SCHEMA} })))
+phase("censor")
+await agent("Check them.", { label: "the Censor", model: "mock:done", provider: "openrouter", toolMode: "none", maxTurns: 4 })
+return {}
+`;
+}
+
 interface RunDetail {
 	header: { status: string; ended_at: number | null };
 	events: Array<{ type: string; label?: string | null; ts: number; payload?: Record<string, unknown> }>;
 }
 
-describe("a sitting stops itself", { concurrency: false }, () => {
+describe("a sitting stops itself, and a run can be stopped", { concurrency: false }, () => {
 	let child: ChildProcess | undefined;
 	let dataDir = "";
 	let base = "";
@@ -144,6 +162,8 @@ describe("a sitting stops itself", { concurrency: false }, () => {
 
 	const outcomeOf = (run: RunDetail, label: string) =>
 		run.events.find((event) => (event.type === "error" || event.type === "node_done") && event.label === label);
+	const returned = (run: RunDetail) =>
+		run.events.find((event) => event.type === "run_done")?.payload as Record<string, unknown> | undefined;
 
 	it("ends a sitting at its turn cap with its reason, and the phase goes on", { timeout: 90_000 }, async () => {
 		const run = await finished(
@@ -184,5 +204,91 @@ describe("a sitting stops itself", { concurrency: false }, () => {
 		assert.equal(clerk?.payload?.state, "timeout");
 		assert.equal(outcomeOf(run, "the Censor")?.type, "node_done", "the sitting after the stalled one ran");
 		assert.ok(Date.now() - began < 40_000, "the stalled sitting did not hold the run");
+	});
+
+	it(
+		"stops a run: its live sittings end, no new one starts, and the run says who stopped it",
+		{ timeout: 90_000 },
+		async () => {
+			const stalledBefore = log.split("inference_request: provider=openrouter model=mock:stall").length;
+			const runId = await start("stop-a-run", stalledSource("stop-a-run"));
+			// Wait until all three clerks are live and each is stalled inside its first model call, as the clerk was.
+			const deadline = Date.now() + 45_000;
+			while (log.split("inference_request: provider=openrouter model=mock:stall").length - stalledBefore < 3) {
+				assert.ok(Date.now() < deadline, `the clerks never reached their model call:\n${log.slice(-3000)}`);
+				await sleep(250);
+			}
+
+			const asked = Date.now();
+			const response = await fetch(`${base}/api/workflows/runs/${runId}/stop`, {
+				method: "POST",
+				headers,
+				body: JSON.stringify({ reason: "it is going nowhere" }),
+			});
+			const body = (await response.json()) as {
+				run: {
+					status: string;
+					stoppedBy: string | null;
+					stopRequestedAt: number | null;
+					stopReason: string | null;
+				};
+				alreadyEnded: boolean;
+				stoppedSittings: number;
+			};
+			assert.equal(response.status, 200, JSON.stringify(body));
+			assert.equal(body.run.status, "stopped");
+			assert.equal(body.run.stoppedBy, "owner");
+			assert.equal(body.run.stopReason, "it is going nowhere");
+			assert.ok(body.run.stopRequestedAt !== null && body.run.stopRequestedAt >= asked);
+			assert.equal(body.alreadyEnded, false);
+			assert.equal(body.stoppedSittings, 3);
+
+			const run = await detail(runId);
+			assert.equal(run.header.status, "stopped");
+			for (const n of [1, 2, 3]) {
+				const clerk = outcomeOf(run, `the Clerk #${n}`);
+				assert.equal(clerk?.type, "error");
+				assert.equal(clerk?.payload?.output, "Stopped by owner.");
+			}
+			assert.equal(
+				run.events.some((event) => event.label === "the Censor"),
+				false,
+				"no sitting started after the stop",
+			);
+			const said = run.events.find((event) => event.type === "log");
+			assert.equal(said?.payload?.msg, "Stopped by owner: it is going nowhere");
+			assert.deepEqual(said?.payload?.stop, {
+				by: "owner",
+				at: body.run.stopRequestedAt,
+				reason: "it is going nowhere",
+			});
+			const done = returned(run);
+			assert.equal(done?.status, "stopped");
+			assert.deepEqual(done?.stop, said?.payload?.stop);
+			// The run's end is recorded after every sitting's.
+			const ends = run.events.filter((event) => event.type === "error").map((event) => event.ts);
+			const doneAt = run.events.find((event) => event.type === "run_done")?.ts ?? 0;
+			assert.ok(ends.every((ts) => ts <= doneAt));
+
+			// Asking again changes nothing.
+			const again = await fetch(`${base}/api/workflows/runs/${runId}/stop`, { method: "POST", headers });
+			const againBody = (await again.json()) as { run: { status: string }; alreadyEnded: boolean };
+			assert.equal(again.status, 200);
+			assert.equal(againBody.alreadyEnded, true);
+			assert.equal(againBody.run.status, "stopped");
+			assert.equal((await detail(runId)).events.length, run.events.length);
+		},
+	);
+
+	it("refuses a stop from anyone but the run's owner, and for a run that does not exist", async () => {
+		const missing = await fetch(`${base}/api/workflows/runs/wfr-nope/stop`, { method: "POST", headers });
+		assert.equal(missing.status, 404);
+		const runId = await start("stop-not-yours", misbehavingSource("stop-not-yours", "mock:done"));
+		const stranger = await fetch(`${base}/api/workflows/runs/${runId}/stop`, {
+			method: "POST",
+			headers: { ...headers, "x-user-id": "someone-else" },
+		});
+		assert.equal(stranger.status, 403);
+		await finished(runId);
 	});
 });

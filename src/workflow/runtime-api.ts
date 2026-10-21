@@ -32,6 +32,10 @@ export interface WorkflowRuntimeRunProjection {
 	frontier: unknown;
 	pauseRequestedAt: number | null;
 	pauseReason: string | null;
+	/** A stop: when it was asked for, by whom (the owner's user id), and their words if they gave any. */
+	stopRequestedAt: number | null;
+	stoppedBy: string | null;
+	stopReason: string | null;
 	startedAt: number;
 	updatedAt: number;
 	endedAt: number | null;
@@ -123,6 +127,9 @@ export function projectRuntimeInstance(instance: WorkflowInstanceRecord): Workfl
 		frontier: parseMaybeJson(instance.frontier_json),
 		pauseRequestedAt: instance.pause_requested_at,
 		pauseReason: instance.pause_reason,
+		stopRequestedAt: instance.stop_requested_at,
+		stoppedBy: instance.stop_requested_by,
+		stopReason: instance.stop_reason,
 		startedAt: instance.started_at,
 		updatedAt: instance.updated_at,
 		endedAt: instance.ended_at,

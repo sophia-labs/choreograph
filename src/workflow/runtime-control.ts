@@ -35,6 +35,35 @@ export class WorkflowPausedError extends Error {
 	}
 }
 
+/**
+ * A run its owner stopped: thrown at the next safe point instead of starting a sitting, and caught by the harness,
+ * which marks the run `stopped` (never resumable, unlike a pause).
+ */
+export class WorkflowStoppedError extends Error {
+	readonly code = "workflow_stopped";
+
+	constructor(
+		readonly runId: string,
+		readonly frontier: WorkflowFrontier,
+		readonly stoppedBy: string | null,
+	) {
+		super(stoppedSittingWords(stoppedBy));
+		this.name = "WorkflowStoppedError";
+	}
+}
+
+export function isWorkflowStoppedError(err: unknown): err is WorkflowStoppedError {
+	return (
+		err instanceof WorkflowStoppedError ||
+		Boolean(err && typeof err === "object" && (err as { code?: unknown }).code === "workflow_stopped")
+	);
+}
+
+/** What a sitting ended by its run's stop records ("Stopped by owner."). */
+export function stoppedSittingWords(stoppedBy: string | null | undefined): string {
+	return stoppedBy ? `Stopped by ${stoppedBy}.` : "Stopped.";
+}
+
 export function isWorkflowPausedError(err: unknown): err is WorkflowPausedError {
 	return (
 		err instanceof WorkflowPausedError ||
@@ -201,7 +230,7 @@ export function makeRuntimeNodeRunner(deps: RuntimeNodeRunnerDeps): NodeRunner {
 			if (finished.agentCheckpoint || result.state === "error") await deps.onIdle?.(enriched);
 			return finished;
 		} catch (err) {
-			if (isWorkflowPausedError(err)) {
+			if (isWorkflowPausedError(err) || isWorkflowStoppedError(err)) {
 				throw err;
 			}
 			if (deps.preserveMaterializationOnActivationFailure) throw err;
@@ -320,6 +349,10 @@ async function assertWorkflowCanSchedule(
 	const instance = await runtime.getWorkflowInstance(runId);
 	if (!instance) {
 		return;
+	}
+	// A stop wins over a pause: a stopped run never resumes, so it is not marked paused.
+	if (instance.status === "stopping" || instance.stop_requested_at != null) {
+		throw new WorkflowStoppedError(runId, frontier, instance.stop_requested_by);
 	}
 	if (instance.status === "paused" || instance.status === "pausing" || instance.pause_requested_at != null) {
 		await runtime.markPaused(runId, frontier);

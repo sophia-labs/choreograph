@@ -206,6 +206,7 @@ import {
 // routes are served by the base Contract-A handlers, so only the run-LIST
 // projector is wired here.
 import { listRunsProjected } from "./workflow/run-endpoints.js";
+import { stopTestimony, stopWorkflowRun } from "./workflow/run-stop.js";
 import { projectJournalEvent, RunTelemetryEmitter, type TelemetryEvent } from "./workflow/run-telemetry.js";
 import {
 	parseMaybeJson,
@@ -219,12 +220,13 @@ import {
 	resolveAgentSessionSinceCursor,
 	startAgentSessionSseStream,
 } from "./workflow/runtime-api.js";
-import { makeRuntimeNodeRunner } from "./workflow/runtime-control.js";
+import { makeRuntimeNodeRunner, stoppedSittingWords } from "./workflow/runtime-control.js";
 import {
 	AgentSessionCommandConflictError,
 	type AgentSessionCommandName,
 	AgentSessionScheduleFault,
 	type AgentSessionScheduleRecord,
+	WORKFLOW_ENDED,
 	WorkflowRuntimeStore,
 } from "./workflow/runtime-store.js";
 import { startHostedScratchEffectWorkerFromEnv } from "./workflow/scratch-effect-hosted.js";
@@ -611,6 +613,11 @@ interface AppContext {
 	evidence?: EvidenceStore;
 	/** Async 202 workflow tails whose durable writes must drain before DB close. */
 	workflowTails?: Set<Promise<void>>;
+	/**
+	 * The live driver of each workflow run this host holds, by run id: a stop waits on it, and finishes a run that has
+	 * none itself (`run-stop.ts`).
+	 */
+	workflowRunTails?: Map<string, Promise<void>>;
 	/** Explicitly configured owner-scoped evolution plane; absent means disabled. */
 	evolution?: PersonalEvolutionController;
 }
@@ -2786,6 +2793,42 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 		return;
 	}
 
+	// POST /api/workflows/runs/:runId/stop — stop a run now: end its live sittings, start no more, mark it stopped.
+	// Unlike pause, a stopped run never resumes. `run-stop.ts` has the order of it.
+	const runStopMatch = pathname.match(/^\/api\/workflows\/runs\/([^/]+)\/stop$/);
+	if (method === "POST" && runStopMatch) {
+		span?.updateName("POST /api/workflows/runs/:runId/stop");
+		const runId = decodeURIComponent(runStopMatch[1]);
+		span?.setAttribute("workflow.run_id", runId);
+		const ownerUserId = await requireAuthenticatedOwner(request, response);
+		if (!ownerUserId) return;
+
+		const instance = await ctx.runtime.getWorkflowInstance(runId);
+		if (!instance) {
+			sendJson(response, 404, { error: "Run not found" });
+			return;
+		}
+		if (instance.owner_user_id !== ownerUserId) {
+			sendJson(response, 403, { error: "Forbidden" });
+			return;
+		}
+		const body = (await readJsonBody(request)) as { reason?: unknown } | null;
+		const reason =
+			typeof body?.reason === "string" && body.reason.trim() ? body.reason.trim().slice(0, 500) : undefined;
+		const liveTail = ctx.workflowRunTails?.get(runId);
+		const result = await stopWorkflowRun(
+			{ runtime: ctx.runtime, journal: ctx.journal, spawner: ctx.spawner, ...(liveTail ? { liveTail } : {}) },
+			{ runId, by: ownerUserId, ...(reason ? { reason } : {}) },
+		);
+		const ended = WORKFLOW_ENDED.has(result.instance.status);
+		sendJson(response, ended ? 200 : 202, {
+			run: projectRuntimeInstance(result.instance),
+			alreadyEnded: result.alreadyEnded,
+			stoppedSittings: result.stoppedSandboxes.length,
+		});
+		return;
+	}
+
 	// GET /api/agent-sessions/:sessionId — read the collaborative session document.
 	const agentSessionSchedulesMatch = pathname.match(
 		/^\/api\/agent-sessions\/([^/]+)\/schedules(?:\/([^/]+))?(?:\/cancel)?$/,
@@ -3761,8 +3804,12 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 				.catch((error) => {
 					logInvocationFailureFrom("async-program-run", error, { ...invocationLogFields(), runId });
 				})
-				.finally(() => ctx.workflowTails?.delete(trackedTail));
+				.finally(() => {
+					ctx.workflowTails?.delete(trackedTail);
+					if (ctx.workflowRunTails?.get(runId) === trackedTail) ctx.workflowRunTails.delete(runId);
+				});
 			ctx.workflowTails?.add(trackedTail);
+			ctx.workflowRunTails?.set(runId, trackedTail);
 			return;
 		}
 
@@ -4091,6 +4138,14 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 					authContext,
 					ownerUserId,
 					mnemosyne: { ownerPrincipal: graphOwner, graphId },
+					// A sitting still waiting for a spawn slot when its run is stopped never starts: the refusal is its
+					// recorded outcome ("Stopped by owner."), as a live sitting's kill is.
+					preSpawnGate: async () => {
+						const instance = await ctx.runtime.getWorkflowInstance(runId);
+						if (instance && (instance.status === "stopping" || instance.stop_requested_at != null)) {
+							throw new Error(stoppedSittingWords(instance.stop_requested_by));
+						}
+					},
 					...(bindableAgentCapabilities.length === 0
 						? {}
 						: {
@@ -4363,12 +4418,15 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 				// queue drains, so trailing node events can never land after it.
 				try {
 					await drain();
+					const stopped =
+						run.status === "stopped" ? await ctx.runtime.getWorkflowInstance(runId).catch(() => null) : null;
 					await ctx.journal.appendEvent(runId, {
 						type: "run_done",
 						payload: {
 							status: run.status,
 							synthesisDocId: run.synthesisDocId,
 							receipt: run.invocationReceipt,
+							...(stopped?.stop_requested_at != null ? { stop: stopTestimony(stopped) } : {}),
 						},
 					});
 					await ctx.journal.finishRun(runId, {
@@ -4540,14 +4598,21 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 			// once they migrate to the poll/SSE surface.
 			const syncMode = pathname === "/api/invocations" ? !prefersAsync : process.env.WORKFLOW_RUN_SYNC === "1";
 			if (syncMode) {
+				const running = fanOutAndFinalize();
+				const syncTail = running.then(
+					() => undefined,
+					() => undefined,
+				);
+				ctx.workflowRunTails?.set(runId, syncTail);
 				try {
-					const run = await fanOutAndFinalize();
+					const run = await running;
 					sendJson(response, 200, buildRunResponseBody(run, graphId, entry.compiled.meta.name));
 				} catch (error) {
 					await terminalizeFailedRun(error);
 					logInvocationFailureFrom("sync-run", error, { ...invocationLogFields(), runId });
 					throw error;
 				} finally {
+					if (ctx.workflowRunTails?.get(runId) === syncTail) ctx.workflowRunTails.delete(runId);
 					await closeWorkflowGraphProxies();
 				}
 				return;
@@ -4575,8 +4640,12 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 				.catch((error) => {
 					console.error(`[workflow] async run ${runId} tail cleanup failed: ${String(error)}`);
 				})
-				.finally(() => ctx.workflowTails?.delete(trackedTail));
+				.finally(() => {
+					ctx.workflowTails?.delete(trackedTail);
+					if (ctx.workflowRunTails?.get(runId) === trackedTail) ctx.workflowRunTails.delete(runId);
+				});
 			ctx.workflowTails?.add(trackedTail);
+			ctx.workflowRunTails?.set(runId, trackedTail);
 		} catch (err) {
 			if (response.headersSent) {
 				logInvocationFailureFrom("start-run", err, invocationLogFields());
@@ -5779,6 +5848,7 @@ export async function main() {
 		modelCatalog,
 		evidence,
 		workflowTails,
+		workflowRunTails: new Map(),
 		evolution,
 	};
 
@@ -5979,6 +6049,7 @@ export async function main() {
 		console.error(`    POST /api/workflows/runs/:id/driver — claim/release run-level driver lease`);
 		console.error(`    POST /api/workflows/runs/:id/amendments — queue driver-authorized beat amendment`);
 		console.error(`    POST /api/workflows/runs/:id/pause  — request pause at next safe point`);
+		console.error(`    POST /api/workflows/runs/:id/stop   — stop now: end live sittings, mark the run stopped`);
 		console.error(`    GET  /api/agent-sessions/:id        — Vehicle/ACP collaborative session document`);
 		console.error(`    GET  /api/agent-sessions/:id/events — per-agent-session event stream`);
 		console.error(`    GET  /api/agent-sessions/:id/document-ops — document operation cursor`);
