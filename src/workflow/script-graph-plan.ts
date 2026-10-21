@@ -2,8 +2,9 @@
  * The `graph-plan-v1` built-in: runs a workflow whose definition is a named RDF graph (`graph-plan.ts`).
  *
  * The host reads the definition graph, compiles it, and refuses unless the caller names the digest
- * of exactly that compiled plan (the person approved what they saw). Each step runs as a read-only
- * agent with a host-bound runtime and Agent Ontology, as the workspace chat's Reader does. The script
+ * of exactly that compiled plan (the person approved what they saw). Each step runs as an agent that
+ * reads the graph and writes only its own memory and Song (`being-geist.ts`), with a host-bound runtime and
+ * Agent Ontology, as the workspace chat's Reader does. The script
  * below is the whole interpreter; it walks data and never evaluates anything from the graph. After
  * the run, `finalizeGraphPlanRun` writes what each step produced, and what each check refused, into
  * the run's own named graph.
@@ -26,6 +27,7 @@ import {
 	STANDALONE_AGENT_IDENTITY_ALGORITHM,
 } from "../agent-subject/agent-ontology.js";
 import {
+	BEING_GEIST_WRITE_TOOLS,
 	beingGeistRef,
 	beingMemoryPromptLines,
 	graphPlanBeingFence,
@@ -299,7 +301,10 @@ export function buildGraphPlanInputs(input: {
 			model: input.inference.model,
 			systemPrompt,
 			includeTools: tools,
-			graphAccess: graphPlanBeingGraphAccess(),
+			// A write session only when the cell serves the being a Geist write; the mode admits no other write.
+			graphAccess: graphPlanBeingGraphAccess({
+				writes: BEING_GEIST_WRITE_TOOLS.filter((tool) => tools.includes(tool)),
+			}),
 			maxTurns: runtime.constraints.maxTurns,
 			runtime,
 			ontology,

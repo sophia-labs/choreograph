@@ -113,8 +113,10 @@ const OBSERVER_SELECTORS = ["observer_agent_id", "observerAgentId"] as const;
 
 /**
  * The observer is the host's, as the graph is: a caller's observer is dropped from every call, and an observer tool
- * names the bound witness. Otherwise a body could reach another being's memory, or the graph's shared queue, where
- * gardend also files every witnessed memory (`plans/2026-10-20-typed-objects/notes-geist-for-beings.md` §3).
+ * names the bound witness. Otherwise a body could read or write another being's memory, or, with no observer, the
+ * graph's commons. gardend admits a Compute's memory writes (`memory.write.observed`) only for a call that names an
+ * agent observer, and it is this binding that makes that agent the being itself
+ * (`plans/2026-10-20-typed-objects/notes-geist-for-beings.md` §3).
  */
 function bindObserver(
 	observer: string | undefined,

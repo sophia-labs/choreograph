@@ -39,10 +39,10 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build, version as esbuildVersion } from "esbuild";
+import { NODE_FLOOR, SERVICE } from "./gardend-service-manifest.mjs";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const BODY = join(ROOT, "packages", "agent-body");
-const NODE_FLOOR = "22.19";
 const RELEASE_NATIVES = ["darwin-x64", "darwin-arm64", "linux-x64-gnu", "linux-arm64-gnu"];
 const BODY_PACKAGE_NAME = "@sophia-labs/choreograph-agent-body";
 const PHOTON = "@silvia-odwyer/photon-node";
@@ -223,29 +223,6 @@ function notices(roots) {
 	}
 	return { text: `${lines.join("\n")}\n`, count: packages.length, missing };
 }
-
-const SERVICE = {
-	serviceId: "choreograph",
-	displayName: "Sophia Compute",
-	command: "node",
-	args: ["app/main.mjs"],
-	requires: { node: NODE_FLOOR },
-	workingDir: ".",
-	healthPath: "/health",
-	proxyMount: "/services/choreograph",
-	// Opt-in: `gardend service enable choreograph` turns it on at boot; a workflow run through gardend starts it.
-	autostart: false,
-	env: [
-		{ name: "NODE_ENV", value: "production" },
-		{ name: "OTEL_SDK_DISABLED", value: "true" },
-		{ name: "BILLING_FEE_BPS", value: "0" },
-		{ name: "WORKFLOW_DYNAMIC_SOURCE", value: "1" },
-		{ name: "CHOREOGRAPH_LOCAL_AGENT_DEFAULTS", value: "1" },
-		{ name: "SOPHIA_AGENT_RUNTIME_ENTRYPOINT", value: "body/body.mjs" },
-		// Every graph on a gardend belongs to its profile's owner (the master key's identity, `user:owner`).
-		{ name: "MNEMOSYNE_GRAPH_OWNER", value: "user:owner" },
-	],
-};
 
 async function buildService(dest, natives) {
 	if (existsSync(dest)) throw new Error(`${dest} exists; move it aside first`);

@@ -495,7 +495,8 @@ registerWorkflow({
 /**
  * Built-in graph plan (`graph-plan-v1`, 2026-10-18): a workflow whose definition is a named RDF graph. The host reads
  * and compiles the definition, refuses unless the caller names the digest of exactly that plan, and binds every step
- * to a read-only agent. The script walks data; nothing from the graph is evaluated, so no dynamic-source flag applies.
+ * to an agent that reads the graph and writes only its own Geist. The script walks data; nothing from the graph is
+ * evaluated, so no dynamic-source flag applies.
  */
 registerWorkflow({
 	compiled: GRAPH_PLAN_COMPILED,

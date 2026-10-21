@@ -26,20 +26,22 @@ import { WORKSPACE_READER_TOOLS_V1 } from "./workspace-chat-contract.js";
 export const GRAPH_PLAN_BEING_MODE_IRI = "urn:sophia:mode:graph-plan-being";
 
 /**
- * Witness reads a being is handed. A self-hosted Compute holds gardend's member grant, which has `memory.read`, so it
- * may call `recall`. `music` is also `memory.read`, but it is left out: gardend shows an observer that has never sung a
- * seeded verse as its Song (`geist_song_store.rs`), and a being that cannot `sing` would read words it never wrote as
- * its own. `memory_semantic_recall` takes no observer and ranks the commons, so it is no witness tool.
+ * Witness reads a being is handed: `recall` (its memory) and `music` (its Song). Both are `memory.read`, which a
+ * self-hosted Compute's member grant holds. gardend shows a witness that has never sung "no Song yet", not a seeded
+ * verse (`geist_song_store.rs`), so `music` claims nothing the being did not write. `memory_semantic_recall` is left
+ * out: it takes an observer now, but the host does not bind it (`HOST_BOUND_OBSERVER_TOOLS`).
  */
-export const BEING_GEIST_READ_TOOLS: readonly string[] = Object.freeze(["recall"]);
+export const BEING_GEIST_READ_TOOLS: readonly string[] = Object.freeze(["music", "recall"]);
 
 /**
- * Witness writes a being is handed. Empty, because the member grant lacks `memory.write` (gardend
- * `loopback_token_grants.rs`: "Not: … memory and index writes"), so every `remember` would be refused with -32003.
- * Vera decides. Once members hold `memory.write`, this becomes `["remember"]`. The step's mode, session, tools and
- * prompt all follow from this list, so no other Choreograph line changes.
+ * Witness writes a being is handed: `remember` and `sing`. A self-hosted Compute's own token has no `memory.write`, but
+ * its `service.json` says `"agentMemory": true` (`deploy/gardend-service-manifest.mjs`), so gardend adds
+ * `memory.write.observed`, which admits these two only for a call that names an agent as its observer. The host binds
+ * that observer on every call, so a being writes only its own memory and Song, never the commons. On a gardend that
+ * predates the grant the calls are refused (-32003), and the run record folds a refused call as not used.
+ * `value` is admitted the same way (`salience.write.observed`) but not handed: nothing in a step asks for valuations.
  */
-export const BEING_GEIST_WRITE_TOOLS: readonly string[] = Object.freeze([]);
+export const BEING_GEIST_WRITE_TOOLS: readonly string[] = Object.freeze(["remember", "sing"]);
 
 /** For tests and for a host that knows better than the default; production reads the constants above. */
 export interface BeingGeistOptions {
@@ -167,19 +169,30 @@ export function resolveBeingGeist(
 
 /**
  * What a being is told about its memory, from the tools it is actually handed (never more). Nothing when it has no
- * Geist tool. It does not promise privacy: gardend also files a witnessed memory in the graph's shared queue.
+ * Geist tool. It says "of your own", not "private": gardend never mixes a witness's memory or Song with another's or
+ * with the commons, but anyone who may query the graph's RDF can read them.
  */
 export function beingMemoryPromptLines(tools: readonly string[]): string[] {
-	const reads = tools.includes("recall");
-	const writes = tools.includes("remember");
-	if (!reads && !writes) return [];
-	const has =
-		reads && writes
+	const has = (tool: string) => tools.includes(tool);
+	const memory =
+		has("recall") && has("remember")
 			? "`recall` shows what is in it, and `remember` adds to it (name the blocks a note comes from)"
-			: reads
+			: has("recall")
 				? "`recall` shows what is in it, which may be empty"
-				: "`remember` adds to it (name the blocks a note comes from)";
+				: has("remember")
+					? "`remember` adds to it (name the blocks a note comes from)"
+					: undefined;
+	const song =
+		has("music") && has("sing")
+			? "`music` shows your Song and `sing` adds a verse to it"
+			: has("music")
+				? "`music` shows your Song, which may not be sung yet"
+				: has("sing")
+					? "`sing` adds a verse to your Song"
+					: undefined;
+	const parts = [memory, song].filter((part): part is string => part !== undefined);
+	if (parts.length === 0) return [];
 	return [
-		`You have a memory of your own that lasts across runs of this workflow: ${has}. Use it to notice what recurs, to remember what the source is like, and not to repeat a mistake.`,
+		`You have a memory of your own that lasts across runs of this workflow: ${parts.join("; ")}. Use it to notice what recurs, to remember what the source is like, and not to repeat a mistake.`,
 	];
 }
