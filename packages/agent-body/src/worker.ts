@@ -38,6 +38,8 @@ interface Counters {
 	turns: number;
 	toolCalls: number;
 	truncated: boolean;
+	/** Set at the cap's abort until the run ends: the one turn pi opens after it, which never reaches the model. */
+	afterCap?: boolean;
 }
 
 interface Completion {
@@ -367,16 +369,28 @@ export function reportEvent(
 	session: Pick<AgentSession, "abort">,
 ): void {
 	switch (event.type) {
+		// After the cap's abort pi opens one more turn, which never reaches the model: it is not a turn the agent took.
+		// Counted, it put the result one turn over the pinned budget, the host refused it, and the sitting went silent
+		// (2026-10-21, a clerk at turn 24 of 24).
 		case "turn_start":
+			if (counters.afterCap) return;
 			bridge.emitEvent({ name: "turn.started", payload: { turn: counters.turns + 1 } });
 			return;
 		case "turn_end":
+			if (counters.afterCap) {
+				counters.afterCap = false;
+				return;
+			}
 			counters.turns += 1;
 			bridge.emitEvent({ name: "turn.completed", payload: { turn: counters.turns } });
 			if (counters.turns >= request.runtime_binding.constraints.maxTurns) {
 				counters.truncated = true;
+				counters.afterCap = true;
 				void session.abort();
 			}
+			return;
+		case "agent_end":
+			counters.afterCap = false;
 			return;
 		case "message_update": {
 			const update = event.assistantMessageEvent;
@@ -420,6 +434,11 @@ function classify(
 	if (terminal.signaled) {
 		const output = terminal.output ?? fallback;
 		return { status: "terminated", output, event: { name: "message.completed", payload: { output } } };
+	}
+	// At the cap the body aborted its own run, so the aborted call after it is not a failure of the model's.
+	if (request.output_schema && counters.truncated) {
+		const output = `Stopped after ${String(counters.turns)} turn${counters.turns === 1 ? "" : "s"} without an answer.`;
+		return { status: "error", output, event: { name: "turn.failed", payload: { message: output } } };
 	}
 	const failure = lastModelFailure(session);
 	if (failure)
