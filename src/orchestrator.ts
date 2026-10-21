@@ -144,6 +144,7 @@ import { processStripeWebhook } from "./stripe-webhook.js";
 import { listTemplates, resolveTemplateFilesystemIds } from "./templates.js";
 import { readUsageExplorer, usagePageQuery } from "./usage-explorer.js";
 import { isAgentWorkerConfig, isKernelWorkerConfig, isRuntimeWorkerConfig } from "./wire-protocol.js";
+import { graphPlanStepGrantPolicy } from "./workflow/being-geist.js";
 import { startHostedBuildEffectWorkerFromEnv } from "./workflow/build-effect-hosted.js";
 import { BoundedChildInvocationMediator, type ChildInvocationDispatch } from "./workflow/child-invocation.js";
 import {
@@ -267,7 +268,6 @@ import {
 	workspaceChatGrantTools,
 	workspaceChatHostFacts,
 	workspaceChatViewerRefusal,
-	workspaceReaderFence,
 } from "./workflow/workspace-chat.js";
 import {
 	gatewayGraphRoleRequired,
@@ -495,7 +495,8 @@ registerWorkflow({
 /**
  * Built-in graph plan (`graph-plan-v1`, 2026-10-18): a workflow whose definition is a named RDF graph. The host reads
  * and compiles the definition, refuses unless the caller names the digest of exactly that plan, and binds every step
- * to a read-only agent. The script walks data; nothing from the graph is evaluated, so no dynamic-source flag applies.
+ * to an agent that reads the graph and writes only its own Geist. The script walks data; nothing from the graph is
+ * evaluated, so no dynamic-source flag applies.
  */
 registerWorkflow({
 	compiled: GRAPH_PLAN_COMPILED,
@@ -4145,13 +4146,9 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
 							};
 						}
 						if (graphPlanHost) {
-							// Built-in graph plan: no graph grant. Every step is the workspace Reader, fenced to this
-							// graph, with exactly the read tools its spec names.
-							const fence = workspaceReaderFence(graphPlanHost.graphId);
-							return {
-								exactTools: { mnemosyne: workspaceChatGrantTools(fence.mode.allowsTool, spec.includeTools) },
-								mode: fence,
-							};
+							// Built-in graph plan: no graph grant. Every step's being wears the Reader with its own
+							// memory, fenced to this graph, with exactly the tools its spec names (`being-geist.ts`).
+							return graphPlanStepGrantPolicy(graphPlanHost.graphId, spec.includeTools);
 						}
 						if (!domainHost && localAgentDefaultsEnabled()) {
 							// A local Choreograph (one person's gardend): a workflow's agent step that no graph-defined

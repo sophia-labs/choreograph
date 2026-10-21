@@ -94,6 +94,42 @@ export const READ_ONLY_MNEMOSYNE_TOOLS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * The Geist tools whose observer names whose memory, Song or valuations a call reads or writes (gardend reads
+ * `observer_agent_id` / `observerAgentId`). The same list as the body's (`packages/agent-body/src/host-tools.ts`), so
+ * an honest body sees no change.
+ */
+export const HOST_BOUND_OBSERVER_TOOLS: ReadonlySet<string> = new Set([
+	"remember",
+	"recall",
+	"music",
+	"sing",
+	"context_bundle",
+	"value",
+	"revaluate",
+	"get_important_blocks",
+]);
+
+const OBSERVER_SELECTORS = ["observer_agent_id", "observerAgentId"] as const;
+
+/**
+ * The observer is the host's, as the graph is: a caller's observer is dropped from every call, and an observer tool
+ * names the bound witness. Otherwise a body could read or write another being's memory, or, with no observer, the
+ * graph's commons. gardend admits a Compute's memory writes (`memory.write.observed`) only for a call that names an
+ * agent observer, and it is this binding that makes that agent the being itself
+ * (`plans/2026-10-20-typed-objects/notes-geist-for-beings.md` §3).
+ */
+function bindObserver(
+	observer: string | undefined,
+	tool: string,
+	arguments_: Record<string, unknown>,
+): Record<string, unknown> {
+	if (observer === undefined) return arguments_;
+	const bound = { ...arguments_ };
+	for (const key of OBSERVER_SELECTORS) delete bound[key];
+	return HOST_BOUND_OBSERVER_TOOLS.has(tool) ? { ...bound, observer_agent_id: observer } : bound;
+}
+
+/**
  * Wrap a HostedMnemosyneProxy as the "mnemosyne" CapabilityBackend.
  *
  * The proxy already implements callTool / listTools / close; the
@@ -187,6 +223,11 @@ export interface HostedMnemosyneProxyOptions {
 	/** When set, bypass the legacy session mint and talk straight to an MCP URL
 	 *  with a pre-minted bearer token (Garden local loopback). */
 	directMcp?: HostedDirectMcpConfig;
+	/**
+	 * The agent this proxy serves, as its memory witness: the bare agent id (`agent-…`), which names its witness graphs
+	 * in gardend. When set, every Geist call is bound to it and a caller's observer is discarded.
+	 */
+	observerAgentId?: string;
 }
 
 interface HostedAgentSessionGraphScope {
@@ -320,6 +361,7 @@ export class HostedMnemosyneProxy {
 	private readonly clientFactory: HostedMcpClientFactory;
 	private readonly serviceAuth?: HostedServiceAuthConfig;
 	private readonly directMcp?: HostedDirectMcpConfig;
+	private readonly observerAgentId?: string;
 
 	private session: HostedMnemosyneSession | undefined;
 	private client: HostedMcpClient | undefined;
@@ -351,6 +393,10 @@ export class HostedMnemosyneProxy {
 		this.clientFactory = options.clientFactory ?? defaultHostedMcpClientFactory;
 		this.serviceAuth = options.serviceAuth;
 		this.directMcp = options.directMcp;
+		if (options.observerAgentId !== undefined && !/^\S+$/.test(options.observerAgentId)) {
+			throw new Error("a hosted Mnemosyne proxy's observer must be a non-empty agent id");
+		}
+		this.observerAgentId = options.observerAgentId;
 	}
 
 	async start(): Promise<{ expiresAt: string; userId?: string }> {
@@ -372,9 +418,13 @@ export class HostedMnemosyneProxy {
 				? stripCallerGraphBinding(arguments_)
 				: bindCanonicalGraph(this.graphId, arguments_, this.directMcp ? "garden" : "legacy");
 			const call = resolveHostedToolCall(name, boundArguments, this.availableToolNames);
-			const callArguments = this.serviceAuth
-				? bindSnakeOnlyGraphSelector(this.graphId, this.availableToolDescriptors, call.name, call.arguments_)
-				: call.arguments_;
+			const callArguments = bindObserver(
+				this.observerAgentId,
+				call.name,
+				this.serviceAuth
+					? bindSnakeOnlyGraphSelector(this.graphId, this.availableToolDescriptors, call.name, call.arguments_)
+					: call.arguments_,
+			);
 			return client.callTool(call.name, callArguments, signal, this.requestTimeoutMs);
 		});
 	}

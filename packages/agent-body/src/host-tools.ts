@@ -15,7 +15,7 @@ import { type HostBridge, isRecord } from "./bridge.js";
 const LIST_TOOLS = "__list_tools";
 const CURATED_GRAPH_TOOLS = new Set(["search_documents", "read_document", "append_to_document", "remember"]);
 /** Memory tools that need to know which agent observes. */
-const OBSERVER_TOOLS = new Set([
+export const OBSERVER_TOOLS: ReadonlySet<string> = new Set([
 	"remember",
 	"recall",
 	"music",

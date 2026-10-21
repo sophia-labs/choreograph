@@ -2185,7 +2185,14 @@ export class SandboxSpawner {
 			console.error(
 				`[spawner] sandbox ${sandboxId.slice(0, 8)}: creating hosted Mnemosyne proxy (mcp_url=${mergedMnemosyne.mcp_url}, graph=${mergedMnemosyne.graph_scope.default_graph_id})`,
 			);
-			const proxy = this.createHostedMnemosyneProxy(sandboxId, mergedMnemosyne, opts);
+			// The agent's own memory witness binds every Geist call, as the graph binds every call: the body never
+			// chooses whose memory it reads or writes.
+			const proxy = this.createHostedMnemosyneProxy(
+				sandboxId,
+				mergedMnemosyne,
+				opts,
+				semantic.ontology.subject.observerId,
+			);
 			const hostedSession = await proxy.start();
 			graphProjectionProxy = proxy;
 			console.error(
@@ -2355,6 +2362,7 @@ export class SandboxSpawner {
 		sandboxId: string,
 		descriptor: MnemosyneSessionDescriptor,
 		opts: SpawnOptions,
+		observerAgentId?: string,
 	): HostedMnemosyneProxy {
 		// Gateway service-auth (platform-next cells cloud) skips the legacy mint:
 		// the acting user is the authenticated chat owner, asserted on-behalf-of.
@@ -2406,6 +2414,7 @@ export class SandboxSpawner {
 			preferredMcpUrl: opts.requireGatewayServiceAuth ? undefined : (opts.mnemosyne?.mcpUrl ?? descriptor.mcp_url),
 			serviceAuth,
 			directMcp,
+			...(observerAgentId === undefined ? {} : { observerAgentId }),
 		});
 	}
 

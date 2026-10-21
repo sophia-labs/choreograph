@@ -2,8 +2,9 @@
  * The `graph-plan-v1` built-in: runs a workflow whose definition is a named RDF graph (`graph-plan.ts`).
  *
  * The host reads the definition graph, compiles it, and refuses unless the caller names the digest
- * of exactly that compiled plan (the person approved what they saw). Each step runs as a read-only
- * agent with a host-bound runtime and Agent Ontology, as the workspace chat's Reader does. The script
+ * of exactly that compiled plan (the person approved what they saw). Each step runs as an agent that
+ * reads the graph and writes only its own memory and Song (`being-geist.ts`), with a host-bound runtime and
+ * Agent Ontology, as the workspace chat's Reader does. The script
  * below is the whole interpreter; it walks data and never evaluates anything from the graph. After
  * the run, `finalizeGraphPlanRun` writes what each step produced, and what each check refused, into
  * the run's own named graph.
@@ -32,6 +33,14 @@ import {
 	STANDALONE_AGENT_IDENTITY_ALGORITHM,
 } from "../agent-subject/agent-ontology.js";
 import {
+	BEING_GEIST_WRITE_TOOLS,
+	beingGeistRef,
+	beingMemoryPromptLines,
+	graphPlanBeingFence,
+	graphPlanBeingGraphAccess,
+	graphPlanBeingTools,
+} from "./being-geist.js";
+import {
 	assertIri,
 	compileGraphPlan,
 	definitionQuery,
@@ -51,12 +60,7 @@ import type { GraphWriter } from "./graph-writer.js";
 import type { WorkflowRunInputs } from "./harness.js";
 import { InvocationFault } from "./invocation.js";
 import type { RunRecord } from "./types.js";
-import {
-	WORKSPACE_CHAT_RUNTIME_CONSTRAINTS,
-	type WorkspaceChatInferenceV1,
-	workspaceReaderFence,
-} from "./workspace-chat.js";
-import { WORKSPACE_READER_TOOLS_V1 } from "./workspace-chat-contract.js";
+import { WORKSPACE_CHAT_RUNTIME_CONSTRAINTS, type WorkspaceChatInferenceV1 } from "./workspace-chat.js";
 
 export { GRAPH_PLAN_WORKFLOW_NAME };
 
@@ -127,7 +131,7 @@ for (const ph of plan.phases) {
 			provider: step.agent.provider,
 			systemPrompt: step.agent.systemPrompt,
 			toolMode: "dynamic",
-			graphAccess: "read",
+			graphAccess: step.agent.graphAccess,
 			includeTools: step.agent.includeTools,
 			strictToolManifest: false,
 			maxTurns: step.agent.maxTurns,
@@ -264,8 +268,9 @@ export function buildGraphPlanInputs(input: {
 }): WorkflowRunInputs {
 	const { graphId, graphOwnerPrincipal: ownerPrincipal, plan } = input;
 	const now = input.now ?? Date.now();
-	const fence = workspaceReaderFence(graphId);
-	const tools = WORKSPACE_READER_TOOLS_V1.filter((tool) => !input.liveTools || input.liveTools.includes(tool));
+	// Each step's being wears the Reader with its own memory (`being-geist.ts`).
+	const fence = graphPlanBeingFence(graphId);
+	const tools = graphPlanBeingTools().filter((tool) => !input.liveTools || input.liveTools.includes(tool));
 	const ref = <Kind extends Parameters<typeof createMeaningfulObjectRef>[0]["kind"]>(
 		kind: Kind,
 		objectId: string,
@@ -294,7 +299,7 @@ export function buildGraphPlanInputs(input: {
 		const registeredName = `${GRAPH_PLAN_WORKFLOW_NAME}:${ownerPrincipal}/${graphId}/${plan.name}/${step.id}`;
 		const agentId = mintStandaloneAgentId({ name: registeredName });
 		const agentUri = mintAgentUri(agentId);
-		const systemPrompt = stepSystemPrompt(plan, step);
+		const systemPrompt = stepSystemPrompt(plan, step, tools);
 		const ontology: AgentOntologyBindingV1 = {
 			schema: AGENT_ONTOLOGY_BINDING_SCHEMA,
 			subject: {
@@ -306,10 +311,7 @@ export function buildGraphPlanInputs(input: {
 			},
 			objects: {
 				agent: ref("agent", agentUri, { registeredName, agentId, agentUri }),
-				geist: ref("geist", `builtin:${GRAPH_PLAN_WORKFLOW_NAME}:${step.id}:geist`, {
-					home: graphId,
-					observer: agentId,
-				}),
+				geist: beingGeistRef({ ownerPrincipal, graphId, agentId }),
 				prompt: ref("prompt", `builtin:${GRAPH_PLAN_WORKFLOW_NAME}:${step.id}:prompt`, { systemPrompt }),
 				skills: [],
 				harness: ref("harness", GRAPH_PLAN_WORKFLOW_NAME, {
@@ -337,6 +339,10 @@ export function buildGraphPlanInputs(input: {
 			model: input.inference.model,
 			systemPrompt,
 			includeTools: tools,
+			// A write session only when the cell serves the being a Geist write; the mode admits no other write.
+			graphAccess: graphPlanBeingGraphAccess({
+				writes: BEING_GEIST_WRITE_TOOLS.filter((tool) => tools.includes(tool)),
+			}),
 			maxTurns: runtime.constraints.maxTurns,
 			runtime,
 			ontology,
@@ -386,7 +392,7 @@ export function buildGraphPlanInputs(input: {
 	};
 }
 
-function stepSystemPrompt(plan: GraphPlanV1, step: GraphPlanStepV1): string {
+function stepSystemPrompt(plan: GraphPlanV1, step: GraphPlanStepV1, tools: readonly string[]): string {
 	const lines = [
 		`You are ${step.label} (${step.job}), one step of the workflow "${plan.title}" in this workspace.`,
 		"",
@@ -419,6 +425,7 @@ function stepSystemPrompt(plan: GraphPlanV1, step: GraphPlanStepV1): string {
 	if (step.itemClass && !step.checks) lines.push(`Each item you hand back is ${withArticle(itemClassName(step))}.`);
 	lines.push(
 		"You may read and search this workspace with your tools. You do not write to it; the host records what you answer.",
+		...beingMemoryPromptLines(tools),
 		"When you have your answer, call submit() with it. That call is your only answer: never reply in plain text, and do not stop without calling submit().",
 	);
 	return lines.join("\n");
