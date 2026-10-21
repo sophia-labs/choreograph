@@ -19,6 +19,7 @@ import {
 } from "../agent-runtime/content-authority-runtime.js";
 import { validateAgentOntologyBinding } from "../agent-runtime/ontology-binding.js";
 import { type AgentRuntimeBindingV2, validateResolvedAgentRuntimeBinding } from "../agent-runtime/profile.js";
+import { sittingTurnCapWords } from "../agent-runtime/sitting-watch.js";
 import { turnTextForModel } from "../agent-runtime/turn-context.js";
 import { authMethodLabel, type HostedAuthContext } from "../auth.js";
 import type { HostCapabilityGrantPolicyV1 } from "../capabilities/grant-gate.js";
@@ -352,6 +353,26 @@ export function awaitNodeResult(
 	});
 }
 
+/**
+ * Why the host ended a sitting itself, when it did: a sandbox it killed or timed out carries the host's words as its
+ * error detail (`sitting-watch.ts`; a run's stop; a pre-spawn refusal). A kill with no words (an owner's abort of a
+ * chat) is not one of these.
+ */
+export function hostStopWords(sandboxState: string, errorDetail: string | undefined): string | undefined {
+	if (sandboxState !== "killed" && sandboxState !== "timeout") return undefined;
+	const words = errorDetail?.trim();
+	return words ? words : undefined;
+}
+
+/**
+ * A sitting that used every turn its binding allows and handed back no required answer: its cap ended it, whichever
+ * body ran it (the body's own words may differ; these are the host's, from what the result and the binding say).
+ */
+export function turnCapWords(turns: unknown, maxTurns: number | undefined): string | undefined {
+	if (typeof turns !== "number" || maxTurns === undefined || turns < maxTurns) return undefined;
+	return sittingTurnCapWords(maxTurns);
+}
+
 function mapTerminal(
 	event: Extract<BusEvent, { type: "terminal" }>,
 	spec: AgentNodeSpec,
@@ -386,6 +407,10 @@ function mapSpawnResult(
 		: rawStatus === "truncated" || sandboxState === "truncated"
 			? "truncated"
 			: "done";
+	const stopped = hostStopWords(sandboxState, errorDetail);
+	const capped = missingRequiredStructuredOutput
+		? turnCapWords(result?.turns, spec.runtime?.constraints.maxTurns)
+		: undefined;
 
 	return {
 		nodeKey: spec.nodeKey,
@@ -394,12 +419,16 @@ function mapSpawnResult(
 		label: spec.label,
 		phaseIndex: spec.phaseIndex,
 		state,
-		output: missingRequiredStructuredOutput
-			? REQUIRED_STRUCTURED_OUTPUT_ERROR
-			: typeof result?.output === "string"
-				? result.output
-				: (errorDetail ?? ""),
+		output:
+			stopped ??
+			capped ??
+			(missingRequiredStructuredOutput
+				? REQUIRED_STRUCTURED_OUTPUT_ERROR
+				: typeof result?.output === "string"
+					? result.output
+					: (errorDetail ?? "")),
 		structured: result?.structured_output,
+		...(stopped === undefined ? {} : { stopped }),
 		model: spec.model,
 		agentId: spec.agentId,
 		turns: typeof result?.turns === "number" ? result.turns : 0,

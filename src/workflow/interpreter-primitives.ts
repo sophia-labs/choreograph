@@ -141,6 +141,8 @@ export interface AgentOptions {
 	schema?: unknown;
 	/** Turn budget for this node. */
 	maxTurns?: number;
+	/** Wall clock for this node's sitting, in ms (never longer than its runtime profile allows). */
+	maxWallTimeMs?: number;
 	/** Select the bounded simple or constrained Prime execution profile. */
 	runtime?: AgentNodeSpec["runtime"];
 	/** Override the pinned Agent Ontology / Meaningful Objects binding. */
@@ -343,6 +345,7 @@ export function makeWorkflowContext(deps: WorkflowDeps, config: InterpreterConfi
 		if (opts.graphAccess !== undefined) spec.graphAccess = opts.graphAccess;
 		if (opts.schema !== undefined) spec.schema = opts.schema;
 		if (opts.maxTurns !== undefined) spec.maxTurns = opts.maxTurns;
+		if (opts.maxWallTimeMs !== undefined) spec.maxWallTimeMs = opts.maxWallTimeMs;
 		const runtime = opts.runtime ?? config.runtime;
 		if (runtime !== undefined) spec.runtime = runtime;
 		if (ontology !== undefined) spec.ontology = ontology;

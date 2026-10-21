@@ -65,6 +65,8 @@ export interface ResolveAgentRuntimeBindingOptions {
 	readonly profile: AgentRuntimeBindingV2;
 	/** Optional node-level turn attenuation projected into the resolved profile. */
 	readonly nodeMaxTurns?: number;
+	/** Optional node-level wall-clock attenuation (ms) projected into the resolved profile. */
+	readonly nodeMaxWallTimeMs?: number;
 }
 
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
@@ -249,6 +251,16 @@ export function resolveAgentRuntimeBinding(
 			});
 		}
 		constraints = { ...constraints, maxTurns: nodeMaxTurns };
+	}
+	if (options.nodeMaxWallTimeMs !== undefined) {
+		const nodeMaxWallTimeMs = positiveInteger(options.nodeMaxWallTimeMs, "node maxWallTimeMs");
+		if (nodeMaxWallTimeMs > constraints.maxWallTimeMs) {
+			throw fault("node maxWallTimeMs would widen the resolved runtime profile", {
+				nodeMaxWallTimeMs,
+				profileMaxWallTimeMs: constraints.maxWallTimeMs,
+			});
+		}
+		constraints = { ...constraints, maxWallTimeMs: nodeMaxWallTimeMs };
 	}
 
 	validateConstraints(constraints, kind, "resolved runtime binding");

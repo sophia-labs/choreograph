@@ -24,6 +24,7 @@ import {
 import {
 	AGENT_RUNTIME_BINDING_SCHEMA,
 	type AgentRuntimeBindingV2,
+	type AgentRuntimeConstraintsV2,
 	validateResolvedAgentRuntimeBinding,
 } from "../agent-runtime/profile.js";
 import {
@@ -113,10 +114,11 @@ const answered = (r) => r && r.structured !== undefined && r.structured !== null
 const why = (r) => (r && typeof r.output === "string" && r.output.trim()) || "no answer was handed back"
 
 // A step that answers without calling submit() gets one more chance, told plainly (2026-10-18: three of 26 clerks
-// lost their passage this way). The retry is its own node (" again"), so its session and testimony are its own.
+// lost their passage this way). The retry is its own node (" again"), so its session and testimony are its own. A
+// sitting the host stopped (its wall clock, a repeated call, the run's stop) gets none: it would only do it again.
 const ask = async (prompt, o) => {
 	const r = await agent(prompt, o)
-	if (r && r.structured !== undefined) return r
+	if (r && (r.structured !== undefined || r.stopped)) return r
 	return agent(prompt + "\\n\\nYour last attempt ended without calling submit(). Call submit() now with your answer; if there is nothing to report, submit an empty list.", { ...o, label: o.label + " again" })
 }
 
@@ -198,6 +200,43 @@ for (const ph of plan.phases) {
 return { collections, sittings, refused, unfit, steps }
 `;
 
+/**
+ * How long one sitting of a graph plan may take, and how many turns (2026-10-21: a clerk that read the same block two
+ * dozen times held its run open; one item never needs a quarter of an hour). The rest is the workspace chat's Reader
+ * profile. `CHOREOGRAPH_GRAPH_PLAN_SITTING_MINUTES` sets the wall clock; a sitting that reaches it is stopped and recorded
+ * unfit ("Stopped after 5 minutes without an answer."), and the phase goes on.
+ */
+export const GRAPH_PLAN_SITTING_MINUTES = 5;
+export const GRAPH_PLAN_SITTING_MAX_TURNS = 16;
+
+export function graphPlanRuntimeConstraints(
+	raw = process.env.CHOREOGRAPH_GRAPH_PLAN_SITTING_MINUTES,
+): AgentRuntimeConstraintsV2 {
+	const ceiling = WORKSPACE_CHAT_RUNTIME_CONSTRAINTS.maxWallTimeMs;
+	let maxWallTimeMs = GRAPH_PLAN_SITTING_MINUTES * 60_000;
+	const value = raw?.trim();
+	if (value) {
+		const ms = /^\d+(?:\.\d+)?$/.test(value) ? Math.round(Number(value) * 60_000) : 0;
+		if (!Number.isSafeInteger(ms) || ms < 1_000) {
+			console.warn(
+				`[graph-plan] CHOREOGRAPH_GRAPH_PLAN_SITTING_MINUTES=${JSON.stringify(value)} is not a number of minutes; keeping ${GRAPH_PLAN_SITTING_MINUTES}`,
+			);
+		} else if (ms > ceiling) {
+			console.warn(
+				`[graph-plan] CHOREOGRAPH_GRAPH_PLAN_SITTING_MINUTES=${value} is above the Reader's ${ceiling / 60_000}; holding it there`,
+			);
+			maxWallTimeMs = ceiling;
+		} else {
+			maxWallTimeMs = ms;
+		}
+	}
+	return Object.freeze({
+		...WORKSPACE_CHAT_RUNTIME_CONSTRAINTS,
+		maxTurns: Math.min(GRAPH_PLAN_SITTING_MAX_TURNS, WORKSPACE_CHAT_RUNTIME_CONSTRAINTS.maxTurns),
+		maxWallTimeMs,
+	});
+}
+
 export interface GraphPlanRequestV1 {
 	readonly definition: string;
 	readonly digest: string;
@@ -276,10 +315,11 @@ export function buildGraphPlanInputs(input: {
 		objectId: string,
 		value: unknown,
 	) => createMeaningfulObjectRef({ kind, ownerPrincipal, graphId, objectId, version: "1", value });
+	const constraints = graphPlanRuntimeConstraints();
 	const runtimeProfile = ref(
 		"agent-runtime-profile",
 		`builtin:${GRAPH_PLAN_WORKFLOW_NAME}:runtime-profile`,
-		WORKSPACE_CHAT_RUNTIME_CONSTRAINTS,
+		constraints,
 	);
 	const runtime: AgentRuntimeBindingV2 = {
 		schema: AGENT_RUNTIME_BINDING_SCHEMA,
@@ -291,7 +331,7 @@ export function buildGraphPlanInputs(input: {
 				: `sha256:${input.runtimeBundle.digest}`,
 		},
 		profileRef: runtimeProfile,
-		constraints: { ...WORKSPACE_CHAT_RUNTIME_CONSTRAINTS },
+		constraints: { ...constraints },
 	};
 	validateResolvedAgentRuntimeBinding(runtime);
 

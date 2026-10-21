@@ -24,6 +24,7 @@ import {
 	finalizeGraphPlanRun,
 	GRAPH_PLAN_SCRIPT,
 	graphPlanRunGraphIri,
+	graphPlanRuntimeConstraints,
 	serializeGraphPlanRun,
 	serializeGraphPlanRunTurtle,
 } from "../workflow/script-graph-plan.js";
@@ -415,7 +416,8 @@ describe("graph-plan-v1 compiler", () => {
 			};
 			const stubStore = { get: () => undefined } as unknown as SandboxStore;
 
-			const runThePlan = async () => {
+			/** `stopped`: sittings the host ends (by label), as the spawner reports them: a terminal state and its words. */
+			const runThePlan = async (stopped: Record<string, { state: string; error_detail: string }> = {}) => {
 				const plan = compileGraphPlan([...base(), ...book, ...margin, ...classBound]);
 				const digest = graphPlanDigest(plan);
 				const inputs = buildGraphPlanInputs({
@@ -437,14 +439,25 @@ describe("graph-plan-v1 compiler", () => {
 					const bus = createSandboxEventBus(stubStore);
 					const sandboxId = `sb-${specs.length}`;
 					const pending = awaitNodeResult(bus, sandboxId, spec, clock, () => ++clock);
-					bus.emit({
-						category: "lifecycle",
-						type: "terminal",
-						sandbox_id: sandboxId,
-						ts: new Date(clock).toISOString(),
-						state: "done",
-						result: { spawn_id: sandboxId, turns: 1, tokens: 0, tool_calls: 0, ...result },
-					} as BusEvent);
+					const ended = stopped[spec.label];
+					bus.emit(
+						(ended
+							? {
+									category: "lifecycle",
+									type: "terminal",
+									sandbox_id: sandboxId,
+									ts: new Date(clock).toISOString(),
+									...ended,
+								}
+							: {
+									category: "lifecycle",
+									type: "terminal",
+									sandbox_id: sandboxId,
+									ts: new Date(clock).toISOString(),
+									state: "done",
+									result: { spawn_id: sandboxId, turns: 1, tokens: 0, tool_calls: 0, ...result },
+								}) as BusEvent,
+					);
 					return pending;
 				};
 				const run = await runWorkflow(
@@ -510,6 +523,39 @@ describe("graph-plan-v1 compiler", () => {
 					.filter((s) => s.label.startsWith(CENSOR) && !s.label.endsWith(" again"))
 					.map((s) => JSON.parse(s.prompt.slice("The item:\n".length)) as unknown);
 				assert.deepEqual(given, reports);
+			});
+
+			it("records a sitting the host stopped as unfit in its words, gives it no second chance, and goes on", async () => {
+				// 2026-10-21: the clerk that read one block two dozen times. Its wall clock ends it; the phase goes on.
+				const words = "Stopped after 5 minutes without an answer.";
+				const { specs, run } = await runThePlan({ [`${CLERK} #2`]: { state: "timeout", error_detail: words } });
+				const out = run.output as { unfit: unknown[]; collections: Record<string, unknown[]> };
+				assert.deepEqual(out.unfit, [
+					{ step: `${W}#clerk`, sitting: `${CLERK} #2`, violation: words },
+					{ step: `${W}#clerk`, sitting: `${CLERK} #3`, violation: REQUIRED_STRUCTURED_OUTPUT_ERROR },
+				]);
+				const labels = specs.map((s) => s.label);
+				assert.equal(labels.includes(`${CLERK} #2 again`), false, "a stopped sitting is not asked again");
+				assert.ok(labels.includes(`${CLERK} #3 again`), "a sitting that answered in prose still is");
+				assert.ok(labels.includes(`${CENSOR} #1`), "the next phase ran on what was handed back");
+				assert.deepEqual(out.collections[`${W}#candidates`], reports);
+				const node = run.agents.find((a) => a.label === `${CLERK} #2`);
+				assert.equal(node?.state, "error");
+				assert.equal(node?.stopped, words);
+			});
+
+			it("binds every sitting to a five-minute wall clock and sixteen turns", async () => {
+				const { specs } = await runThePlan();
+				for (const spec of specs) {
+					assert.equal(spec.runtime?.constraints.maxWallTimeMs, 300_000, spec.label);
+					assert.equal(spec.runtime?.constraints.maxTurns, 16, spec.label);
+					assert.equal(spec.maxTurns, 16, spec.label);
+				}
+				assert.equal(graphPlanRuntimeConstraints("2").maxWallTimeMs, 120_000);
+				assert.equal(graphPlanRuntimeConstraints("0.5").maxWallTimeMs, 30_000);
+				assert.equal(graphPlanRuntimeConstraints("soon").maxWallTimeMs, 300_000);
+				// Never past the Reader profile it narrows.
+				assert.equal(graphPlanRuntimeConstraints("120").maxWallTimeMs, 900_000);
 			});
 
 			it("records what did not fit, with the sitting and the runtime's words, instead of dropping it", async () => {

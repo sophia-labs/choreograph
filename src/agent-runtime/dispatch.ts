@@ -53,6 +53,7 @@ export function makeAgentRuntimeDispatcher(deps: AgentRuntimeDispatcherDeps): No
 			runtimeBindingDigest: bindingDigest,
 			ontologyBindingDigest,
 			maxTurns: binding.constraints.maxTurns,
+			maxWallTimeMs: binding.constraints.maxWallTimeMs,
 		};
 		const result = await deps.run(resolvedSpec);
 		return {
@@ -98,6 +99,7 @@ export function makeStaticAgentRuntimeResolver(options: StaticAgentRuntimeResolv
 			bundles: options.bundles,
 			profile,
 			...(spec.maxTurns === undefined ? {} : { nodeMaxTurns: spec.maxTurns }),
+			...(spec.maxWallTimeMs === undefined ? {} : { nodeMaxWallTimeMs: spec.maxWallTimeMs }),
 		});
 	};
 }
@@ -122,6 +124,7 @@ export const resolvePinnedAgentRuntime: AgentNodeRuntimeResolver = (spec) => {
 			bundles: { simple: spec.runtime.bundle, prime: spec.runtime.bundle },
 			profile: spec.runtime,
 			...(spec.maxTurns === undefined ? {} : { nodeMaxTurns: spec.maxTurns }),
+			...(spec.maxWallTimeMs === undefined ? {} : { nodeMaxWallTimeMs: spec.maxWallTimeMs }),
 		},
 	);
 };

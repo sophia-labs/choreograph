@@ -131,6 +131,8 @@ export interface AgentNodeSpec {
 	schema?: unknown;
 	/** Turn budget for this node. */
 	maxTurns?: number;
+	/** Wall clock for this node's sitting, in ms: attenuates the runtime profile's `maxWallTimeMs`, never widens it. */
+	maxWallTimeMs?: number;
 	/**
 	 * Versioned agent runtime selection. It must resolve to a pinned profile
 	 * before enqueue; absence is rejected rather than interpreted as simple.
@@ -205,6 +207,11 @@ export interface AgentNodeResult {
 	output: string;
 	/** Validated structured output, when a schema was supplied. */
 	structured?: unknown;
+	/**
+	 * Set when the host ended the sitting itself, never the agent (its wall clock, a repeated call, its turn cap, a
+	 * refused answer, the run's stop): the plain words of why, which `output` carries too.
+	 */
+	stopped?: string;
 	model: string;
 	/** Config-derived agt:Agent identity for this completed/reconstructed node. */
 	agentId?: string;

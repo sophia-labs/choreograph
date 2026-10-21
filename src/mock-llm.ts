@@ -8,6 +8,7 @@ export interface MockLlmState {
 export async function* proxyMockModel(
 	modelName: string,
 	state: MockLlmState,
+	signal?: AbortSignal,
 ): AsyncGenerator<ProxyAssistantMessageEvent> {
 	switch (modelName) {
 		case "mock:done":
@@ -516,6 +517,53 @@ export async function* proxyMockModel(
 			state.requestCount++;
 			return;
 
+		case "mock:repeat_tool": {
+			// What a clerk did on 2026-10-21: the same read, again and again, its arguments in a new order each time.
+			const turn = state.requestCount++;
+			const args: [string, unknown][] = [
+				["documentId", "doc-sleepers"],
+				["blockId", "block-c31fee14"],
+				["limit", 1],
+				["format", "text"],
+			];
+			const shift = turn % args.length;
+			yield* emitToolCall(
+				`mock-repeat-${String(turn)}`,
+				"read_blocks",
+				Object.fromEntries([...args.slice(shift), ...args.slice(0, shift)]),
+			);
+			return;
+		}
+
+		case "mock:wander": {
+			// Reads a new block every turn and never answers: no call repeats, so only the turn cap ends it.
+			const turn = state.requestCount++;
+			yield* emitToolCall(`mock-wander-${String(turn)}`, "read_blocks", {
+				documentId: "doc-sleepers",
+				blockId: `block-${String(turn)}`,
+			});
+			return;
+		}
+
+		case "mock:stall": {
+			// Starts an answer and never finishes it, as a provider that stops answering does: only an abort ends it.
+			state.requestCount++;
+			yield { type: "start" };
+			let timer: ReturnType<typeof setTimeout> | undefined;
+			const aborted = await new Promise<boolean>((resolve) => {
+				timer = setTimeout(() => resolve(false), 120_000);
+				if (signal?.aborted) resolve(true);
+				signal?.addEventListener("abort", () => resolve(true), { once: true });
+			});
+			clearTimeout(timer);
+			if (aborted) {
+				yield { type: "error", reason: "aborted", errorMessage: "The call was aborted.", usage: ZERO_USAGE };
+				return;
+			}
+			yield* emitTextSequence("The stalled answer arrived after all.");
+			return;
+		}
+
 		case "mock:f5_failure":
 			state.requestCount++;
 			yield { type: "start" };
@@ -710,6 +758,18 @@ export async function* proxyMockModel(
 		default:
 			throw new Error(`Unsupported mock model: ${modelName}`);
 	}
+}
+
+async function* emitToolCall(
+	id: string,
+	toolName: string,
+	args: Record<string, unknown>,
+): AsyncGenerator<ProxyAssistantMessageEvent> {
+	yield { type: "start" };
+	yield { type: "toolcall_start", contentIndex: 0, id, toolName };
+	yield { type: "toolcall_delta", contentIndex: 0, delta: JSON.stringify(args) };
+	yield { type: "toolcall_end", contentIndex: 0 };
+	yield { type: "done", reason: "toolUse", usage: ZERO_USAGE };
 }
 
 async function* emitTextSequence(text: string): AsyncGenerator<ProxyAssistantMessageEvent> {

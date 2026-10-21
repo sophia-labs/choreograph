@@ -15,7 +15,12 @@ import {
 import { type MeaningfulObjectRefV1, validateMeaningfulObjectRef } from "../agent-runtime/meaningful-object.js";
 import type { AgentMemory } from "../agent-runtime/memory.js";
 import type { PrimeRuntimeStateV2 } from "../agent-runtime/result-validation.js";
-import { parseAgentSessionResult, type WorkflowFrontier, type WorkflowRuntimeStore } from "./runtime-store.js";
+import {
+	AgentSessionChildRunFault,
+	parseAgentSessionResult,
+	type WorkflowFrontier,
+	type WorkflowRuntimeStore,
+} from "./runtime-store.js";
 import type { AgentNodeResult, AgentNodeSpec, NodeRunner } from "./types.js";
 
 export class WorkflowPausedError extends Error {
@@ -171,20 +176,24 @@ export function makeRuntimeNodeRunner(deps: RuntimeNodeRunnerDeps): NodeRunner {
 				phaseIndex: spec.phaseIndex,
 				ts: now(),
 			};
-			await deps.runtime.finishAgentSession(sessionId, {
-				result: finished,
-				status: result.state === "error" ? "failed" : "completed",
-				generation: requestedGeneration,
-				activationId: invocationId,
-				...(deps.childRunLease
-					? {
-							childRunConsumer: deps.childRunLease.consumer,
-							childRunClaimToken: deps.childRunLease.claimToken,
-						}
-					: {}),
-				now: afterFrontier.ts,
-				frontier: afterFrontier,
-			});
+			try {
+				await deps.runtime.finishAgentSession(sessionId, {
+					result: finished,
+					status: result.state === "error" ? "failed" : "completed",
+					generation: requestedGeneration,
+					activationId: invocationId,
+					...(deps.childRunLease
+						? {
+								childRunConsumer: deps.childRunLease.consumer,
+								childRunClaimToken: deps.childRunLease.claimToken,
+							}
+						: {}),
+					now: afterFrontier.ts,
+					frontier: afterFrontier,
+				});
+			} catch (error) {
+				if (!(await settledByHostStop(deps.runtime, sessionId, finished, error))) throw error;
+			}
 			await observeDurableSessionTransition(deps, enriched, result.state === "error" ? "failed" : "completed");
 			// A healthy logical failure may intentionally retain a Prime resident.
 			// It still needs the same bounded idle/passivation policy as a successful
@@ -260,6 +269,23 @@ export function makeRuntimeNodeRunner(deps: RuntimeNodeRunnerDeps): NodeRunner {
 			throw err;
 		}
 	};
+}
+
+/**
+ * A sitting the host ended (its wall clock, a repeated call, its turn cap, the run's stop) is reaped before its outcome
+ * reaches the store, and the store has already settled the Session failed from the body's fault: that first testimony
+ * stands, and the sitting's outcome still goes back to the script, so the run goes on (2026-10-21: a timed-out clerk
+ * failed its whole run instead of its one item).
+ */
+async function settledByHostStop(
+	runtime: WorkflowRuntimeStore,
+	sessionId: string,
+	result: AgentNodeResult,
+	error: unknown,
+): Promise<boolean> {
+	if (result.stopped === undefined || result.state !== "error") return false;
+	if (!(error instanceof AgentSessionChildRunFault) || error.reason !== "materialization_conflict") return false;
+	return (await runtime.readAgentSession(sessionId))?.status === "failed";
 }
 
 async function observeDurableSessionTransition(

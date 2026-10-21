@@ -26,7 +26,7 @@
 import type { BusEvent, SandboxEventBus } from "../event-bus.js";
 import type { LogLine, Phase } from "./interpreter-primitives.js";
 import type { AppendEventInput, JournalStore } from "./journal-store.js";
-import { makeNodeRunner, type NodeRunnerDeps } from "./run-node.js";
+import { hostStopWords, makeNodeRunner, type NodeRunnerDeps, turnCapWords } from "./run-node.js";
 import type { AgentNodeSpec, NodeRunner } from "./types.js";
 
 /** Per-spec context the fold needs to attribute events to a node. */
@@ -34,6 +34,8 @@ interface NodeContext {
 	label: string;
 	phaseIndex: number;
 	structuredOutputRequired: boolean;
+	/** The turn cap the node's runtime binding pins. */
+	maxTurns?: number;
 }
 
 export interface WithJournalResult {
@@ -127,19 +129,20 @@ export function withJournal(deps: NodeRunnerDeps, journal: JournalStore, runId: 
 			settled = true;
 			unsubscribe();
 			const rawStatus = typeof result?.status === "string" ? result.status : undefined;
+			const missingAnswer = ctx.structuredOutputRequired && result?.structured_output === undefined;
 			const errored =
-				rawStatus === "error" ||
-				state === "error" ||
-				state === "timeout" ||
-				state === "killed" ||
-				(ctx.structuredOutputRequired && result?.structured_output === undefined);
+				rawStatus === "error" || state === "error" || state === "timeout" || state === "killed" || missingAnswer;
 			const terminalPayload = {
 				state,
 				status: rawStatus,
 				turns: typeof result?.turns === "number" ? result.turns : 0,
 				tokens: typeof result?.tokens === "number" ? result.tokens : 0,
 				tool_calls: typeof result?.tool_calls === "number" ? result.tool_calls : 0,
-				output: typeof result?.output === "string" ? result.output : "",
+				// A sitting the host ended, or its turn cap, records the host's words, as the node result does.
+				output:
+					hostStopWords(state, errorDetail) ??
+					(missingAnswer ? turnCapWords(result?.turns, ctx.maxTurns) : undefined) ??
+					(typeof result?.output === "string" ? result.output : ""),
 				structured_output: result?.structured_output,
 				error_detail: errorDetail,
 			};
@@ -242,6 +245,7 @@ export function withJournal(deps: NodeRunnerDeps, journal: JournalStore, runId: 
 				label: spec.label,
 				phaseIndex: spec.phaseIndex,
 				structuredOutputRequired: spec.schema !== undefined,
+				...(spec.runtime ? { maxTurns: spec.runtime.constraints.maxTurns } : {}),
 			});
 			await deps.onEnqueue?.({ spec, sandboxId, queuedAt });
 		},

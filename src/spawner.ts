@@ -108,6 +108,7 @@ import {
 } from "./agent-runtime/result-validation.js";
 import { parseRlmHostError, type RlmHostError } from "./agent-runtime/rlm-control-contract.js";
 import { AGENT_SESSION_SEMANTIC_EVENT_SCHEMA, mirrorAgentSessionEvent } from "./agent-runtime/session-event-mirror.js";
+import { SittingWatch, sittingWallClockWords } from "./agent-runtime/sitting-watch.js";
 import { toolFailureLogLine } from "./agent-runtime/tool-error-summary.js";
 import { type DeletionReceiptV1, deletionReceipts } from "./agent-runtime/tool-targets.js";
 import { admitTurnContextRefs, turnTextForModel } from "./agent-runtime/turn-context.js";
@@ -351,6 +352,13 @@ interface ActiveSandbox {
 	timeout?: ReturnType<typeof setTimeout>;
 	/** Set by killProcess/timeout to override the exit handler's terminal state */
 	pendingTerminalState?: "killed" | "timeout";
+	/**
+	 * Why the host ended this sitting itself, in the words the run records (`sitting-watch.ts`): its wall clock, its
+	 * turn cap, a repeated call, a refused answer, or the run's stop. Carried as the terminal's `error_detail`.
+	 */
+	stopDetail?: string;
+	/** Headless agent runs only (a workflow step, never a person's chat): the repeat and turn-cap guards. */
+	sittingWatch?: SittingWatch;
 	/** Saved from spawn span for cross-trace linking */
 	spawnSpanContext?: SpanContext;
 	/** Resolves when the async exit handler has finished cleanup */
@@ -2584,6 +2592,11 @@ export class SandboxSpawner {
 			let workerRuntime: ResolvedWorkerRuntime | undefined;
 			try {
 				workerRuntime = await this.resolveWorkerRuntime(sandboxId, opts);
+				const admittedAgent = workerRuntime.agentRequest;
+				const sittingWatch =
+					admittedAgent && admittedAgent.interaction_mode !== "headed"
+						? new SittingWatch(admittedAgent.runtime_binding.constraints.maxTurns)
+						: undefined;
 
 				// 1. Resolve the sandbox launch command. bwrap is the production path;
 				// local-native is a development path that runs the same worker as a
@@ -2680,6 +2693,7 @@ export class SandboxSpawner {
 							: undefined,
 						agentRequest: workerRuntime.agentRequest,
 						runtimeBinding: workerRuntime.agentRequest?.runtime_binding,
+						sittingWatch,
 						authContext: opts.authContext,
 						primeDaemonHostSocket: workerRuntime.primeDaemonHostSocket,
 						primeDaemonHostDir: workerRuntime.primeDaemonHostDir,
@@ -2791,6 +2805,7 @@ export class SandboxSpawner {
 					const timeoutMs = opts.timeout_ms ?? this.defaultTimeoutMs;
 					active.timeout = setTimeout(() => {
 						console.error(`[spawner] sandbox ${sandboxId}: timeout after ${timeoutMs}ms`);
+						if (active.isAgentRun) active.stopDetail ??= sittingWallClockWords(timeoutMs);
 						void this.killProcess(sandboxId, "timeout").catch((error) => {
 							console.error(
 								`[spawner] verified timeout reap deferred for ${sandboxId}: ${boundedInferenceFailure(error)}`,
@@ -2869,6 +2884,46 @@ export class SandboxSpawner {
 				throw err;
 			}
 		});
+	}
+
+	/**
+	 * End a sitting the host has decided to stop, with the words the run records. Never awaited by the caller: it runs
+	 * inside the worker's line handling, which the exit cleanup itself waits on.
+	 */
+	private endSitting(sandboxId: string, active: ActiveSandbox, detail: string): void {
+		if (active.stopDetail !== undefined || active.pendingTerminalState !== undefined) return;
+		active.stopDetail = detail;
+		console.error(`[spawner] sandbox ${sandboxId}: ending the sitting: ${detail}`);
+		void this.killProcess(sandboxId, "killed").catch((error) => {
+			console.error(`[spawner] verified stop reap deferred for ${sandboxId}: ${boundedInferenceFailure(error)}`);
+			this.wakeDurableSupervision();
+		});
+	}
+
+	/**
+	 * Stop every live sitting of these Agent Sessions (a workflow run's stop), each with `detail` as its recorded reason.
+	 * Returns the sandboxes stopped. A sitting still queued for a spawn slot is not here: its run's pre-spawn gate refuses it.
+	 */
+	async stopSittings(sessionIds: ReadonlySet<string>, detail: string): Promise<string[]> {
+		const stopping: Array<Promise<unknown>> = [];
+		const stopped: string[] = [];
+		for (const [sandboxId, active] of this.active) {
+			const sessionId = active.agentRequest?.session_id;
+			if (!active.isAgentRun || !sessionId || !sessionIds.has(sessionId)) continue;
+			if (active.pendingTerminalState !== undefined) continue;
+			active.stopDetail ??= detail;
+			stopped.push(sandboxId);
+			stopping.push(
+				this.killProcess(sandboxId, "killed").catch((error) => {
+					console.error(
+						`[spawner] verified stop reap deferred for ${sandboxId}: ${boundedInferenceFailure(error)}`,
+					);
+					this.wakeDurableSupervision();
+				}),
+			);
+		}
+		await Promise.all(stopping);
+		return stopped;
 	}
 
 	private async killProcess(sandboxId: string, reason: "killed" | "timeout"): Promise<SandboxRecord> {
@@ -3683,6 +3738,8 @@ export class SandboxSpawner {
 				active.toolCallSpans?.set(toolName, spans);
 
 				console.error(`[sandbox ${sandboxId.slice(0, 8)}] tool_call: ${toolName}`);
+				const repeated = active.sittingWatch?.toolCall(toolName, event.args);
+				if (repeated) this.endSitting(sandboxId, active, repeated);
 				break;
 			}
 
@@ -3750,6 +3807,8 @@ export class SandboxSpawner {
 				active.turnStartedAt = undefined;
 				active.turnToolCount = 0;
 				console.error(`[sandbox ${sandboxId.slice(0, 8)}] turn_end: #${event.turn}`);
+				const overCap = turn === undefined ? undefined : active.sittingWatch?.turnEnded(turn);
+				if (overCap) this.endSitting(sandboxId, active, overCap);
 				break;
 			}
 
@@ -3818,6 +3877,10 @@ export class SandboxSpawner {
 				};
 				monitorSpan.addEvent("worker_result_rejected", { "worker.error": message });
 				console.error(`[sandbox ${sandboxId.slice(0, 8)}] rejected result: ${message}`);
+				// A refused result is never delivered, so a resident body would keep its sitting open and silent until its
+				// wall clock (2026-10-21: a clerk over its turn cap held its run for a quarter of an hour). End it now.
+				if (active.sittingWatch)
+					this.endSitting(sandboxId, active, `Stopped: the host refused its answer (${message}).`);
 				return;
 			}
 		}
@@ -4163,9 +4226,16 @@ export class SandboxSpawner {
 				console.error(
 					`[sandbox ${sandboxId.slice(0, 8)}] inference_request: provider=${providerName} model=${modelName} tools=${toolCount}`,
 				);
+				// A sitting the host ends (its wall clock, a repeated call, its run's stop) must not wait on its model call:
+				// closing the body's host work aborts the call, so a provider that never answers cannot hold the reap.
+				const callAbort = new AbortController();
+				const callAbortKey = `inference:${requestId}`;
+				active.bridgeAbortControllers?.set(callAbortKey, callAbort);
+				if (active.hostWorkAdmissionClosed) callAbort.abort(new Error(`Sandbox ${sandboxId} is terminating`));
 				try {
 					dispatchStarted = true;
 					const proxyOptions = {
+						signal: callAbort.signal,
 						...(providerName === "openrouter" ? { apiKey: selectedCredential.apiKey } : {}),
 						referer: process.env.OPENROUTER_HTTP_REFERER ?? process.env.OPENROUTER_HTTP_REFERER_URL,
 						title: process.env.OPENROUTER_TITLE ?? "Choreograph Sandbox Management Spike",
@@ -4178,7 +4248,7 @@ export class SandboxSpawner {
 						?.openRouterRouting?.max_price;
 					let fallbackTaken = false;
 					const stream = modelName.startsWith("mock:")
-						? proxyMockModel(modelName, active.mockLlmState ?? { requestCount: 0 })
+						? proxyMockModel(modelName, active.mockLlmState ?? { requestCount: 0 }, callAbort.signal)
 						: // Provider-keyed egress (CA-1 shared substrate): dispatch on the
 							// model's `provider` (carried per-request), resolve its key from the
 							// registry. An openrouter model is byte-identical to before; a known
@@ -4360,6 +4430,7 @@ export class SandboxSpawner {
 						);
 					}
 				} finally {
+					active.bridgeAbortControllers?.delete(callAbortKey);
 					llmRequestDurationSeconds.record((performance.now() - start) / 1000, {
 						template: active.record.template,
 						model: modelName,
@@ -6909,7 +6980,7 @@ export class SandboxSpawner {
 							exitCode: code ?? undefined,
 							usage,
 							reason,
-							errorDetail: oomDetail,
+							errorDetail: active?.stopDetail ?? oomDetail,
 						});
 						if (isOom) {
 							exitSpan.addEvent("oom_kill", {

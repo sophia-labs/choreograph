@@ -29,6 +29,8 @@ export interface ProxyLlmOptions {
 	 * (`providerUsage`). Used for the fallback call, which is billed at that charge (`openrouter-fallback.ts`).
 	 */
 	tapUsage?: boolean;
+	/** Ends the call: the host aborts it when it ends the sitting that made it. */
+	signal?: AbortSignal;
 }
 
 export interface LoadOpenRouterModelCatalogOptions extends OpenRouterOptions {
@@ -234,6 +236,7 @@ export async function* proxyLlmRequest(
 		headers,
 		sessionId: options.sessionId,
 		transport: options.transport,
+		...(options.signal ? { signal: options.signal } : {}),
 		...openRouterCacheRetention(provider),
 	});
 
